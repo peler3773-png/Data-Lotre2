@@ -105,11 +105,18 @@ def bangun_model(ukuran=LOOKBACK):
     model = Model(inputs=inp, outputs=[as_out, kop_out, kep_out, eko_out])
     model.compile(
         optimizer='adam',
-        loss={'as': 'sparse_categorical_crossentropy',
-              'kop': 'sparse_categorical_crossentropy',
-              'kep': 'sparse_categorical_crossentropy',
-              'eko': 'sparse_categorical_crossentropy'},
-        metrics=['accuracy']
+        loss={
+            'as': 'sparse_categorical_crossentropy',
+            'kop': 'sparse_categorical_crossentropy',
+            'kep': 'sparse_categorical_crossentropy',
+            'eko': 'sparse_categorical_crossentropy'
+        },
+        metrics={
+            'as': 'accuracy',
+            'kop': 'accuracy',
+            'kep': 'accuracy',
+            'eko': 'accuracy'
+        }
     )
     return model
 
