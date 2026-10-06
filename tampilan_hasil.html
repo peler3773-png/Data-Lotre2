@@ -1,1 +1,84 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prediksi Lotre — Tanpa Overdue</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;font-family:'Segoe UI',system-ui,sans-serif}
+  body{background:#f0f4f8;color:#1e293b;padding:1rem;max-width:1100px;margin:0 auto}
+  h1{text-align:center;margin-bottom:1rem;font-size:1.4rem;color:#0f172a}
+  .peringatan{background:#fffbeb;border-left:4px solid:#f59e0b;padding:1rem;border-radius:6px;margin-bottom:1.5rem}
+  .waktu{text-align:right;color:#64748b;font-size:0.85rem;margin-bottom:1rem}
+  .kartu{background:white;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,0.06);padding:1.25rem;margin-bottom:1rem}
+  .kartu h2{font-size:1rem;color:#1e293b;margin-bottom:1rem;padding-bottom:0.5rem;border-bottom:1px solid #e2e8f0}
+  .posisi{margin-bottom:1rem}
+  .posisi h3{font-size:0.9rem;color:#475569;margin-bottom:0.4rem}
+  .baris{display:flex;flex-wrap:wrap;gap:0.6rem;margin-bottom:0.4rem;align-items:center}
+  .angka{padding:0.4rem 0.7rem;border-radius:6px;border:1px solid #e2e8f0;font-family:monospace;font-size:1rem}
+  .angka.prioritas{background:#eff6ff;border-color:#93c5fd;font-weight:bold}
+  .label{font-size:0.8rem;color:#94a3b8}
+  .status{display:flex;flex-wrap:wrap;gap:0.5rem;margin-top:0.5rem;font-size:0.8rem}
+  .s-panas{background:#fee2e2;color:#991b1b;padding:0.3rem 0.6rem;border-radius:4px}
+  .s-kembali{background:#fef3c7;color:#92400e;padding:0.3rem 0.6rem;border-radius:4px}
+  .s-diam{background:#f1f5f9;color:#475569;padding:0.3rem 0.6rem;border-radius:4px}
+  .s-dilarang{background:#e2e8f0;color:#64748b;padding:0.3rem 0.6rem;border-radius:4px;text-decoration:line-through}
+  .memuat{text-align:center;padding:3rem;color:#64748b}
+</style>
+</head>
+<body>
 
+<h1>🎯 Prediksi Lotre — Tanpa Jebakan Overdue</h1>
+
+<div class="peringatan">
+  <strong>Aturan Baru:</strong> ❌ Tidak lagi mengejar angka yang hilang lama.
+  Prioritas: 🔥 Panas &gt; ↩️ Baru Kembali &gt; ⚪ Diam &gt; ⛔ Dilarang Dikejar
+</div>
+
+<div class="waktu" id="info-waktu">Memuat data...</div>
+<div id="konten" class="memuat">Mengambil hasil_prediksi.json...</div>
+
+<script>
+fetch('hasil_prediksi.json')
+  .then(res => res.json())
+  .then(data => {
+    document.getElementById('info-waktu').textContent =
+      'Terakhir diperbarui: ' + data.diperbarui + ' (' + data.zona_waktu + ')';
+    
+    let html = '';
+    for (const pasaran of data.daftar_pasaran) {
+      if (!data.hasil[pasaran]) continue;
+      const o = data.hasil[pasaran].optuna;
+      html += `<div class="kartu">
+        <h2>${pasaran} <span style="font-weight:normal;color:#94a3b8;font-size:0.8rem">
+        · Epoch ${o.pengaturan.epoch} · Batch ${o.pengaturan.batch_size}</span></h2>`;
+      
+      for (const posisi of ['AS','KOP','KEPALA','EKOR']) {
+        const d = o[posisi];
+        const s = d.status;
+        html += `<div class="posisi">
+          <h3>${posisi}</h3>
+          <div class="baris">
+            <span class="label">Pandu Pola:</span>
+            <span class="angka prioritas">${d.dipandu_pola.tujuh_plus_sisa.join('')}</span>
+            <span class="label">Murni LSTM:</span>
+            <span class="angka">${d.murni.tujuh_plus_sisa.join('')}</span>
+          </div>
+          <div class="status">
+            ${s.panas.length ? `<span class="s-panas">🔥 Panas: ${s.panas.join(', ')}</span>` : ''}
+            ${s.kembali.length ? `<span class="s-kembali">↩️ Kembali: ${s.kembali.join(', ')}</span>` : ''}
+            ${s.diam.length ? `<span class="s-diam">⚪ Diam: ${s.diam.join(', ')}</span>` : ''}
+            ${s.dilarang.length ? `<span class="s-dilarang">⛔ Dilarang: ${s.dilarang.join(', ')}</span>` : ''}
+          </div>
+        </div>`;
+      }
+      html += `</div>`;
+    }
+    document.getElementById('konten').innerHTML = html || '<p style="text-align:center;color:#ef4444">Belum ada hasil</p>';
+  })
+  .catch(err => {
+    document.getElementById('konten').innerHTML = `<p style="color:#ef4444;text-align:center">Gagal membaca data: ${err.message}</p>`;
+  });
+</script>
+</body>
+</html>
