@@ -1,1 +1,40 @@
+name: Jalankan Prediksi & Perbarui Hasil
 
+on:
+  schedule:
+    # Jalankan tiap 2 jam sekali (WIB = UTC+7 → kurangi 7 jam)
+    - cron: '0 1-23/2 * * *'
+  # Bisa dijalankan manual lewat tombol Actions
+  workflow_dispatch:
+
+jobs:
+  prediksi:
+    runs-on: ubuntu-latest
+    name: Perbarui hasil_prediksi.json
+    
+    steps:
+      - name: Ambil kode
+        uses: actions/checkout@v4
+        
+      - name: Pasang Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          
+      - name: Pasang pustaka
+        run: |
+          python -m pip install --upgrade pip
+          pip install optuna tensorflow
+          
+      - name: Jalankan prediksi
+        run: |
+          python prediksi_lotre.py
+          
+      - name: Simpan hasil ke GitHub
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git add hasil_prediksi.json
+          git commit -m "🤖 Perbarui hasil $(date +'%Y-%m-%d %H:%M')" || echo "Tidak ada perubahan"
+          git push
+        continue-on-error: false
