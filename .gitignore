@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+hasil_prediksi.json
+.DS_Store
+*.log
