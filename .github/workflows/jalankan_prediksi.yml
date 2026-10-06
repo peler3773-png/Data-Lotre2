@@ -2,7 +2,7 @@ name: Jalankan Prediksi & Perbarui Hasil
 
 on:
   schedule:
-    # Jalankan tiap 2 jam sekali (WIB = UTC+7 → kurangi 7 jam)
+    # Jalankan tiap 2 jam sekali (WIB = UTC+7 → waktu cron dalam UTC)
     - cron: '0 1-23/2 * * *'
   # Bisa dijalankan manual lewat tombol Actions
   workflow_dispatch:
@@ -15,16 +15,19 @@ jobs:
     steps:
       - name: Ambil kode
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
         
       - name: Pasang Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version: '3.10'
           
       - name: Pasang pustaka
         run: |
-          python -m pip install --upgrade pip
-          pip install optuna tensorflow
+          python -m pip install --upgrade pip setuptools wheel
+          pip install optuna tensorflow-cpu
           
       - name: Jalankan prediksi
         run: |
@@ -34,7 +37,8 @@ jobs:
         run: |
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-          git add hasil_prediksi.json
+          git add -f hasil_prediksi.json
           git commit -m "🤖 Perbarui hasil $(date +'%Y-%m-%d %H:%M')" || echo "Tidak ada perubahan"
           git push
-        continue-on-error: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
