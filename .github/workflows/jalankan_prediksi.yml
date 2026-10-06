@@ -2,22 +2,20 @@ name: Jalankan Prediksi & Perbarui Hasil
 
 on:
   schedule:
-    # Jalankan tiap 2 jam sekali (WIB = UTC+7 → waktu cron dalam UTC)
-    - cron: '0 1-23/2 * * *'
-  # Bisa dijalankan manual lewat tombol Actions
+    # Jalankan tiap 12 jam sekali — WIB 07.00 & 19.00 → dalam UTC = 00.00 & 12.00
+    - cron: '0 0,12 * * *'
+  # Bisa dijalankan manual kapan saja
   workflow_dispatch:
 
 jobs:
   prediksi:
     runs-on: ubuntu-latest
+    timeout-minutes: 180
     name: Perbarui hasil_prediksi.json
     
     steps:
       - name: Ambil kode
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          token: ${{ secrets.GITHUB_TOKEN }}
         
       - name: Pasang Python
         uses: actions/setup-python@v5
