@@ -1,14 +1,7 @@
-
----
-
-## 2️⃣ `prediksi_lotre.py` — Kode Utama
-
-```python
 import os
 import sys
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
-# 🔒 Kunci Acak
 SEED_TETAP = 20261005
 import random
 random.seed(SEED_TETAP)
@@ -22,7 +15,7 @@ from collections import Counter
 try:
     import optuna
 except ImportError:
-    print("❌ Pasang dulu: pip install optuna")
+    print("ERROR: Pasang dulu: pip install optuna")
     sys.exit(1)
 
 import urllib.request
@@ -32,7 +25,6 @@ from tensorflow.keras.models import Model
 from tensorflow.keras.layers import LSTM, Dense, Input, Dropout
 from tensorflow.keras.callbacks import EarlyStopping
 
-# === PENGATURAN ===
 DATA_UNDIAN_URL = "https://raw.githubusercontent.com/peler3773-png/Data-Lotre/main/data_undian.txt"
 LOOKBACK = 12
 LIMIT_PER_PASARAN = 2000
@@ -49,13 +41,9 @@ PATIENCE_ES = 12
 PATIENCE_OPTUNA_SEARCH = 8
 PATIENCE_OPTUNA_FINAL = 10
 
-# ==================================================
-# DETEKSI POLA — TANPA OVERDUE
-# ==================================================
 def analisis_pola_angka(data_pasaran, posisi_idx):
     urutan = [baris['angka'][posisi_idx] for baris in data_pasaran]
     n = len(urutan)
-    
     sejak_terakhir = {}
     for d in range(10):
         pos = -1
@@ -64,10 +52,8 @@ def analisis_pola_angka(data_pasaran, posisi_idx):
                 pos = n - 1 - i
                 break
         sejak_terakhir[d] = pos
-    
     awal = max(0, n - JENDELA_PANAS)
     frekuensi = Counter(urutan[awal:])
-    
     status = {}
     for d in range(10):
         hilang = sejak_terakhir[d]
@@ -106,9 +92,6 @@ def format_hasil(prob):
         "tujuh_plus_sisa": [str(a) for a in urut[:7] + [urut[9]]]
     }
 
-# ==================================================
-# MODEL
-# ==================================================
 def bangun_model(ukuran=LOOKBACK):
     inp = Input(shape=(ukuran, 4))
     x = LSTM(64, activation='relu')(inp)
@@ -143,14 +126,16 @@ def siapkan_data(dp):
     )
 
 def latih_earlystop(X, Y, Xv, Yv):
-    if X is None: return None, None
+    if X is None:
+        return None, None
     m = bangun_model()
     es = EarlyStopping(patience=PATIENCE_ES, restore_best_weights=True, verbose=0)
     h = m.fit(X, Y, epochs=100, batch_size=32, validation_data=(Xv,Yv), callbacks=[es], verbose=0)
     return m, {'epoch': len(h.history['loss']), 'batch_size': 32, 'berhenti_di': len(h.history['loss'])}
 
 def cari_optuna(X, Y, Xv, Yv):
-    if X is None: return None, None
+    if X is None:
+        return None, None
     def tujuan(trial):
         m = bangun_model()
         es = EarlyStopping(patience=PATIENCE_OPTUNA_SEARCH, restore_best_weights=True, verbose=0)
@@ -167,47 +152,46 @@ def cari_optuna(X, Y, Xv, Yv):
           validation_data=(Xv,Yv), callbacks=[es], verbose=0)
     return m, {'epoch': bp['epoch'], 'batch_size': bp['batch_size'], 'skor_terbaik': round(study.best_value,8)}
 
-# ==================================================
-# UTAMA
-# ==================================================
 def proses_semua():
-    print("📥 Mengambil data...")
+    print("Mengambil data...")
     req = urllib.request.Request(DATA_UNDIAN_URL, headers={'User-Agent':'Mozilla/5.0'})
     with urllib.request.urlopen(req, timeout=120) as r:
         isi = r.read().decode('utf-8')
-    
     mentah = []
     for b in isi.strip().splitlines():
         p = b.split('|')
-        if len(p)<4: continue
+        if len(p) < 4:
+            continue
         an = p[2].strip()
-        if len(an)==4 and an.isdigit():
-            mentah.append({'pasaran':p[0].strip().upper(), 'tanggal':p[1].strip(),
-                           'angka':[int(d) for d in an], 'nomor':an, 'waktu':p[3].strip()})
-    
+        if len(an) == 4 and an.isdigit():
+            mentah.append({
+                'pasaran': p[0].strip().upper(),
+                'tanggal': p[1].strip(),
+                'angka': [int(d) for d in an],
+                'nomor': an,
+                'waktu': p[3].strip()
+            })
     dilihat, bersih = set(), []
     for e in mentah:
         k = (e['pasaran'], e['tanggal'], e['nomor'])
-        if k not in dilihat: dilihat.add(k); bersih.append(e)
+        if k not in dilihat:
+            dilihat.add(k)
+            bersih.append(e)
     mentah = bersih
-    mentah.sort(key=lambda x:(x['tanggal'], x['waktu']))
-    
+    mentah.sort(key=lambda x: (x['tanggal'], x['waktu']))
     per_pasaran = {}
     for e in mentah:
         per_pasaran.setdefault(e['pasaran'], []).append(e)
     for p in per_pasaran:
         if len(per_pasaran[p]) > LIMIT_PER_PASARAN:
             per_pasaran[p] = per_pasaran[p][-LIMIT_PER_PASARAN:]
-    
     daftar = sorted(per_pasaran.keys())
     terbaru = {p: per_pasaran[p][-1] for p in daftar}
-    
     print("\n" + "="*70)
-    print("📊 PREDIKSI — TANPA JEBACAN OVERDUE")
+    print("PREDIKSI — TANPA JEBACAN OVERDUE")
     print("="*70)
     for p in daftar:
         print(f" {p:8} | Terakhir: {terbaru[p]['nomor']} | Total: {len(per_pasaran[p])}")
-    
     hasil = {
         "diperbarui": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         "zona_waktu": "WIB / UTC+7",
@@ -216,26 +200,22 @@ def proses_semua():
             "JENDELA_PANAS": JENDELA_PANAS,
             "AMBANG_KEMBALI": AMBANG_KEMBALI,
             "BAHAYA_TERLALU_LAMA": BAHAYA_TERLALU_LAMA,
-            "catatan": "❌ Tidak kejar overdue | ✅ Prioritas: panas > kembali > diam > dilarang"
+            "catatan": "Tidak kejar overdue | Prioritas: panas > kembali > diam > dilarang"
         },
         "daftar_pasaran": daftar,
         "hasil": {}
     }
-    
     posisi_nama = ["AS", "KOP", "KEPALA", "EKOR"]
-    
     for p in daftar:
         dp = per_pasaran[p]
         if len(dp) < LOOKBACK + 20 + VALIDASI_MIN:
-            print(f"\n⚠️ {p} dilewati — data kurang")
+            print(f"\nDilewati {p} — data kurang")
             continue
-        print(f"\n{'─'*70}\n🔄 Memproses: {p} | {len(dp)} baris")
-        
+        print(f"\nMemproses: {p} | {len(dp)} baris")
         X, Y, Xv, Yv, _ = siapkan_data(dp)
-        if X is None: continue
-        
+        if X is None:
+            continue
         inp_terbaru = np.expand_dims(np.array([dp[j]['angka'] for j in range(-LOOKBACK,0)], dtype=np.float32), 0)
-        
         def jalankan(model, info):
             pred = model.predict(inp_terbaru, verbose=0)
             res = {"pengaturan": info}
@@ -253,27 +233,26 @@ def proses_semua():
                     }
                 }
             return res
-        
         me, ie = latih_earlystop(X, Y, Xv, Yv)
         mo, io = cari_optuna(X, Y, Xv, Yv)
-        if not me or not mo: continue
-        
+        if not me or not mo:
+            continue
         res_e = jalankan(me, ie)
         res_o = jalankan(mo, io)
         hasil["hasil"][p] = {"early_stopping": res_e, "optuna": res_o}
-        
         ekor = res_o["EKOR"]
-        print(f"  ✅ Optuna: Epoch={io['epoch']} Batch={io['batch_size']}")
-        print(f"  EKOR → {''.join(ekor['dipandu_pola']['tujuh_plus_sisa'])}")
+        print(f"  Optuna: Epoch={io['epoch']} Batch={io['batch_size']}")
+        print(f"  EKOR: {''.join(ekor['dipandu_pola']['tujuh_plus_sisa'])}")
         s = ekor['status']
-        if s['panas']: print(f"  🔥 Panas: {s['panas']}")
-        if s['kembali']: print(f"  ↩️ Kembali: {s['kembali']}")
-        if s['dilarang']: print(f"  ⚠️ Dilarang dikejar: {s['dilarang']}")
-    
+        if s['panas']:
+            print(f"  Panas: {s['panas']}")
+        if s['kembali']:
+            print(f"  Kembali: {s['kembali']}")
+        if s['dilarang']:
+            print(f"  Dilarang: {s['dilarang']}")
     with open("hasil_prediksi.json", "w", encoding="utf-8") as f:
         json.dump(hasil, f, ensure_ascii=False, indent=2)
-    
-    print(f"\n✅ Selesai → hasil_prediksi.json")
+    print("\nSelesai → hasil_prediksi.json")
 
 if __name__ == "__main__":
     proses_semua()
