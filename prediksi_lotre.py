@@ -41,6 +41,21 @@ PATIENCE_ES = 12
 PATIENCE_OPTUNA_SEARCH = 8
 PATIENCE_OPTUNA_FINAL = 10
 
+# 🔒 DAFTAR PASARAN YANG DIPROSES
+DAFTAR_PASARAN_DIJALANKAN = {"SD", "HK", "CLF", "BE", "PS", "GM5", "SGP"}
+
+# 📅 ATURAN HARI LIBUR — 0=Senin, 1=Selasa, 2=Rabu, 3=Kamis, 4=Jumat, 5=Sabtu, 6=Minggu
+HARI_LIBUR = {
+    "PS": {6},          # Minggu = libur
+    "SGP": {1, 4}       # Selasa, Jumat = libur
+}
+
+def cek_hari_libur(nama_pasaran):
+    """Kembalikan True jika pasaran libur hari ini."""
+    hari_ini = datetime.now().weekday()  # 0=Senin s/d 6=Minggu
+    libur = HARI_LIBUR.get(nama_pasaran, set())
+    return hari_ini in libur
+
 def analisis_pola_angka(data_pasaran, posisi_idx):
     urutan = [baris['angka'][posisi_idx] for baris in data_pasaran]
     n = len(urutan)
@@ -168,10 +183,15 @@ def cari_optuna(X, Y, Xv, Yv):
     return m, {'epoch': bp['epoch'], 'batch_size': bp['batch_size'], 'skor_terbaik': round(study.best_value,8)}
 
 def proses_semua():
+    hari_nama = ["Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu", "Minggu"]
+    hari_ini = datetime.now().weekday()
+    print(f"Hari ini: {hari_nama[hari_ini]}")
     print("Mengambil data...")
+    
     req = urllib.request.Request(DATA_UNDIAN_URL, headers={'User-Agent':'Mozilla/5.0'})
     with urllib.request.urlopen(req, timeout=120) as r:
         isi = r.read().decode('utf-8')
+    
     mentah = []
     for b in isi.strip().splitlines():
         p = b.split('|')
@@ -186,6 +206,7 @@ def proses_semua():
                 'nomor': an,
                 'waktu': p[3].strip()
             })
+    
     dilihat, bersih = set(), []
     for e in mentah:
         k = (e['pasaran'], e['tanggal'], e['nomor'])
@@ -194,37 +215,57 @@ def proses_semua():
             bersih.append(e)
     mentah = bersih
     mentah.sort(key=lambda x: (x['tanggal'], x['waktu']))
+    
     per_pasaran = {}
     for e in mentah:
-        per_pasaran.setdefault(e['pasaran'], []).append(e)
+        p = e['pasaran']
+        if p not in DAFTAR_PASARAN_DIJALANKAN:
+            continue
+        per_pasaran.setdefault(p, []).append(e)
     for p in per_pasaran:
         if len(per_pasaran[p]) > LIMIT_PER_PASARAN:
             per_pasaran[p] = per_pasaran[p][-LIMIT_PER_PASARAN:]
+    
     daftar = sorted(per_pasaran.keys())
     terbaru = {p: per_pasaran[p][-1] for p in daftar}
+    
     print("\n" + "="*70)
     print("PREDIKSI — TANPA JEBACAN OVERDUE")
-    print("="*70)
+    aktif = []
     for p in daftar:
-        print(f" {p:8} | Terakhir: {terbaru[p]['nomor']} | Total: {len(per_pasaran[p])}")
+        if cek_hari_libur(p):
+            print(f" ⛔ {p:8} — LIBUR HARI INI")
+        else:
+            aktif.append(p)
+            print(f" ✅ {p:8} | Terakhir: {terbaru[p]['nomor']} | Total: {len(per_pasaran[p])}")
+    daftar = aktif
+    print("="*70)
+    
     hasil = {
         "diperbarui": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         "zona_waktu": "WIB / UTC+7",
+        "hari_ini": hari_nama[hari_ini],
         "pengaturan": {
             "LOOKBACK": LOOKBACK,
             "JENDELA_PANAS": JENDELA_PANAS,
             "AMBANG_KEMBALI": AMBANG_KEMBALI,
             "BAHAYA_TERLALU_LAMA": BAHAYA_TERLALU_LAMA,
+            "pasaran_dipilih": sorted(DAFTAR_PASARAN_DIJALANKAN),
+            "aturan_libur": {
+                "PS": "Minggu libur",
+                "SGP": "Selasa & Jumat libur"
+            },
             "catatan": "Tidak kejar overdue | Prioritas: panas > kembali > diam > dilarang"
         },
         "daftar_pasaran": daftar,
         "hasil": {}
     }
+    
     posisi_nama = ["AS", "KOP", "KEPALA", "EKOR"]
     for p in daftar:
         dp = per_pasaran[p]
         if len(dp) < LOOKBACK + 20 + VALIDASI_MIN:
-            print(f"\nDilewati {p} — data kurang")
+            print(f"\n⚠️ {p} dilewati — data kurang")
             continue
         print(f"\nMemproses: {p} | {len(dp)} baris")
         X, Y, Xv, Yv, _ = siapkan_data(dp)
@@ -259,15 +300,13 @@ def proses_semua():
         print(f"  Optuna: Epoch={io['epoch']} Batch={io['batch_size']}")
         print(f"  EKOR: {''.join(ekor['dipandu_pola']['tujuh_plus_sisa'])}")
         s = ekor['status']
-        if s['panas']:
-            print(f"  Panas: {s['panas']}")
-        if s['kembali']:
-            print(f"  Kembali: {s['kembali']}")
-        if s['dilarang']:
-            print(f"  Dilarang: {s['dilarang']}")
+        if s['panas']: print(f"  🔥 Panas: {s['panas']}")
+        if s['kembali']: print(f"  ↩️ Kembali: {s['kembali']}")
+        if s['dilarang']: print(f"  ⛔ Dilarang: {s['dilarang']}")
+    
     with open("hasil_prediksi.json", "w", encoding="utf-8") as f:
         json.dump(hasil, f, ensure_ascii=False, indent=2)
-    print("\nSelesai → hasil_prediksi.json")
+    print("\n✅ Selesai → hasil_prediksi.json")
 
 if __name__ == "__main__":
     proses_semua()
