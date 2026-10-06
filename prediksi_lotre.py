@@ -98,12 +98,20 @@ def bangun_model(ukuran=LOOKBACK):
     x = Dropout(0.3)(x)
     x = Dense(32, activation='relu')(x)
     x = Dropout(0.2)(x)
-    return Model(inputs=inp, outputs=[
-        Dense(10, activation='softmax', name='as')(x),
-        Dense(10, activation='softmax', name='kop')(x),
-        Dense(10, activation='softmax', name='kep')(x),
-        Dense(10, activation='softmax', name='eko')(x),
-    ])
+    as_out = Dense(10, activation='softmax', name='as')(x)
+    kop_out = Dense(10, activation='softmax', name='kop')(x)
+    kep_out = Dense(10, activation='softmax', name='kep')(x)
+    eko_out = Dense(10, activation='softmax', name='eko')(x)
+    model = Model(inputs=inp, outputs=[as_out, kop_out, kep_out, eko_out])
+    model.compile(
+        optimizer='adam',
+        loss={'as': 'sparse_categorical_crossentropy',
+              'kop': 'sparse_categorical_crossentropy',
+              'kep': 'sparse_categorical_crossentropy',
+              'eko': 'sparse_categorical_crossentropy'},
+        metrics=['accuracy']
+    )
+    return model
 
 def siapkan_data(dp):
     total = len(dp)
