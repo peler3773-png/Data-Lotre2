@@ -3,16 +3,15 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>10 Prediksi | Frekuensi + LSTM</title>
+<title>81 Prediksi | Frekuensi</title>
 <style>
-:root{--hitam:#050505; --emas:#d4af37; --emas2:#f0c808; --gelap:#1a1a1a; --gelap2:#252525; --teks:#eae0c8; --hijau:#4f4; --merah:#f66; --biru:#6af; --ungu:#a6f}
-*{margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI',sans-serif}
+:root{--hitam:#050505; --emas:#d4af37; --emas2:#f0c808; --gelap:#1a1a1a; --gelap2:#252525; --teks:#eae0c8; --hijau:#4f4; --merah:#f66; --biru:#6af}
+*{margin:0; padding:0; box-sizing:border-box; font-family:system-ui,sans-serif}
 body{background:var(--hitam); color:var(--teks); min-height:100vh; padding:15px}
-.wrap{max-width:900px; margin:0 auto}
-h1,h2,h3{color:var(--emas); text-align:center; margin:12px 0}
-h1{font-size:1.7rem; border-bottom:2px solid var(--emas); padding-bottom:10px}
+.wrap{max-width:950px; margin:0 auto}
+h1{color:var(--emas); text-align:center; margin:12px 0; font-size:1.4rem}
 .card{background:var(--gelap); border:1px solid var(--emas); border-radius:10px; padding:15px; margin:12px 0}
-pre{background:#000; padding:15px; border-radius:8px; font-size:0.95rem; line-height:1.8; color:#fff; white-space:pre-wrap; word-break:break-all; max-height:700px; overflow-y:auto}
+pre{background:#000; padding:15px; border-radius:8px; font-size:0.9rem; line-height:1.7; color:#fff; white-space:pre-wrap; word-break:break-all; max-height:800px; overflow-y:auto}
 button{background:linear-gradient(135deg,var(--emas),var(--emas2)); color:#000; border:none; padding:9px 14px; border-radius:6px; font-weight:bold; cursor:pointer; margin:4px}
 button:hover{transform:scale(1.03)}
 button.salin{float:right; margin:-5px 0 10px 0}
@@ -22,13 +21,11 @@ select:focus{border-color:var(--emas2); box-shadow:0 0 5px var(--emas)}
 .tombol-baris{text-align:center; margin:10px; display:flex; justify-content:center; align-items:center; gap:10px; flex-wrap:wrap}
 .sukses{color:var(--hijau); margin-left:8px}
 .info-kecil{font-size:0.8rem; opacity:0.7; margin-top:4px}
-.metode{color:var(--ungu); font-weight:bold}
 </style>
-<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.15.1/dist/tf.min.js"></script>
 </head>
 <body>
 <div class="wrap">
-<h1>🔮 10 PREDIKSI — Frekuensi + LSTM</h1>
+<h1>🔮 81 PREDIKSI — Lengkap</h1>
 
 <div class="tombol-baris">
   <label>Pasaran:</label>
@@ -41,25 +38,18 @@ select:focus{border-color:var(--emas2); box-shadow:0 0 5px var(--emas)}
     <option value="PS">PS — PHILIPPINES</option>
     <option value="HK">HK — HONGKONG</option>
   </select>
-  <label>Metode:</label>
-  <select id="pilihMetode" onchange="tampilPasaran()">
-    <option value="frekuensi">📊 Frekuensi (Paling Sering Muncul)</option>
-  </select>
   <button onclick="mulai()">🔄 Muat Ulang</button>
   <span id="terakhirMuat" class="info-kecil">Terakhir: —</span>
 </div>
 
-<div id="status" class="loading">Sedang memuat data & menghitung pola...</div>
+<div id="status" class="loading">⏳ Memuat data & menyusun 81 angka...</div>
 <div id="konten" style="display:none">
-
   <div class="card">
     <h3>📋 Hasil Format Teks</h3>
     <button class="salin" onclick="salinTeks()">📋 Salin</button>
-    <span class="metode" id="labelMetode"></span>
     <pre id="kotakTeks"></pre>
     <span id="pesanSalin"></span>
   </div>
-
 </div>
 </div>
 
@@ -69,9 +59,8 @@ const DATA_UNDIAN_URL = "https://raw.githubusercontent.com/peler3773-png/Data-Lo
 
 let dataShio = {};
 let semuaData = [];
-let modelD2 = null, modelT2 = null, modelB2 = null;
 
-// === HAPUS NILAI GANDA ===
+// === HAPUS DUPLIKAT ===
 function ambilUnik(list){ return [...new Set(list)]; }
 
 // === JUMLAH SAMPAI 1 DIGIT ===
@@ -81,12 +70,13 @@ function jumlahSatuDigit(angkaStr){
   return nilai;
 }
 
+// === PISAH 4D → 2DD/2DT/2DB ===
 function urai4Digit(angka4){
   const s = String(angka4).padStart(4,'0');
   return {asli:s, d2:s.slice(0,2), t2:s.slice(1,3), b2:s.slice(2,4)};
 }
 
-// === SHIO ===
+// === CARI SHIO ===
 function cariShioInfo(angka2){
   if(!dataShio) return {no:"-", nama:"-"};
   let urut=1;
@@ -98,189 +88,140 @@ function cariShioInfo(angka2){
 }
 function formatShio(s){ return `${s.nama}[${s.no}]-`; }
 
-// ==============================================
-// METODE 1: FREKUENSI — Hitung Kemunculan
-// ==============================================
+// === HITUNG FREKUENSI ===
 function hitungFrekuensi(listAngka){
   const h = {};
-  listAngka.forEach(a=>{ h[a]=(h[a]||0)+1; });
+  listAngka.forEach(a=>{ h[a] = (h[a]||0)+1; });
   return Object.entries(h).sort((a,b)=>b[1]-a[1]);
 }
-function ambil10Frekuensi(urutan, hindari){
+
+// === AMBIL 81 ANGKA — SEMUA KECUALI YANG TERAKHIR ===
+function ambil81Angka(urutan, hindari){
+  // Urutkan dari paling sering muncul
   const frek = hitungFrekuensi(urutan.slice(1));
   const hasil = [];
+  
+  // Tambah yang ada di riwayat dulu (kecuali hasil terakhir)
   for(const [angka] of frek){
-    if(angka !== hindari && hasil.length < 10) hasil.push(angka);
+    if(angka !== hindari) hasil.push(angka);
   }
-  if(hasil.length < 10){
+  
+  // Tambah sisanya dari 00–99 sampai 81
+  if(hasil.length < 81){
     const sudah = [...hasil];
-    for(let n=0;n<=99;n++){
+    for(let n=0; n<=99; n++){
       const cek = String(n).padStart(2,'0');
-      if(!sudah.includes(cek) && cek !== hindari && hasil.length < 10) hasil.push(cek);
-    }
-  }
-  return hasil;
-}
-
-// ==============================================
-// METODE 2: LSTM — AI Prediksi Urutan
-// ==============================================
-const PANJANG_URUTAN = 5; // pakai 5 hasil terakhir prediksi berikutnya
-
-function siapkanDataUrutan(daftarAngka2digit){
-  const urutanAngka = daftarAngka2digit.map(a=>parseInt(a));
-  const set = [...new Set(urutanAngka)].sort((a,b)=>a-b);
-  const pemetaan = Object.fromEntries(set.map((v,i)=>[v,i]));
-  const totalKelas = set.length;
-  if(totalKelas < 3) return null;
-
-  const X=[], y=[];
-  for(let i=PANJANG_URUTAN; i<urutanAngka.length; i++){
-    const potongan = urutanAngka.slice(i-PANJANG_URUTAN, i).map(v=>pemetaan[v]);
-    const target = pemetaan[urutanAngka[i]];
-    X.push(potongan); y.push(target);
-  }
-  return {X,y,pemetaan,totalKelas,urutanAsli:daftarAngka2digit};
-}
-
-async function latihLSTM(X, y, totalKelas){
-  const xs = tf.tensor2d(X, [X.length, PANJANG_URUTAN]);
-  const ys = tf.oneHot(y, totalKelas);
-
-  const model = tf.sequential();
-  model.add(tf.layers.embedding({inputDim:totalKelas, outputDim:32, inputLength:PANJANG_URUTAN}));
-  model.add(tf.layers.lstm({units:64, dropout:0.15}));
-  model.add(tf.layers.dense({units:totalKelas, activation:'softmax'}));
-  model.compile({optimizer:'adam', loss:'categoricalCrossentropy', metrics:['accuracy']});
-
-  await model.fit(xs, ys, {epochs:60, batchSize:4, verbose:0});
-  xs.dispose(); ys.dispose();
-  return model;
-}
-
-function prediksi10LSTM(model, data, hindari){
-  const {X, pemetaan, urutanAsli} = data;
-  const balikPeta = Object.fromEntries(Object.entries(pemetaan).map(([k,v])=>[v,parseInt(k)]));
-  const urutanTerakhir = urutanAsli.slice(0, PANJANG_URUTAN).map(v=>pemetaan[v]);
-
-  const hasil = [];
-  const skor = [];
-  let urutanSaatIni = [...urutanTerakhir];
-
-  for(let langkah=0; langkah<15 && hasil.length<10; langkah++){
-    const pred = model.predict(tf.tensor2d([urutanSaatIni], [1, PANJANG_URUTAN]), {verbose:0});
-    const distribusi = pred.dataSync();
-    const terurut = Array.from(distribusi).map((p,i)=>({indeks:i, peluang:p})).sort((a,b)=>b.peluang-a.peluang);
-
-    for(const t of terurut){
-      const angka2d = String(balikPeta[t.indeks] ?? 0).padStart(2,'0');
-      if(angka2d !== hindari && !hasil.includes(angka2d) && hasil.length<10){
-        hasil.push(angka2d);
-        skor.push(t.peluang.toFixed(3));
+      if(!sudah.includes(cek) && cek !== hindari && hasil.length < 81){
+        hasil.push(cek);
       }
     }
-    const terbaik = terurut[0].indeks;
-    urutanSaatIni = [...urutanSaatIni.slice(1), terbaik];
-    pred.dispose();
-  }
-
-  // Isi kekurangan
-  if(hasil.length < 10){
-    const sudah = [...hasil];
-    for(let n=0;n<=99;n++){
-      const cek = String(n).padStart(2,'0');
-      if(!sudah.includes(cek) && cek !== hindari && hasil.length<10) hasil.push(cek);
-      if(hasil.length>=10) break;
-    }
   }
   return hasil;
 }
 
-async function ambil10LSTM(daftarAngka2digit, hindari){
-  const data = siapkanDataUrutan(daftarAngka2digit);
-  if(!data) return null;
-  const model = await latihLSTM(data.X, data.y, data.totalKelas);
-  const hasil = prediksi10LSTM(model, data, hindari);
-  model.dispose();
-  return hasil;
-}
-
-// ==============================================
-// SUSUN KE FORMAT
-// ==============================================
-async function susunHasil(dataPasaran, metode){
-  if(dataPasaran.length < 8) return null; // butuh data cukup untuk LSTM
+// === SUSUN SEMUA ===
+function susunHasil(dataPasaran){
+  if(dataPasaran.length < 3) return null;
 
   const urutanD2 = [], urutanT2 = [], urutanB2 = [];
   for(const d of dataPasaran){
     const u = urai4Digit(d.angka);
-    urutanD2.push(u.d2); urutanT2.push(u.t2); urutanB2.push(u.b2);
+    urutanD2.push(u.d2);
+    urutanT2.push(u.t2);
+    urutanB2.push(u.b2);
   }
+  
   const terbaru = urai4Digit(dataPasaran[0].angka);
-
-  let pilihD2, pilihT2, pilihB2;
-  if(metode === 'lstm'){
-    pilihD2 = await ambil10LSTM(urutanD2, terbaru.d2);
-    pilihT2 = await ambil10LSTM(urutanT2, terbaru.t2);
-    pilihB2 = await ambil10LSTM(urutanB2, terbaru.b2);
-    if(!pilihD2) return {error: true, pesan:"Data kurang, minimal 8 baris untuk LSTM"};
-  }else{
-    pilihD2 = ambil10Frekuensi(urutanD2, terbaru.d2);
-    pilihT2 = ambil10Frekuensi(urutanT2, terbaru.t2);
-    pilihB2 = ambil10Frekuensi(urutanB2, terbaru.b2);
-  }
-
-  const daftar = [];
-  for(let i=0;i<10;i++){
-    const d2 = pilihD2[i]||"00", t2 = pilihT2[i]||"00", b2 = pilihB2[i]||"00";
+  
+  // Ambil 81 masing-masing
+  const pilihD2 = ambil81Angka(urutanD2, terbaru.d2);
+  const pilihT2 = ambil81Angka(urutanT2, terbaru.t2);
+  const pilihB2 = ambil81Angka(urutanB2, terbaru.b2);
+  
+  // Susun 4D & 3D dari 10 teratas
+  const daftar10 = [];
+  for(let i=0; i<10; i++){
+    const d2 = pilihD2[i]||"00";
+    const t2 = pilihT2[i]||"00";
+    const b2 = pilihB2[i]||"00";
     const a4 = d2 + t2.slice(-1) + b2.slice(-1);
-    daftar.push({
+    daftar10.push({
       d2:{angka:d2, jumlah:jumlahSatuDigit(d2), shio:cariShioInfo(d2)},
       t2:{angka:t2, jumlah:jumlahSatuDigit(t2), shio:cariShioInfo(t2)},
       b2:{angka:b2, jumlah:jumlahSatuDigit(b2), shio:cariShioInfo(b2)},
-      angka4:a4, angka3:a4.slice(1)
+      angka4:a4,
+      angka3:a4.slice(1)
     });
   }
-  return {terbaru, daftar};
+  
+  // Semua 81 untuk JML & SHIO (unik)
+  const semuaJmlD2 = pilihD2.map(a=>jumlahSatuDigit(a));
+  const semuaShioD2 = pilihD2.map(a=>formatShio(cariShioInfo(a)));
+  const semuaJmlT2 = pilihT2.map(a=>jumlahSatuDigit(a));
+  const semuaShioT2 = pilihT2.map(a=>formatShio(cariShioInfo(a)));
+  const semuaJmlB2 = pilihB2.map(a=>jumlahSatuDigit(a));
+  const semuaShioB2 = pilihB2.map(a=>formatShio(cariShioInfo(a)));
+  
+  return {terbaru, daftar10, pilihD2, pilihT2, pilihB2, semuaJmlD2, semuaShioD2, semuaJmlT2, semuaShioT2, semuaJmlB2, semuaShioB2};
 }
 
-async function ambilTeks(url){ const r=await fetch(url,{cache:'no-store'}); if(!r.ok)throw new Error(url); return r.text(); }
-async function ambilJSON(url){ const r=await fetch(url,{cache:'no-store'}); if(!r.ok)throw new Error(url); return r.json(); }
+async function ambilTeks(url){
+  const r = await fetch(url,{cache:'no-store'});
+  if(!r.ok) throw new Error("Gagal ambil: "+url);
+  return r.text();
+}
+async function ambilJSON(url){
+  const r = await fetch(url,{cache:'no-store'});
+  if(!r.ok) throw new Error("Gagal ambil JSON: "+url);
+  return r.json();
+}
 function parseDataUndian(teks){
   return teks.trim().split('\n').filter(b=>b.trim()).map(b=>{
-    const bg = b.split('|');
-    return {pasaran:bg[0].trim(), tanggal:bg[1].trim(), angka:String(bg[2]).padStart(4,'0')};
+    const bagian = b.split('|');
+    return {
+      pasaran: bagian[0].trim(),
+      tanggal: bagian[1].trim(),
+      angka: String(bagian[2]).padStart(4,'0')
+    };
   }).sort((a,b)=>a.tanggal.localeCompare(b.tanggal)).reverse();
 }
 
-async function tampilPasaran(){
+function tampilPasaran(){
   const kode = document.getElementById('pilihPasaran').value;
-  const metode = document.getElementById('pilihMetode').value;
-  const dp = semuaData.filter(d=>d.pasaran===kode);
-
-  document.getElementById('labelMetode').textContent = 
-    metode==='lstm' ? "🧠 Metode: LSTM AI — Belajar Pola Urutan" : "📊 Metode: Frekuensi — Paling Sering Muncul";
-
-  const hasil = await susunHasil(dp, metode);
-  if(!hasil || hasil.error){
-    document.getElementById('kotakTeks').textContent = hasil?.pesan || "⚠️ Data kurang, butuh minimal 3 baris";
+  const dp = semuaData.filter(d=>d.pasaran === kode);
+  const hasil = susunHasil(dp);
+  
+  if(!hasil){
+    document.getElementById('kotakTeks').textContent = "⚠️ Data kurang, butuh minimal 3 baris";
     return;
   }
-
-  let teks = `=== ${kode} — 10 PREDIKSI ===\n`;
-  teks += `Hasil Terakhir: ${hasil.terbaru.asli}\n`;
-  teks += `4D: ${hasil.daftar.map(p=>p.angka4).join('*')}\n`;
-  teks += `3D: ${hasil.daftar.map(p=>p.angka3).join('*')}\n`;
-  teks += `2DD: ${hasil.daftar.map(p=>p.d2.angka).join('*')}\n`;
-  teks += `JML-2DD: ${ambilUnik(hasil.daftar.map(p=>p.d2.jumlah)).join('*')}\n`;
-  teks += `SHIO-2DD: ${ambilUnik(hasil.daftar.map(p=>formatShio(p.d2.shio))).join('')}\n`;
-  teks += `2DT: ${hasil.daftar.map(p=>p.t2.angka).join('*')}\n`;
-  teks += `JML-2DT: ${ambilUnik(hasil.daftar.map(p=>p.t2.jumlah)).join('*')}\n`;
-  teks += `SHIO-2DT: ${ambilUnik(hasil.daftar.map(p=>formatShio(p.t2.shio))).join('')}\n`;
-  teks += `2DB: ${hasil.daftar.map(p=>p.b2.angka).join('*')}\n`;
-  teks += `JML-2DB: ${ambilUnik(hasil.daftar.map(p=>p.b2.jumlah)).join('*')}\n`;
-  teks += `SHIO-2DB: ${ambilUnik(hasil.daftar.map(p=>formatShio(p.b2.shio))).join('')}\n`;
-
+  
+  let teks = `=== ${kode} — 81 PREDIKSI ===\n`;
+  teks += `Hasil Terakhir: ${hasil.terbaru.asli}\n\n`;
+  
+  // 10 Teratas
+  teks += `-- 10 TERPILIH --\n`;
+  teks += `4D: ${hasil.daftar10.map(p=>p.angka4).join('*')}\n`;
+  teks += `3D: ${hasil.daftar10.map(p=>p.angka3).join('*')}\n\n`;
+  
+  // 81 Lengkap — 2DD
+  teks += `-- 81 2DD --\n`;
+  teks += `2DD: ${hasil.pilihD2.join('*')}\n`;
+  teks += `JML-2DD: ${ambilUnik(hasil.semuaJmlD2).join('*')}\n`;
+  teks += `SHIO-2DD: ${ambilUnik(hasil.semuaShioD2).join('')}\n\n`;
+  
+  // 81 Lengkap — 2DT
+  teks += `-- 81 2DT --\n`;
+  teks += `2DT: ${hasil.pilihT2.join('*')}\n`;
+  teks += `JML-2DT: ${ambilUnik(hasil.semuaJmlT2).join('*')}\n`;
+  teks += `SHIO-2DT: ${ambilUnik(hasil.semuaShioT2).join('')}\n\n`;
+  
+  // 81 Lengkap — 2DB
+  teks += `-- 81 2DB --\n`;
+  teks += `2DB: ${hasil.pilihB2.join('*')}\n`;
+  teks += `JML-2DB: ${ambilUnik(hasil.semuaJmlB2).join('*')}\n`;
+  teks += `SHIO-2DB: ${ambilUnik(hasil.semuaShioB2).join('')}\n`;
+  
   document.getElementById('kotakTeks').textContent = teks;
 }
 
@@ -298,7 +239,7 @@ async function mulai(){
     document.getElementById('status').style.display='none';
     document.getElementById('konten').style.display='block';
     
-    await tampilPasaran();
+    tampilPasaran();
   }catch(err){
     document.getElementById('status').innerHTML=`❌ ${err.message}`;
     console.error(err);
