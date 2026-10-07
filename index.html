@@ -3,12 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>10 Prediksi | LSTM Tuning</title>
+<title>10 Prediksi | Frekuensi + LSTM</title>
 <style>
 :root{--hitam:#050505; --emas:#d4af37; --emas2:#f0c808; --gelap:#1a1a1a; --gelap2:#252525; --teks:#eae0c8; --hijau:#4f4; --merah:#f66; --biru:#6af; --ungu:#a6f}
 *{margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI',sans-serif}
 body{background:var(--hitam); color:var(--teks); min-height:100vh; padding:15px}
-.wrap{max-width:950px; margin:0 auto}
+.wrap{max-width:900px; margin:0 auto}
 h1,h2,h3{color:var(--emas); text-align:center; margin:12px 0}
 h1{font-size:1.7rem; border-bottom:2px solid var(--emas); padding-bottom:10px}
 .card{background:var(--gelap); border:1px solid var(--emas); border-radius:10px; padding:15px; margin:12px 0}
@@ -16,89 +16,48 @@ pre{background:#000; padding:15px; border-radius:8px; font-size:0.95rem; line-he
 button{background:linear-gradient(135deg,var(--emas),var(--emas2)); color:#000; border:none; padding:9px 14px; border-radius:6px; font-weight:bold; cursor:pointer; margin:4px}
 button:hover{transform:scale(1.03)}
 button.salin{float:right; margin:-5px 0 10px 0}
-select,input{background:var(--gelap2); color:var(--teks); border:1px solid var(--emas); padding:6px 10px; border-radius:6px; font-weight:bold; outline:none; margin:4px; width:90px}
-select:focus,input:focus{border-color:var(--emas2); box-shadow:0 0 5px var(--emas)}
-label{font-size:0.9rem; margin-left:6px}
+select{background:var(--gelap2); color:var(--teks); border:1px solid var(--emas); padding:8px 12px; border-radius:6px; font-weight:bold; cursor:pointer; outline:none; margin:4px}
+select:focus{border-color:var(--emas2); box-shadow:0 0 5px var(--emas)}
 .loading{text-align:center; padding:25px; color:var(--emas)}
-.tombol-baris{text-align:center; margin:10px; display:flex; justify-content:center; align-items:center; gap:8px; flex-wrap:wrap}
+.tombol-baris{text-align:center; margin:10px; display:flex; justify-content:center; align-items:center; gap:10px; flex-wrap:wrap}
 .sukses{color:var(--hijau); margin-left:8px}
 .info-kecil{font-size:0.8rem; opacity:0.7; margin-top:4px}
-.metode-frek{color:var(--biru); font-weight:bold}
-.metode-lstm{color:var(--ungu); font-weight:bold}
-.param-box{display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:8px; margin-top:10px; padding:10px; background:#0f0f0f; border-radius:8px}
-.param-item{text-align:center}
-.param-nama{font-size:0.75rem; opacity:0.8}
-.error{color:var(--merah); text-align:center; padding:10px}
+.metode{color:var(--ungu); font-weight:bold}
 </style>
-<!-- TensorFlow.js — Dipindah ke HEAD & Pakai Versi Stabil Pasti -->
-<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.20.0/dist/tf.min.js"></script>
-<script>
-// Cek langsung saat halaman dimuat
-window.addEventListener('load', function(){
-  if(typeof tf === 'undefined'){
-    console.error('TensorFlow gagal dimuat');
-    const st = document.getElementById('status');
-    if(st) st.innerHTML = '❌ TensorFlow gagal dimuat — cek koneksi internet';
-  }
-});
-</script>
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.15.1/dist/tf.min.js"></script>
 </head>
 <body>
 <div class="wrap">
-<h1>🔮 10 PREDIKSI — LSTM Full Tuning</h1>
+<h1>🔮 10 PREDIKSI — Frekuensi + LSTM</h1>
 
 <div class="tombol-baris">
   <label>Pasaran:</label>
   <select id="pilihPasaran" onchange="tampilPasaran()">
-    <option value="CLF" selected>CLF — CALIFORNIA</option>
+    <option value="CLF">CLF — CALIFORNIA</option>
     <option value="BE">BE — BULLSEYE</option>
     <option value="SGP">SGP — SINGAPORE</option>
     <option value="PS">PS — PHILIPPINES</option>
   </select>
   <label>Metode:</label>
   <select id="pilihMetode" onchange="tampilPasaran()">
-    <option value="frekuensi">📊 Frekuensi</option>
-    <option value="lstm" selected>🧠 LSTM AI</option>
+    <option value="frekuensi">📊 Frekuensi (Paling Sering Muncul)</option>
+    <option value="lstm">🧠 LSTM AI (Pola Urutan)</option>
   </select>
   <button onclick="mulai()">🔄 Muat Ulang</button>
   <span id="terakhirMuat" class="info-kecil">Terakhir: —</span>
 </div>
 
-<div class="card" id="panelParam">
-  <h3>⚙️ Parameter LSTM</h3>
-  <div class="param-box">
-    <div class="param-item">
-      <div class="param-nama">Panjang Urutan</div>
-      <input type="number" id="pPanjang" value="5" min="3" max="15" onchange="tampilPasaran()">
-    </div>
-    <div class="param-item">
-      <div class="param-nama">Epoch</div>
-      <input type="number" id="pEpoch" value="80" min="20" max="300" onchange="tampilPasaran()">
-    </div>
-    <div class="param-item">
-      <div class="param-nama">Unit LSTM</div>
-      <input type="number" id="pUnit" value="64" min="16" max="256" step="8" onchange="tampilPasaran()">
-    </div>
-    <div class="param-item">
-      <div class="param-nama">Dropout</div>
-      <input type="number" id="pDrop" value="0.15" min="0" max="0.5" step="0.05" onchange="tampilPasaran()">
-    </div>
-    <div class="param-item">
-      <div class="param-nama">Embedding</div>
-      <input type="number" id="pEmbed" value="32" min="8" max="128" step="8" onchange="tampilPasaran()">
-    </div>
-  </div>
-</div>
-
-<div id="status" class="loading">⏳ Memuat data & melatih model LSTM... Mohon tunggu...</div>
+<div id="status" class="loading">Sedang memuat data & menghitung pola...</div>
 <div id="konten" style="display:none">
+
   <div class="card">
     <h3>📋 Hasil Format Teks</h3>
     <button class="salin" onclick="salinTeks()">📋 Salin</button>
-    <span id="labelMetode"></span>
+    <span class="metode" id="labelMetode"></span>
     <pre id="kotakTeks"></pre>
     <span id="pesanSalin"></span>
   </div>
+
 </div>
 </div>
 
@@ -108,17 +67,7 @@ const DATA_UNDIAN_URL = "https://raw.githubusercontent.com/peler3773-png/Data-Lo
 
 let dataShio = {};
 let semuaData = [];
-
-// === Baca Parameter ===
-function getParam(){
-  return {
-    panjang: parseInt(document.getElementById('pPanjang').value) || 5,
-    epoch: parseInt(document.getElementById('pEpoch').value) || 80,
-    unit: parseInt(document.getElementById('pUnit').value) || 64,
-    drop: parseFloat(document.getElementById('pDrop').value) || 0.15,
-    embed: parseInt(document.getElementById('pEmbed').value) || 32
-  };
-}
+let modelD2 = null, modelT2 = null, modelB2 = null;
 
 // === HAPUS NILAI GANDA ===
 function ambilUnik(list){ return [...new Set(list)]; }
@@ -148,7 +97,7 @@ function cariShioInfo(angka2){
 function formatShio(s){ return `${s.nama}[${s.no}]-`; }
 
 // ==============================================
-// METODE 1: FREKUENSI
+// METODE 1: FREKUENSI — Hitung Kemunculan
 // ==============================================
 function hitungFrekuensi(listAngka){
   const h = {};
@@ -172,117 +121,93 @@ function ambil10Frekuensi(urutan, hindari){
 }
 
 // ==============================================
-// METODE 2: LSTM — Full Tuning
+// METODE 2: LSTM — AI Prediksi Urutan
 // ==============================================
-function siapkanDataUrutan(daftarAngka2digit, panjangUrutan){
+const PANJANG_URUTAN = 5; // pakai 5 hasil terakhir prediksi berikutnya
+
+function siapkanDataUrutan(daftarAngka2digit){
   const urutanAngka = daftarAngka2digit.map(a=>parseInt(a));
   const set = [...new Set(urutanAngka)].sort((a,b)=>a-b);
   const pemetaan = Object.fromEntries(set.map((v,i)=>[v,i]));
   const totalKelas = set.length;
-  if(totalKelas < 3 || urutanAngka.length < panjangUrutan + 2) return null;
+  if(totalKelas < 3) return null;
 
   const X=[], y=[];
-  for(let i=panjangUrutan; i<urutanAngka.length; i++){
-    const potongan = urutanAngka.slice(i-panjangUrutan, i).map(v=>pemetaan[v]);
-    if(pemetaan[urutanAngka[i]] !== undefined){
-      X.push(potongan);
-      y.push(pemetaan[urutanAngka[i]]);
-    }
+  for(let i=PANJANG_URUTAN; i<urutanAngka.length; i++){
+    const potongan = urutanAngka.slice(i-PANJANG_URUTAN, i).map(v=>pemetaan[v]);
+    const target = pemetaan[urutanAngka[i]];
+    X.push(potongan); y.push(target);
   }
   return {X,y,pemetaan,totalKelas,urutanAsli:daftarAngka2digit};
 }
 
-async function latihLSTM(X, y, totalKelas, p){
-  if(typeof tf === 'undefined') throw new Error('TensorFlow belum dimuat');
-  
-  const xs = tf.tensor2d(X, [X.length, p.panjang]);
+async function latihLSTM(X, y, totalKelas){
+  const xs = tf.tensor2d(X, [X.length, PANJANG_URUTAN]);
   const ys = tf.oneHot(y, totalKelas);
 
   const model = tf.sequential();
-  model.add(tf.layers.embedding({
-    inputDim: totalKelas,
-    outputDim: p.embed,
-    inputLength: p.panjang
-  }));
-  model.add(tf.layers.lstm({
-    units: p.unit,
-    dropout: p.drop
-  }));
-  model.add(tf.layers.batchNormalization());
-  model.add(tf.layers.dense({
-    units: totalKelas,
-    activation: 'softmax'
-  }));
-  model.compile({
-    optimizer: tf.train.adam(0.001),
-    loss: 'categoricalCrossentropy',
-    metrics: ['accuracy']
-  });
+  model.add(tf.layers.embedding({inputDim:totalKelas, outputDim:32, inputLength:PANJANG_URUTAN}));
+  model.add(tf.layers.lstm({units:64, dropout:0.15}));
+  model.add(tf.layers.dense({units:totalKelas, activation:'softmax'}));
+  model.compile({optimizer:'adam', loss:'categoricalCrossentropy', metrics:['accuracy']});
 
-  await model.fit(xs, ys, {
-    epochs: p.epoch,
-    batchSize: Math.min(8, Math.max(2, Math.floor(X.length/4))),
-    validationSplit: 0.1,
-    verbose: 0
-  });
-
-  const akurasi = model.evaluate(xs, ys, {verbose:0})[1].dataSync()[0];
+  await model.fit(xs, ys, {epochs:60, batchSize:4, verbose:0});
   xs.dispose(); ys.dispose();
-  return {model, akurasi: akurasi.toFixed(3)};
+  return model;
 }
 
-function prediksi10LSTM(model, data, hindari, p){
-  const {pemetaan, urutanAsli} = data;
+function prediksi10LSTM(model, data, hindari){
+  const {X, pemetaan, urutanAsli} = data;
   const balikPeta = Object.fromEntries(Object.entries(pemetaan).map(([k,v])=>[v,parseInt(k)]));
-  
-  const urutanTerakhir = urutanAsli.slice(0, p.panjang).map(v=>pemetaan[v]);
-  if(urutanTerakhir.includes(undefined)) return null;
+  const urutanTerakhir = urutanAsli.slice(0, PANJANG_URUTAN).map(v=>pemetaan[v]);
 
   const hasil = [];
-  const pred = model.predict(tf.tensor2d([urutanTerakhir], [1, p.panjang]), {verbose:0});
-  const distribusi = pred.dataSync();
-  const terurut = Array.from(distribusi)
-    .map((peluang, indeks)=>({indeks, peluang}))
-    .sort((a,b)=>b.peluang - a.peluang);
+  const skor = [];
+  let urutanSaatIni = [...urutanTerakhir];
 
-  for(const t of terurut){
-    const angka2d = String(balikPeta[t.indeks] ?? 0).padStart(2,'0');
-    if(angka2d !== hindari && !hasil.includes(angka2d)){
-      hasil.push(angka2d);
-      if(hasil.length >= 10) break;
+  for(let langkah=0; langkah<15 && hasil.length<10; langkah++){
+    const pred = model.predict(tf.tensor2d([urutanSaatIni], [1, PANJANG_URUTAN]), {verbose:0});
+    const distribusi = pred.dataSync();
+    const terurut = Array.from(distribusi).map((p,i)=>({indeks:i, peluang:p})).sort((a,b)=>b.peluang-a.peluang);
+
+    for(const t of terurut){
+      const angka2d = String(balikPeta[t.indeks] ?? 0).padStart(2,'0');
+      if(angka2d !== hindari && !hasil.includes(angka2d) && hasil.length<10){
+        hasil.push(angka2d);
+        skor.push(t.peluang.toFixed(3));
+      }
     }
+    const terbaik = terurut[0].indeks;
+    urutanSaatIni = [...urutanSaatIni.slice(1), terbaik];
+    pred.dispose();
   }
-  pred.dispose();
 
+  // Isi kekurangan
   if(hasil.length < 10){
     const sudah = [...hasil];
     for(let n=0;n<=99;n++){
       const cek = String(n).padStart(2,'0');
-      if(!sudah.includes(cek) && cek !== hindari){
-        hasil.push(cek);
-        if(hasil.length >= 10) break;
-      }
+      if(!sudah.includes(cek) && cek !== hindari && hasil.length<10) hasil.push(cek);
+      if(hasil.length>=10) break;
     }
   }
   return hasil;
 }
 
-async function ambil10LSTM(daftarAngka2digit, hindari, p){
-  if(typeof tf === 'undefined') return null;
-  const data = siapkanDataUrutan(daftarAngka2digit, p.panjang);
+async function ambil10LSTM(daftarAngka2digit, hindari){
+  const data = siapkanDataUrutan(daftarAngka2digit);
   if(!data) return null;
-  const {model, akurasi} = await latihLSTM(data.X, data.y, data.totalKelas, p);
-  const hasil = prediksi10LSTM(model, data, hindari, p);
+  const model = await latihLSTM(data.X, data.y, data.totalKelas);
+  const hasil = prediksi10LSTM(model, data, hindari);
   model.dispose();
-  return {hasil, akurasi};
+  return hasil;
 }
 
 // ==============================================
-// SUSUN FORMAT
+// SUSUN KE FORMAT
 // ==============================================
 async function susunHasil(dataPasaran, metode){
-  const p = getParam();
-  if(dataPasaran.length < Math.max(p.panjang + 2, 5)) return null;
+  if(dataPasaran.length < 8) return null; // butuh data cukup untuk LSTM
 
   const urutanD2 = [], urutanT2 = [], urutanB2 = [];
   for(const d of dataPasaran){
@@ -291,17 +216,12 @@ async function susunHasil(dataPasaran, metode){
   }
   const terbaru = urai4Digit(dataPasaran[0].angka);
 
-  let pilihD2, pilihT2, pilihB2, infoAkurasi="";
+  let pilihD2, pilihT2, pilihB2;
   if(metode === 'lstm'){
-    if(typeof tf === 'undefined'){
-      return {error:true, pesan:"❌ TensorFlow belum dimuat — cek koneksi internet & muat ulang halaman"};
-    }
-    const d2 = await ambil10LSTM(urutanD2, terbaru.d2, p);
-    const t2 = await ambil10LSTM(urutanT2, terbaru.t2, p);
-    const b2 = await ambil10LSTM(urutanB2, terbaru.b2, p);
-    if(!d2 || !t2 || !b2) return {error:true, pesan:"⚠️ Data tidak cukup untuk parameter saat ini"};
-    pilihD2 = d2.hasil; pilihT2 = t2.hasil; pilihB2 = b2.hasil;
-    infoAkurasi = ` (Akurasi D2:${d2.akurasi} T2:${t2.akurasi} B2:${b2.akurasi})`;
+    pilihD2 = await ambil10LSTM(urutanD2, terbaru.d2);
+    pilihT2 = await ambil10LSTM(urutanT2, terbaru.t2);
+    pilihB2 = await ambil10LSTM(urutanB2, terbaru.b2);
+    if(!pilihD2) return {error: true, pesan:"Data kurang, minimal 8 baris untuk LSTM"};
   }else{
     pilihD2 = ambil10Frekuensi(urutanD2, terbaru.d2);
     pilihT2 = ambil10Frekuensi(urutanT2, terbaru.t2);
@@ -319,7 +239,7 @@ async function susunHasil(dataPasaran, metode){
       angka4:a4, angka3:a4.slice(1)
     });
   }
-  return {terbaru, daftar, infoAkurasi};
+  return {terbaru, daftar};
 }
 
 async function ambilTeks(url){ const r=await fetch(url,{cache:'no-store'}); if(!r.ok)throw new Error(url); return r.text(); }
@@ -335,26 +255,18 @@ async function tampilPasaran(){
   const kode = document.getElementById('pilihPasaran').value;
   const metode = document.getElementById('pilihMetode').value;
   const dp = semuaData.filter(d=>d.pasaran===kode);
-  const p = getParam();
 
-  document.getElementById('panelParam').style.display = metode==='lstm' ? 'block' : 'none';
-  document.getElementById('labelMetode').className = metode==='lstm' ? 'metode-lstm' : 'metode-frek';
   document.getElementById('labelMetode').textContent = 
-    metode==='lstm' ? `🧠 LSTM AI — Panjang:${p.panjang} Epoch:${p.epoch} Unit:${p.unit}` : "📊 Frekuensi — Paling Sering Muncul";
-
-  document.getElementById('status').style.display='block';
-  document.getElementById('konten').style.display='none';
-  document.getElementById('status').innerHTML=metode==='lstm' ? "⏳ Melatih model LSTM... Tunggu sebentar..." : "⏳ Menghitung...";
+    metode==='lstm' ? "🧠 Metode: LSTM AI — Belajar Pola Urutan" : "📊 Metode: Frekuensi — Paling Sering Muncul";
 
   const hasil = await susunHasil(dp, metode);
-  
   if(!hasil || hasil.error){
-    document.getElementById('status').innerHTML = `<div class="error">${hasil?.pesan || "⚠️ Data kurang"}</div>`;
+    document.getElementById('kotakTeks').textContent = hasil?.pesan || "⚠️ Data kurang, butuh minimal 3 baris";
     return;
   }
 
   let teks = `=== ${kode} — 10 PREDIKSI ===\n`;
-  teks += `Hasil Terakhir: ${hasil.terbaru.asli}${hasil.infoAkurasi}\n`;
+  teks += `Hasil Terakhir: ${hasil.terbaru.asli}\n`;
   teks += `4D: ${hasil.daftar.map(p=>p.angka4).join('*')}\n`;
   teks += `3D: ${hasil.daftar.map(p=>p.angka3).join('*')}\n`;
   teks += `2DD: ${hasil.daftar.map(p=>p.d2.angka).join('*')}\n`;
@@ -368,8 +280,6 @@ async function tampilPasaran(){
   teks += `SHIO-2DB: ${ambilUnik(hasil.daftar.map(p=>formatShio(p.b2.shio))).join('')}\n`;
 
   document.getElementById('kotakTeks').textContent = teks;
-  document.getElementById('status').style.display='none';
-  document.getElementById('konten').style.display='block';
 }
 
 async function mulai(){
@@ -383,10 +293,12 @@ async function mulai(){
     semuaData = parseDataUndian(await ambilTeks(DATA_UNDIAN_URL));
 
     document.getElementById('terakhirMuat').textContent='Terakhir: '+new Date().toLocaleString('id-ID');
+    document.getElementById('status').style.display='none';
+    document.getElementById('konten').style.display='block';
     
     await tampilPasaran();
   }catch(err){
-    document.getElementById('status').innerHTML=`<div class="error">❌ ${err.message}</div>`;
+    document.getElementById('status').innerHTML=`❌ ${err.message}`;
     console.error(err);
   }
 }
