@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LSTM-JUMLAH-SHIO | Grafik Per Pasaran</title>
+<title>5 Prediksi | No.Shio + Nama</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
 :root{--hitam:#050505; --emas:#d4af37; --emas2:#f0c808; --gelap:#1a1a1a; --gelap2:#252525; --teks:#eae0c8; --hijau:#4f4; --merah:#f66; --biru:#6af; --ungu:#a6f}
@@ -16,6 +16,7 @@ h1{font-size:1.7rem; border-bottom:2px solid var(--emas); padding-bottom:10px}
 .grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:12px}
 .grid2{display:grid; grid-template-columns:repeat(auto-fit,minmax(400px,1fr)); gap:12px}
 .grid3{display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:15px}
+.grid5{display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:10px}
 .pasaran-card{border-left:3px solid var(--emas); padding:12px; border-radius:6px; transition:all 0.3s ease}
 .pasaran-card.sembunyi{display:none}
 .label{font-weight:bold; color:var(--emas2); font-size:1.05rem}
@@ -26,42 +27,26 @@ h1{font-size:1.7rem; border-bottom:2px solid var(--emas); padding-bottom:10px}
 .posisi-angka{font-size:1.2rem; font-weight:bold; margin:4px 0}
 .posisi-shio{font-size:0.85rem; color:var(--emas); margin:2px 0}
 .posisi-jumlah{font-size:0.85rem; color:var(--hijau); margin:2px 0}
-.libur{opacity:0.6; border-style:dashed}
-.tidak-libur{border-left-color:var(--hijau)}
-.prediksi{border-left-color:var(--biru); background:#0f1520}
-.grafik-card{background:var(--gelap2); border-color:var(--ungu)}
-.grafik-wadah{height:200px; position:relative}
-.akurasi-card{border-left-color:var(--hijau); background:#101a15}
-.loading{text-align:center; padding:25px; color:var(--emas)}
-.baris{display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid #333; flex-wrap:wrap; gap:4px}
-.baris.terang{background:#2a2a2a; padding:6px 4px; border-radius:4px}
-.jumlah-langkah{font-size:0.75rem; opacity:0.7; margin-top:2px}
+.prediksi-card{background:#0f1520; border-left:3px solid var(--biru)}
+.prediksi-nomor{display:inline-block; background:var(--emas); color:#000; font-weight:bold; padding:2px 8px; border-radius:4px; margin-right:6px}
+.skor{display:inline-block; width:36px; text-align:center; border-radius:4px; font-weight:bold; margin-left:6px}
+.skor-tinggi{background:#264; color:#fff}
+.skor-sedang{background:#664422; color:#fe0}
+.skor-rendah{background:#662222; color:#f88}
 button{background:linear-gradient(135deg,var(--emas),var(--emas2)); color:#000; border:none; padding:9px 14px; border-radius:6px; font-weight:bold; cursor:pointer; margin:4px}
 button:hover{transform:scale(1.03)}
 button.mini{padding:5px 10px; font-size:0.85rem}
 select{background:var(--gelap2); color:var(--teks); border:1px solid var(--emas); padding:8px 12px; border-radius:6px; font-weight:bold; cursor:pointer; outline:none}
 select:focus{border-color:var(--emas2); box-shadow:0 0 5px var(--emas)}
-pre{background:#000; padding:10px; border-radius:6px; overflow-x:auto; font-size:0.8rem; max-height:300px}
-.copy-btn{float:right; margin:-2px 0 0 0; padding:4px 8px; font-size:0.8rem}
-.sukses{color:var(--hijau); margin-left:8px}
-.skor{display:inline-block; width:36px; text-align:center; border-radius:4px; font-weight:bold; margin-left:6px}
-.skor-tinggi{background:#264; color:#fff}
-.skor-sedang{background:#664422; color:#fe0}
-.skor-rendah{background:#662222; color:#f88}
-.teks-hijau{color:var(--hijau)}
-.teks-merah{color:var(--merah)}
-.teks-biru{color:var(--biru)}
-.teks-ungu{color:var(--ungu)}
+.loading{text-align:center; padding:25px; color:var(--emas)}
 .info-kecil{font-size:0.8rem; opacity:0.7; margin-top:4px}
 .tombol-refresh{text-align:center; margin:10px; display:flex; justify-content:center; align-items:center; gap:10px; flex-wrap:wrap}
-.peringatan{color:var(--merah); font-size:0.8rem; margin-top:4px}
-.info-pasaran-grafik{text-align:center; font-size:0.9rem; color:var(--emas); margin-bottom:10px}
+.peringatan{color:var(--merah); font-size:0.8rem; margin:8px 0}
 </style>
 </head>
 <body>
 <div class="wrap">
-<h1>🔮 LSTM-JUMLAH-SHIO</h1>
-<h2 id="judulPasaran">CLF · BE · SGP · PS</h2>
+<h1>🔮 5 PREDIKSI — No.Shio + Nama</h1>
 
 <div class="tombol-refresh">
   <label class="label">Pilih Pasaran:</label>
@@ -76,58 +61,24 @@ pre{background:#000; padding:10px; border-radius:6px; overflow-x:auto; font-size
 </div>
 
 <div id="status" class="loading">Sedang memuat data & menghitung pola...</div>
-
 <div id="konten" style="display:none">
-  <div class="card">
-    <h3>📅 Jadwal Pasaran</h3>
-    <div class="grid" id="jadwalPasaran"></div>
-  </div>
 
   <div class="card">
-    <h3>📊 Hasil Terbaru</h3>
-    <div class="grid" id="hasilGrid"></div>
+    <h3>📊 Hasil Terakhir</h3>
+    <div id="hasilTerakhir"></div>
   </div>
 
   <div class="card">
-    <h3>🔥 PREDIKSI Angka Berikutnya</h3>
-    <div class="grid2" id="prediksiGrid"></div>
-  </div>
-
-  <div class="card grafik-card">
-    <h3>📈 GRAFIK Tren & Frekuensi</h3>
-    <div class="info-pasaran-grafik" id="infoGrafikPasaran">Menampilkan: —</div>
-    <div class="grid3">
-      <div>
-        <h4 style="color:var(--emas); text-align:center; margin-bottom:8px">Frekuensi 2DD</h4>
-        <div class="grafik-wadah"><canvas id="grafikDD"></canvas></div>
-      </div>
-      <div>
-        <h4 style="color:var(--emas); text-align:center; margin-bottom:8px">Frekuensi 2DT</h4>
-        <div class="grafik-wadah"><canvas id="grafikDT"></canvas></div>
-      </div>
-      <div>
-        <h4 style="color:var(--emas); text-align:center; margin-bottom:8px">Frekuensi 2DB</h4>
-        <div class="grafik-wadah"><canvas id="grafikDB"></canvas></div>
-      </div>
-    </div>
-  </div>
-
-  <div class="card akurasi-card">
-    <h3>✅ RIWAYAT & AKURASI PREDIKSI</h3>
-    <div class="grid" id="akurasiGrid"></div>
+    <h3>🔥 5 PILIHAN PREDIKSI</h3>
+    <div class="peringatan" id="teksPeringatan"></div>
+    <div class="grid5" id="daftarPrediksi"></div>
   </div>
 
   <div class="card">
-    <h3>🧮 Rekap Lengkap</h3>
-    <div id="rekapBagian"></div>
+    <h3>📋 Daftar Shio</h3>
+    <div class="grid" id="daftarShio"></div>
   </div>
 
-  <div class="card">
-    <h3>📋 Hasil JSON</h3>
-    <button class="copy-btn" onclick="salinJSON()">Salin JSON</button>
-    <pre id="jsonHasil"></pre>
-    <span id="pesanSalin"></span>
-  </div>
 </div>
 </div>
 
@@ -144,29 +95,13 @@ const PASARAN_DAFTAR = [
 
 const HARI_IND = ["Senin","Selasa","Rabu","Kamis","Jumat","Sabtu","Minggu"];
 let dataShio = {};
-let grafikSimpan = {dd:null, dt:null, db:null};
 let semuaData = [];
 
 // === JUMLAH SAMPAI 1 DIGIT ===
 function jumlahSatuDigit(angkaStr){
   let nilai = String(angkaStr).split('').reduce((a,b)=>a+parseInt(b),0);
-  const langkah = [nilai];
-  while(nilai >= 10){
-    nilai = String(nilai).split('').reduce((a,b)=>a+parseInt(b),0);
-    langkah.push(nilai);
-  }
-  return {akhir:nilai, langkah:langkah.join(' → ')};
-}
-
-function ambilHariNama(tanggalStr){
-  const d = new Date(tanggalStr+"T00:00:00");
-  return HARI_IND[d.getDay()];
-}
-
-function isLibur(kodePasaran, tanggalStr){
-  const p = PASARAN_DAFTAR.find(x=>x.kode===kodePasaran);
-  if(!p) return false;
-  return p.libur.length>0 && p.libur.includes(ambilHariNama(tanggalStr));
+  while(nilai >= 10) nilai = String(nilai).split('').reduce((a,b)=>a+parseInt(b),0);
+  return nilai;
 }
 
 function urai4Digit(angka4){
@@ -174,12 +109,83 @@ function urai4Digit(angka4){
   return {asli:s, d2:s.slice(0,2), t2:s.slice(1,3), b2:s.slice(2,4)};
 }
 
-function cariShio(angka2){
-  if(!dataShio) return "-";
+// === CARI NOMOR URUT SHIO + NAMA ===
+function cariShioInfo(angka2){
+  if(!dataShio) return {no:"-", nama:"-"};
+  let urut = 1;
   for(const [shio, d] of Object.entries(dataShio)){
-    if(d.angka.includes(angka2)) return shio;
+    if(d.angka.includes(angka2)){
+      return {no:urut, nama:shio};
+    }
+    urut++;
   }
-  return "-";
+  return {no:"-", nama:"-"};
+}
+
+function skorKelas(s){
+  return s>=7?"skor-tinggi":s>=4?"skor-sedang":"skor-rendah";
+}
+
+// === HITUNG FREKUENSI ===
+function hitungFrekuensi(listAngka){
+  const h = {};
+  listAngka.forEach(a=>{ h[a] = (h[a]||0)+1; });
+  return Object.entries(h).sort((a,b)=>b[1]-a[1]);
+}
+
+// === AMBIL 5 TERPILIH, HINDARI YANG TERAKHIR ===
+function ambil5Pilihan(urutan, hindari){
+  const frek = hitungFrekuensi(urutan.slice(1)); // kecuali terakhir
+  const hasil = [];
+  for(const [angka, jml] of frek){
+    if(angka !== hindari && hasil.length < 5){
+      const skor = Math.min(10, jml + 2);
+      hasil.push({angka, skor});
+    }
+  }
+  // Kalau kurang 5, isi dengan yang belum muncul
+  if(hasil.length < 5){
+    const sudah = hasil.map(x=>x.angka);
+    for(let n=0; n<=99; n++){
+      const cek = String(n).padStart(2,'0');
+      if(!sudah.includes(cek) && cek !== hindari && hasil.length < 5){
+        hasil.push({angka:cek, skor:5});
+      }
+    }
+  }
+  return hasil;
+}
+
+// === SUSUN 5 PREDIKSI LENGKAP ===
+function susun5Prediksi(dataPasaran){
+  if(dataPasaran.length < 3) return null;
+  
+  const urutanD2 = [], urutanT2 = [], urutanB2 = [];
+  for(const d of dataPasaran){
+    const u = urai4Digit(d.angka);
+    urutanD2.push(u.d2); urutanT2.push(u.t2); urutanB2.push(u.b2);
+  }
+  
+  const terbaru = urai4Digit(dataPasaran[0].angka);
+  const pilihD2 = ambil5Pilihan(urutanD2, terbaru.d2);
+  const pilihT2 = ambil5Pilihan(urutanT2, terbaru.t2);
+  const pilihB2 = ambil5Pilihan(urutanB2, terbaru.b2);
+  
+  const daftar = [];
+  for(let i=0; i<5; i++){
+    const d2 = pilihD2[i] || {angka:"00", skor:5};
+    const t2 = pilihT2[i] || {angka:"00", skor:5};
+    const b2 = pilihB2[i] || {angka:"00", skor:5};
+    daftar.push({
+      nomor: i+1,
+      d2: {angka:d2.angka, shio:cariShioInfo(d2.angka), jumlah:jumlahSatuDigit(d2.angka), skor:d2.skor},
+      t2: {angka:t2.angka, shio:cariShioInfo(t2.angka), jumlah:jumlahSatuDigit(t2.angka), skor:t2.skor},
+      b2: {angka:b2.angka, shio:cariShioInfo(b2.angka), jumlah:jumlahSatuDigit(b2.angka), skor:b2.skor},
+      angka4: d2.angka + t2.angka.slice(-1) + b2.angka.slice(-1)
+    });
+  }
+  
+  return {terbaru:terbaru, daftar, total:dataPasaran.length};
 }
 
 async function ambilTeks(url){
@@ -200,254 +206,91 @@ function parseDataUndian(teks){
     return {
       pasaran: bagian[0].trim(),
       tanggal: bagian[1].trim(),
-      angka: String(bagian[2]).padStart(4,'0'),
-      waktu: bagian[3]?.trim() || ""
+      angka: String(bagian[2]).padStart(4,'0')
     };
   }).sort((a,b)=>a.tanggal.localeCompare(b.tanggal)).reverse();
 }
 
-function hitungFrekuensiPenuh(listAngka){
-  const hitung = {};
-  listAngka.forEach(angka=>{ hitung[angka] = (hitung[angka] || 0) + 1; });
-  return Object.entries(hitung).sort((a,b)=>b[1]-a[1]);
-}
-
-// === PREDIKSI: TIDAK SAMA DENGAN HASIL TERAKHIR ===
-function prediksiUrutan(urutan, angkaTerakhirPosisi){
-  const riwayat = urutan.slice(1);
-  const hitung = {};
-  riwayat.forEach(angka=>{ hitung[angka] = (hitung[angka] || 0) + 1; });
-  
-  let kandidat = Object.entries(hitung).sort((a,b)=>b[1]-a[1]);
-  let pilih = kandidat.find(x=>x[0] !== angkaTerakhirPosisi);
-  
-  if(!pilih){
-    const terakhir5 = urutan.slice(0,5);
-    for(let n=0; n<=99; n++){
-      const cek = String(n).padStart(2,'0');
-      if(!terakhir5.includes(cek)){ pilih = [cek, 1]; break; }
-    }
-  }
-  
-  if(!pilih){
-    pilih = ["00", 1];
-    for(let n=0; n<=99; n++){
-      const cek = String(n).padStart(2,'0');
-      if(cek !== angkaTerakhirPosisi){ pilih = [cek, 1]; break; }
-    }
-  }
-  
-  const skor = Math.min(10, pilih[1] + 2);
-  const tren = skor>=7 ? "Naik" : skor>=4 ? "Stabil" : "Turun";
-  return {angka:pilih[0], skor, tren};
-}
-
-function hitungPrediksi(dataPasaran){
-  if(dataPasaran.length < 3) return null;
-  
-  const urutanD2 = [], urutanT2 = [], urutanB2 = [];
-  for(const d of dataPasaran){
-    const u = urai4Digit(d.angka);
-    urutanD2.push(u.d2); urutanT2.push(u.t2); urutanB2.push(u.b2);
-  }
-  
-  const terbaru = urai4Digit(dataPasaran[0].angka);
-  const predD2 = prediksiUrutan(urutanD2, terbaru.d2);
-  const predT2 = prediksiUrutan(urutanT2, terbaru.t2);
-  const predB2 = prediksiUrutan(urutanB2, terbaru.b2);
-  
-  return {
-    pred_dd: predD2, pred_dt: predT2, pred_db: predB2,
-    prediksi_4d: predD2.angka + predT2.angka.slice(-1) + predB2.angka.slice(-1),
-    frekuensi: {
-      freqD2: hitungFrekuensiPenuh(urutanD2),
-      freqT2: hitungFrekuensiPenuh(urutanT2),
-      freqB2: hitungFrekuensiPenuh(urutanB2)
-    },
-    jumlah_data: dataPasaran.length
-  };
-}
-
-function skorKelas(s){
-  return s>=7?"skor-tinggi":s>=4?"skor-sedang":"skor-rendah";
-}
-
-function buatSatuGrafik(id, data, warna){
-  const canvas = document.getElementById(id);
-  if(!canvas) return;
-  if(grafikSimpan[id]) grafikSimpan[id].destroy();
-  
-  const teratas = data.slice(0,10);
-  grafikSimpan[id] = new Chart(canvas, {
-    type:'bar',
-    data:{
-      labels: teratas.map(x=>x[0]),
-      datasets:[{label:'Frekuensi', data:teratas.map(x=>x[1]), backgroundColor:warna, borderRadius:4}]
-    },
-    options:{
-      responsive:true, maintainAspectRatio:false,
-      plugins:{legend:{display:false}},
-      scales:{
-        y:{beginAtZero:true, grid:{color:'#333'}, ticks:{color:'#aaa', precision:0}},
-        x:{grid:{display:false}, ticks:{color:'#aaa'}}
-      }
-    }
-  });
-}
-
-// === TAMPILKAN HANYA PASARAN YANG DIPILIH ===
 function tampilPasaran(){
-  const kodePilih = document.getElementById('pilihPasaran').value;
-  const infoPasaran = PASARAN_DAFTAR.find(p=>p.kode === kodePilih);
+  const kode = document.getElementById('pilihPasaran').value;
+  const dp = semuaData.filter(d=>d.pasaran === kode);
+  const p = PASARAN_DAFTAR.find(x=>x.kode === kode);
+  const hasil = susun5Prediksi(dp);
   
-  document.getElementById('judulPasaran').textContent = `${kodePilih} — ${infoPasaran.nama}`;
-  document.getElementById('infoGrafikPasaran').textContent = `📊 Data: ${kodePilih} saja`;
-  
-  const dp = semuaData.filter(d=>d.pasaran === kodePilih);
-  if(!dp.length) {
-    document.getElementById('hasilGrid').innerHTML = `<div class="card">⚠️ Belum ada data untuk ${kodePilih}</div>`;
+  if(!hasil){
+    document.getElementById('konten').innerHTML = `<div class="card">⚠️ Data kurang, butuh minimal 3 baris</div>`;
     return;
   }
   
-  tampilDataPasaran(kodePilih, dp);
-}
-
-function tampilDataPasaran(kodePilih, dp){
-  const p = PASARAN_DAFTAR.find(x=>x.kode === kodePilih);
-  const aktif = dp.filter(d=>!isLibur(kodePilih, d.tanggal));
-  const terbaru = aktif[0] || dp[0];
-  const u = urai4Digit(terbaru.angka);
-  const pred = hitungPrediksi(dp);
-  
-  // Jadwal
-  document.getElementById('jadwalPasaran').innerHTML = `
-    <div class="pasaran-card ${p.libur.length===0?'tidak-libur':''}">
-      <div class="label">${p.kode} — ${p.nama}</div>
-      <div>Buka: ${p.libur.length===0?'Setiap Hari ✅':'Senin–Sabtu'}</div>
-      <div style="color:${p.libur.length===0?'var(--hijau)':'var(--merah)'}">
-        ${p.libur.length===0?'Tidak Ada Hari Libur':'Libur: '+p.libur.join(', ')}
-      </div>
-    </div>`;
-  
-  // Hasil Terbaru
-  document.getElementById('hasilGrid').innerHTML = `
-    <div class="pasaran-card ${isLibur(kodePilih, terbaru.tanggal)?'libur':''}">
-      <div class="label">${kodePilih} — ${p.nama}</div>
-      <div>${terbaru.tanggal} | ${ambilHariNama(terbaru.tanggal)}</div>
-      <div class="angka-utama">${u.asli}</div>
-      ${isLibur(kodePilih, terbaru.tanggal)?'<div class="teks-merah">⚠️ Libur</div>':'<div class="teks-hijau">✅ Buka</div>'}
+  // Hasil Terakhir
+  document.getElementById('hasilTerakhir').innerHTML = `
+    <div class="pasaran-card">
+      <div class="label">${kode} — ${p.nama}</div>
+      <div class="angka-utama">${hasil.terbaru.asli}</div>
       <div class="posisi-row">
         <div class="posisi-box">
-          <div class="posisi-nama">🔹 2DD (Depan)</div>
-          <div class="posisi-angka">${u.d2}</div>
-          <div class="posisi-shio">Shio: ${cariShio(u.d2)}</div>
-          <div class="posisi-jumlah">Jumlah Akhir: ${jumlahSatuDigit(u.d2).akhir}</div>
-          <div class="jumlah-langkah">Langkah: ${jumlahSatuDigit(u.d2).langkah}</div>
+          <div class="posisi-nama">2DD (Depan)</div>
+          <div class="posisi-angka">${hasil.terbaru.d2}</div>
+          <div class="posisi-shio">Shio: ${cariShioInfo(hasil.terbaru.d2).no}. ${cariShioInfo(hasil.terbaru.d2).nama}</div>
+          <div class="posisi-jumlah">Jumlah Akhir: ${jumlahSatuDigit(hasil.terbaru.d2)}</div>
         </div>
         <div class="posisi-box">
-          <div class="posisi-nama">🔹 2DT (Tengah)</div>
-          <div class="posisi-angka">${u.t2}</div>
-          <div class="posisi-shio">Shio: ${cariShio(u.t2)}</div>
-          <div class="posisi-jumlah">Jumlah Akhir: ${jumlahSatuDigit(u.t2).akhir}</div>
-          <div class="jumlah-langkah">Langkah: ${jumlahSatuDigit(u.t2).langkah}</div>
+          <div class="posisi-nama">2DT (Tengah)</div>
+          <div class="posisi-angka">${hasil.terbaru.t2}</div>
+          <div class="posisi-shio">Shio: ${cariShioInfo(hasil.terbaru.t2).no}. ${cariShioInfo(hasil.terbaru.t2).nama}</div>
+          <div class="posisi-jumlah">Jumlah Akhir: ${jumlahSatuDigit(hasil.terbaru.t2)}</div>
         </div>
         <div class="posisi-box">
-          <div class="posisi-nama">🔹 2DB (Belakang)</div>
-          <div class="posisi-angka">${u.b2}</div>
-          <div class="posisi-shio">Shio: ${cariShio(u.b2)}</div>
-          <div class="posisi-jumlah">Jumlah Akhir: ${jumlahSatuDigit(u.b2).akhir}</div>
-          <div class="jumlah-langkah">Langkah: ${jumlahSatuDigit(u.b2).langkah}</div>
+          <div class="posisi-nama">2DB (Belakang)</div>
+          <div class="posisi-angka">${hasil.terbaru.b2}</div>
+          <div class="posisi-shio">Shio: ${cariShioInfo(hasil.terbaru.b2).no}. ${cariShioInfo(hasil.terbaru.b2).nama}</div>
+          <div class="posisi-jumlah">Jumlah Akhir: ${jumlahSatuDigit(hasil.terbaru.b2)}</div>
         </div>
       </div>
     </div>`;
   
-  // Grafik — HANYA PASARAN YANG DIPILIH
-  if(pred){
-    buatSatuGrafik('grafikDD', pred.frekuensi.freqD2, 'rgba(102,170,255,0.7)');
-    buatSatuGrafik('grafikDT', pred.frekuensi.freqT2, 'rgba(170,102,255,0.7)');
-    buatSatuGrafik('grafikDB', pred.frekuensi.freqB2, 'rgba(79,255,68,0.7)');
-  }
+  // Peringatan
+  document.getElementById('teksPeringatan').innerHTML = `⚠️ Hasil terakhir: ${hasil.terbaru.asli} → Semua prediksi berbeda dari ini`;
   
-  // Prediksi
-  if(pred){
-    document.getElementById('prediksiGrid').innerHTML = `
-      <div class="pasaran-card prediksi">
-        <div class="label teks-biru">🔮 ${kodePilih} — PREDIKSI BERIKUTNYA</div>
-        <div class="peringatan">⚠️ Hasil terakhir: ${u.asli} → Prediksi berbeda</div>
-        <div class="angka-utama teks-biru">${pred.prediksi_4d}</div>
-        <div class="posisi-row">
-          <div class="posisi-box">
-            <div class="posisi-nama">🔮 2DD (Depan)</div>
-            <div class="posisi-angka">${pred.pred_dd.angka} <span class="skor ${skorKelas(pred.pred_dd.skor)}">${pred.pred_dd.skor}</span></div>
-            <div class="posisi-shio">Shio: ${cariShio(pred.pred_dd.angka)}</div>
-            <div class="posisi-jumlah">Jumlah Akhir: ${jumlahSatuDigit(pred.pred_dd.angka).akhir}</div>
-          </div>
-          <div class="posisi-box">
-            <div class="posisi-nama">🔮 2DT (Tengah)</div>
-            <div class="posisi-angka">${pred.pred_dt.angka} <span class="skor ${skorKelas(pred.pred_dt.skor)}">${pred.pred_dt.skor}</span></div>
-            <div class="posisi-shio">Shio: ${cariShio(pred.pred_dt.angka)}</div>
-            <div class="posisi-jumlah">Jumlah Akhir: ${jumlahSatuDigit(pred.pred_dt.angka).akhir}</div>
-          </div>
-          <div class="posisi-box">
-            <div class="posisi-nama">🔮 2DB (Belakang)</div>
-            <div class="posisi-angka">${pred.pred_db.angka} <span class="skor ${skorKelas(pred.pred_db.skor)}">${pred.pred_db.skor}</span></div>
-            <div class="posisi-shio">Shio: ${cariShio(pred.pred_db.angka)}</div>
-            <div class="posisi-jumlah">Jumlah Akhir: ${jumlahSatuDigit(pred.pred_db.angka).akhir}</div>
-          </div>
-        </div>
-        <div style="margin-top:10px; font-size:0.85rem; opacity:0.8">📊 Data: ${pred.jumlah_data} baris | Skor Rata: ${Math.round((pred.pred_dd.skor+pred.pred_dt.skor+pred.pred_db.skor)/3)}/10</div>
-      </div>`;
-  } else {
-    document.getElementById('prediksiGrid').innerHTML = `<div class="pasaran-card">⚠️ Data kurang, butuh minimal 3 baris</div>`;
-  }
+  // 5 Prediksi
+  document.getElementById('daftarPrediksi').innerHTML = hasil.daftar.map(p=>`
+    <div class="pasaran-card prediksi-card">
+      <div class="label"><span class="prediksi-nomor">#${p.nomor}</span> ${kode}</div>
+      <div class="angka-utama" style="font-size:1.4rem">${p.angka4}</div>
+      <div style="margin:6px 0; font-size:0.9rem">
+        <strong>2DD:</strong> ${p.d2.angka}
+        <span class="skor ${skorKelas(p.d2.skor)}">${p.d2.skor}</span><br>
+        Shio: ${p.d2.shio.no}. ${p.d2.shio.nama}<br>
+        Jumlah: ${p.d2.jumlah}
+      </div>
+      <div style="margin:6px 0; font-size:0.9rem">
+        <strong>2DT:</strong> ${p.t2.angka}
+        <span class="skor ${skorKelas(p.t2.skor)}">${p.t2.skor}</span><br>
+        Shio: ${p.t2.shio.no}. ${p.t2.shio.nama}<br>
+        Jumlah: ${p.t2.jumlah}
+      </div>
+      <div style="margin:6px 0; font-size:0.9rem">
+        <strong>2DB:</strong> ${p.b2.angka}
+        <span class="skor ${skorKelas(p.b2.skor)}">${p.b2.skor}</span><br>
+        Shio: ${p.b2.shio.no}. ${p.b2.shio.nama}<br>
+        Jumlah: ${p.b2.jumlah}
+      </div>
+    </div>`).join('');
   
-  // Akurasi/Ringkasan
-  document.getElementById('akurasiGrid').innerHTML = pred ? `
-    <div class="pasaran-card">
-      <div class="label">📊 ${kodePilih} — Ringkasan</div>
-      <div class="baris terang"><span>Total Data:</span><span>${pred.jumlah_data} baris</span></div>
-      <div class="baris"><span>Skor Rata-rata:</span><span class="${skorKelas(Math.round((pred.pred_dd.skor+pred.pred_dt.skor+pred.pred_db.skor)/3))}">${Math.round((pred.pred_dd.skor+pred.pred_dt.skor+pred.pred_db.skor)/3)}/10</span></div>
-      <div class="baris"><span>Tren 2DD:</span><span class="teks-${pred.pred_dd.tren==='Naik'?'hijau':pred.pred_dd.tren==='Turun'?'merah':'biru'}">${pred.pred_dd.tren}</span></div>
-      <div class="baris"><span>Tren 2DT:</span><span class="teks-${pred.pred_dt.tren==='Naik'?'hijau':pred.pred_dt.tren==='Turun'?'merah':'biru'}">${pred.pred_dt.tren}</span></div>
-      <div class="baris"><span>Tren 2DB:</span><span class="teks-${pred.pred_db.tren==='Naik'?'hijau':pred.pred_db.tren==='Turun'?'merah':'biru'}">${pred.pred_db.tren}</span></div>
-    </div>` : '';
-  
-  // Rekap
-  document.getElementById('rekapBagian').innerHTML = `
-    <div class="baris terang" style="font-weight:bold; grid-template-columns:1fr 2fr 2fr 2fr 1fr; display:grid; gap:4px">
-      <span>Pasaran</span><span>2DD | Shio | Akhir</span><span>2DT | Shio | Akhir</span><span>2DB | Shio | Akhir</span><span>Prediksi</span>
-    </div>
-    <div class="baris" style="grid-template-columns:1fr 2fr 2fr 2fr 1fr; display:grid; gap:4px">
-      <span style="font-weight:bold">${kodePilih}</span>
-      <span>${u.d2} | ${cariShio(u.d2)} | ${jumlahSatuDigit(u.d2).akhir}</span>
-      <span>${u.t2} | ${cariShio(u.t2)} | ${jumlahSatuDigit(u.t2).akhir}</span>
-      <span>${u.b2} | ${cariShio(u.b2)} | ${jumlahSatuDigit(u.b2).akhir}</span>
-      <span class="teks-biru">${pred?.prediksi_4d||"-"}</span>
-    </div>`;
-  
-  // JSON
-  const keluaran = {
-    waktu_proses: new Date().toLocaleString('id-ID'),
-    pasaran: kodePilih,
-    hasil_terakhir: u.asli,
-    prediksi: pred ? {
-      angka_4d: pred.prediksi_4d,
-      posisi: {
-        d2: {angka: pred.pred_dd.angka, shio: cariShio(pred.pred_dd.angka), jumlah_akhir: jumlahSatuDigit(pred.pred_dd.angka).akhir, skor: pred.pred_dd.skor},
-        t2: {angka: pred.pred_dt.angka, shio: cariShio(pred.pred_dt.angka), jumlah_akhir: jumlahSatuDigit(pred.pred_dt.angka).akhir, skor: pred.pred_dt.skor},
-        b2: {angka: pred.pred_db.angka, shio: cariShio(pred.pred_db.angka), jumlah_akhir: jumlahSatuDigit(pred.pred_db.angka).akhir, skor: pred.pred_db.skor}
-      },
-      total_data: pred.jumlah_data
-    } : null
-  };
-  document.getElementById('jsonHasil').textContent = JSON.stringify(keluaran, null, 2);
+  // Daftar Shio Lengkap
+  let urut=1;
+  document.getElementById('daftarShio').innerHTML = Object.entries(dataShio).map(([nama, d])=>`
+    <div class="pasaran-card" style="padding:8px">
+      <div class="label">${urut++}. ${nama}</div>
+      <div style="font-size:0.8rem">Angka: ${d.angka.join(', ')}</div>
+    </div>`).join('');
 }
 
 async function mulai(){
   try{
     document.getElementById('status').style.display='block';
     document.getElementById('konten').style.display='none';
-    document.getElementById('status').innerHTML='⏳ Memuat data & menghitung pola...';
+    document.getElementById('status').innerHTML='⏳ Memuat data...';
 
     const pengaturan = await ambilJSON(PENGATURAN_URL);
     dataShio = pengaturan.data_shio;
@@ -463,13 +306,6 @@ async function mulai(){
     document.getElementById('status').innerHTML=`❌ Kesalahan: ${err.message}`;
     console.error(err);
   }
-}
-
-function salinJSON(){
-  navigator.clipboard.writeText(document.getElementById('jsonHasil').textContent).then(()=>{
-    document.getElementById('pesanSalin').innerHTML='<span class="sukses">✓ Tersalin!</span>';
-    setTimeout(()=>document.getElementById('pesanSalin').innerHTML='',2000);
-  });
 }
 
 document.addEventListener('DOMContentLoaded', mulai);
