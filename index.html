@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>81 Prediksi | Frekuensi</title>
+<title>90 Prediksi | Frekuensi</title>
 <style>
 :root{--hitam:#050505; --emas:#d4af37; --emas2:#f0c808; --gelap:#1a1a1a; --gelap2:#252525; --teks:#eae0c8; --hijau:#4f4; --merah:#f66}
 *{margin:0; padding:0; box-sizing:border-box; font-family:system-ui,sans-serif}
@@ -25,7 +25,7 @@ select:focus{border-color:var(--emas2); box-shadow:0 0 5px var(--emas)}
 </head>
 <body>
 <div class="wrap">
-<h1>🔮 81 PREDIKSI — Lengkap</h1>
+<h1>🔮 90 PREDIKSI — Yang Belum Pernah Muncul</h1>
 <div class="tombol-baris">
   <label>Pasaran:</label>
   <select id="pilihPasaran" onchange="tampilPasaran()">
@@ -40,7 +40,7 @@ select:focus{border-color:var(--emas2); box-shadow:0 0 5px var(--emas)}
   <button onclick="mulai()">🔄 Muat Ulang</button>
   <span id="terakhirMuat" class="info-kecil">Terakhir: —</span>
 </div>
-<div id="status" class="loading">⏳ Memuat data & menyusun 81 angka...</div>
+<div id="status" class="loading">⏳ Memuat data & menyusun 90 angka...</div>
 <div id="konten" style="display:none">
   <div class="card">
     <h3>📋 Hasil Format Teks</h3>
@@ -54,9 +54,10 @@ select:focus{border-color:var(--emas2); box-shadow:0 0 5px var(--emas)}
 <script>
 const PENGATURAN_URL = "https://raw.githubusercontent.com/peler3773-png/Data-Lotre/main/pengaturan.json";
 const DATA_UNDIAN_URL = "https://raw.githubusercontent.com/peler3773-png/Data-Lotre/main/data_undian.txt";
-const MAKSIMAL_ANGKA = 90;
-const MAKSIMAL_JML = 2;   // ✅ JML = 2 DIGIT
-const MAKSIMAL_SHIO = 2;  // ✅ SHIO = 2 DIGIT
+
+const MAKSIMAL_ANGKA = 90;   // ✅ 90 angka total
+const MAKSIMAL_JML = 2;      // ✅ JML = 2
+const MAKSIMAL_SHIO = 2;     // ✅ SHIO = 2
 
 let dataShio = {};
 let semuaData = [];
@@ -85,33 +86,31 @@ function cariShioInfo(angka2){
   return null;
 }
 
-function hitungFrekuensi(daftarAngka){
-  const hitung = {};
-  daftarAngka.forEach(a=>{ hitung[a] = (hitung[a]||0)+1; });
-  return Object.entries(hitung).sort((a,b)=>b[1]-a[1]).map(x=>x[0]);
-}
-
-function ambil81Angka(daftarAngka, hindari){
+// === AMBIL 90 ANGKA — BELUM PERNAH MUNCUL DULUAN ===
+function ambil90Angka(daftarSudahMuncul, hindari){
   const hasil = [];
-  const sudah = new Set();
-  const urutSering = hitungFrekuensi(daftarAngka.slice(1));
+  const sudah = new Set(daftarSudahMuncul); // yang sudah keluar
+  sudah.add(hindari); // kecuali yang terakhir keluar
 
-  for(const angka of urutSering){
-    if(angka !== hindari && !sudah.has(angka)){
-      hasil.push(angka);
-      sudah.add(angka);
-      if(hasil.length === MAKSIMAL_ANGKA) return hasil;
-    }
-  }
-
+  // LANGKAH 1: Ambil yang BELUM PERNAH muncul duluan
   for(let n=0; n<=99; n++){
     const cek = String(n).padStart(2,'0');
-    if(cek !== hindari && !sudah.has(cek)){
+    if(!sudah.has(cek)){
       hasil.push(cek);
-      sudah.add(cek);
       if(hasil.length === MAKSIMAL_ANGKA) return hasil;
     }
   }
+
+  // LANGKAH 2: Kalau kurang, tambah dari yang sudah muncul (kecuali yang terakhir)
+  if(hasil.length < MAKSIMAL_ANGKA){
+    for(const angka of daftarSudahMuncul){
+      if(angka !== hindari && !hasil.includes(angka)){
+        hasil.push(angka);
+        if(hasil.length === MAKSIMAL_ANGKA) return hasil;
+      }
+    }
+  }
+
   return hasil;
 }
 
@@ -127,10 +126,13 @@ function susunHasil(dataPasaran){
   }
   
   const terbaru = urai4Digit(dataPasaran[0].angka);
-  const pilihD2 = ambil81Angka(urutanD2, terbaru.d2);
-  const pilihT2 = ambil81Angka(urutanT2, terbaru.t2);
-  const pilihB2 = ambil81Angka(urutanB2, terbaru.b2);
   
+  // ✅ 90 angka — yang belum pernah muncul duluan
+  const pilihD2 = ambil90Angka(urutanD2, terbaru.d2);
+  const pilihT2 = ambil90Angka(urutanT2, terbaru.t2);
+  const pilihB2 = ambil90Angka(urutanB2, terbaru.b2);
+  
+  // 10 Teratas untuk 4D & 3D
   const daftar10 = [];
   for(let i=0; i<10; i++){
     const d2 = pilihD2[i]||"00";
@@ -140,12 +142,11 @@ function susunHasil(dataPasaran){
     daftar10.push({angka4:a4, angka3:a4.slice(1)});
   }
   
-  // ✅ JML = 2 DIGIT SAJA
+  // ✅ JML = 2, SHIO = 2
   const unikJmlD2 = ambilTeratas(ambilUnik(pilihD2.map(a=>jumlahSatuDigit(a))), MAKSIMAL_JML);
   const unikJmlT2 = ambilTeratas(ambilUnik(pilihT2.map(a=>jumlahSatuDigit(a))), MAKSIMAL_JML);
   const unikJmlB2 = ambilTeratas(ambilUnik(pilihB2.map(a=>jumlahSatuDigit(a))), MAKSIMAL_JML);
   
-  // ✅ SHIO = 2 DIGIT SAJA
   const unikShioD2 = ambilTeratas(ambilUnik(pilihD2.map(a=>cariShioInfo(a)).filter(Boolean)), MAKSIMAL_SHIO);
   const unikShioT2 = ambilTeratas(ambilUnik(pilihT2.map(a=>cariShioInfo(a)).filter(Boolean)), MAKSIMAL_SHIO);
   const unikShioB2 = ambilTeratas(ambilUnik(pilihB2.map(a=>cariShioInfo(a)).filter(Boolean)), MAKSIMAL_SHIO);
@@ -184,24 +185,24 @@ function tampilPasaran(){
     return;
   }
   
-  let teks = `=== ${kode} — 88 PREDIKSI ===\n`;
+  let teks = `=== ${kode} — 90 PREDIKSI ===\n`;
   teks += `Hasil Terakhir: ${hasil.terbaru.asli}\n\n`;
   
   teks += `-- 10 TERPILIH --\n`;
   teks += `4D: ${hasil.daftar10.map(p=>p.angka4).join('*')}\n`;
   teks += `3D: ${hasil.daftar10.map(p=>p.angka3).join('*')}\n\n`;
   
-  teks += `-- 88 2DD --\n`;
+  teks += `-- 90 2DD --\n`;
   teks += `2DD: ${hasil.pilihD2.join('*')}\n`;
   teks += `JML-2DD: ${hasil.unikJmlD2.join('*')}\n`;
   teks += `SHIO-2DD: ${hasil.unikShioD2.join(',')}\n\n`;
   
-  teks += `-- 88 2DT --\n`;
+  teks += `-- 90 2DT --\n`;
   teks += `2DT: ${hasil.pilihT2.join('*')}\n`;
   teks += `JML-2DT: ${hasil.unikJmlT2.join('*')}\n`;
   teks += `SHIO-2DT: ${hasil.unikShioT2.join(',')}\n\n`;
   
-  teks += `-- 88 2DB --\n`;
+  teks += `-- 90 2DB --\n`;
   teks += `2DB: ${hasil.pilihB2.join('*')}\n`;
   teks += `JML-2DB: ${hasil.unikJmlB2.join('*')}\n`;
   teks += `SHIO-2DB: ${hasil.unikShioB2.join(',')}\n`;
