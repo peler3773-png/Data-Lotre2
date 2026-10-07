@@ -3,57 +3,41 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>10 Prediksi | No.Shio + Nama</title>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<title>10 Prediksi | Format Lengkap *</title>
 <style>
-:root{--hitam:#050505; --emas:#d4af37; --emas2:#f0c808; --gelap:#1a1a1a; --gelap2:#252525; --teks:#eae0c8; --hijau:#4f4; --merah:#f66; --biru:#6af; --ungu:#a6f}
+:root{--hitam:#050505; --emas:#d4af37; --emas2:#f0c808; --gelap:#1a1a1a; --gelap2:#252525; --teks:#eae0c8; --hijau:#4f4; --merah:#f66; --biru:#6af}
 *{margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI',sans-serif}
 body{background:var(--hitam); color:var(--teks); min-height:100vh; padding:15px}
-.wrap{max-width:1200px; margin:0 auto}
+.wrap{max-width:900px; margin:0 auto}
 h1,h2,h3{color:var(--emas); text-align:center; margin:12px 0}
 h1{font-size:1.7rem; border-bottom:2px solid var(--emas); padding-bottom:10px}
 .card{background:var(--gelap); border:1px solid var(--emas); border-radius:10px; padding:15px; margin:12px 0}
-.grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:12px}
-.grid10{display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:10px}
-.pasaran-card{border-left:3px solid var(--emas); padding:12px; border-radius:6px; transition:all 0.3s ease}
-.label{font-weight:bold; color:var(--emas2); font-size:1.05rem}
-.angka-utama{font-size:1.8rem; font-weight:bold; letter-spacing:2px; margin:6px 0; color:var(--emas2)}
-.posisi-row{display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; margin:8px 0}
-.posisi-box{background:var(--gelap2); padding:10px; border-radius:6px; border-left:2px solid var(--biru)}
-.posisi-nama{font-weight:bold; color:var(--biru); font-size:0.9rem; margin-bottom:4px}
-.posisi-angka{font-size:1.2rem; font-weight:bold; margin:4px 0}
-.posisi-shio{font-size:0.85rem; color:var(--emas); margin:2px 0}
-.posisi-jumlah{font-size:0.85rem; color:var(--hijau); margin:2px 0}
-.prediksi-card{background:#0f1520; border-left:3px solid var(--biru)}
-.prediksi-nomor{display:inline-block; background:var(--emas); color:#000; font-weight:bold; padding:2px 8px; border-radius:4px; margin-right:6px}
-.skor{display:inline-block; width:36px; text-align:center; border-radius:4px; font-weight:bold; margin-left:6px}
-.skor-tinggi{background:#264; color:#fff}
-.skor-sedang{background:#664422; color:#fe0}
-.skor-rendah{background:#662222; color:#f88}
+pre{background:#000; padding:15px; border-radius:8px; font-size:0.95rem; line-height:1.8; color:#fff; white-space:pre-wrap; word-break:break-all; max-height:650px; overflow-y:auto}
 button{background:linear-gradient(135deg,var(--emas),var(--emas2)); color:#000; border:none; padding:9px 14px; border-radius:6px; font-weight:bold; cursor:pointer; margin:4px}
 button:hover{transform:scale(1.03)}
-button.mini{padding:5px 10px; font-size:0.85rem}
-select{background:var(--gelap2); color:var(--teks); border:1px solid var(--emas); padding:8px 12px; border-radius:6px; font-weight:bold; cursor:pointer; outline:none}
+button.salin{float:right; margin:-5px 0 10px 0}
+select{background:var(--gelap2); color:var(--teks); border:1px solid var(--emas); padding:8px 12px; border-radius:6px; font-weight:bold; cursor:pointer; outline:none; margin:4px}
 select:focus{border-color:var(--emas2); box-shadow:0 0 5px var(--emas)}
 .loading{text-align:center; padding:25px; color:var(--emas)}
+.tombol-baris{text-align:center; margin:10px; display:flex; justify-content:center; align-items:center; gap:10px; flex-wrap:wrap}
+.sukses{color:var(--hijau); margin-left:8px}
 .info-kecil{font-size:0.8rem; opacity:0.7; margin-top:4px}
-.tombol-refresh{text-align:center; margin:10px; display:flex; justify-content:center; align-items:center; gap:10px; flex-wrap:wrap}
-.peringatan{color:var(--merah); font-size:0.8rem; margin:8px 0; text-align:center}
+.baris-kunci{color:var(--emas2); font-weight:bold}
 </style>
 </head>
 <body>
 <div class="wrap">
-<h1>🔮 10 PREDIKSI — No.Shio + Nama</h1>
+<h1>🔮 10 PREDIKSI — Format * Lengkap</h1>
 
-<div class="tombol-refresh">
-  <label class="label">Pilih Pasaran:</label>
+<div class="tombol-baris">
+  <label>Pilih Pasaran:</label>
   <select id="pilihPasaran" onchange="tampilPasaran()">
     <option value="CLF">CLF — CALIFORNIA</option>
     <option value="BE">BE — BULLSEYE</option>
     <option value="SGP">SGP — SINGAPORE</option>
     <option value="PS">PS — PHILIPPINES</option>
   </select>
-  <button class="mini" onclick="mulai()">🔄 Muat Ulang Data</button>
+  <button onclick="mulai()">🔄 Muat Ulang</button>
   <span id="terakhirMuat" class="info-kecil">Terakhir: —</span>
 </div>
 
@@ -61,19 +45,10 @@ select:focus{border-color:var(--emas2); box-shadow:0 0 5px var(--emas)}
 <div id="konten" style="display:none">
 
   <div class="card">
-    <h3>📊 Hasil Terakhir</h3>
-    <div id="hasilTerakhir"></div>
-  </div>
-
-  <div class="card">
-    <h3>🔥 10 PILIHAN PREDIKSI</h3>
-    <div class="peringatan" id="teksPeringatan"></div>
-    <div class="grid10" id="daftarPrediksi"></div>
-  </div>
-
-  <div class="card">
-    <h3>📋 Daftar Shio</h3>
-    <div class="grid" id="daftarShio"></div>
+    <h3>📋 Hasil Format Teks</h3>
+    <button class="salin" onclick="salinTeks()">📋 Salin</button>
+    <pre id="kotakTeks"></pre>
+    <span id="pesanSalin"></span>
   </div>
 
 </div>
@@ -84,10 +59,10 @@ const PENGATURAN_URL = "https://raw.githubusercontent.com/peler3773-png/Data-Lot
 const DATA_UNDIAN_URL = "https://raw.githubusercontent.com/peler3773-png/Data-Lotre/main/data_undian.txt";
 
 const PASARAN_DAFTAR = [
-  {kode:"CLF", nama:"CALIFORNIA", libur:[]},
-  {kode:"BE", nama:"BULLSEYE", libur:[]},
-  {kode:"SGP", nama:"SINGAPORE", libur:["Selasa","Jumat"]},
-  {kode:"PS", nama:"PHILIPPINES", libur:["Minggu"]}
+  {kode:"CLF", nama:"CALIFORNIA"},
+  {kode:"BE", nama:"BULLSEYE"},
+  {kode:"SGP", nama:"SINGAPORE"},
+  {kode:"PS", nama:"PHILIPPINES"}
 ];
 
 let dataShio = {};
@@ -118,10 +93,6 @@ function cariShioInfo(angka2){
   return {no:"-", nama:"-"};
 }
 
-function skorKelas(s){
-  return s>=7?"skor-tinggi":s>=4?"skor-sedang":"skor-rendah";
-}
-
 // === HITUNG FREKUENSI ===
 function hitungFrekuensi(listAngka){
   const h = {};
@@ -131,28 +102,26 @@ function hitungFrekuensi(listAngka){
 
 // === AMBIL 10 TERPILIH, HINDARI YANG TERAKHIR ===
 function ambil10Pilihan(urutan, hindari){
-  const frek = hitungFrekuensi(urutan.slice(1)); // kecuali terakhir
+  const frek = hitungFrekuensi(urutan.slice(1));
   const hasil = [];
   for(const [angka, jml] of frek){
     if(angka !== hindari && hasil.length < 10){
-      const skor = Math.min(10, jml + 2);
-      hasil.push({angka, skor});
+      hasil.push(angka);
     }
   }
-  // Isi kekurangan sampai 10
   if(hasil.length < 10){
-    const sudah = hasil.map(x=>x.angka);
+    const sudah = [...hasil];
     for(let n=0; n<=99; n++){
       const cek = String(n).padStart(2,'0');
       if(!sudah.includes(cek) && cek !== hindari && hasil.length < 10){
-        hasil.push({angka:cek, skor:5});
+        hasil.push(cek);
       }
     }
   }
   return hasil;
 }
 
-// === SUSUN 10 PREDIKSI LENGKAP ===
+// === SUSUN 10 PREDIKSI ===
 function susun10Prediksi(dataPasaran){
   if(dataPasaran.length < 3) return null;
   
@@ -169,19 +138,19 @@ function susun10Prediksi(dataPasaran){
   
   const daftar = [];
   for(let i=0; i<10; i++){
-    const d2 = pilihD2[i] || {angka:"00", skor:5};
-    const t2 = pilihT2[i] || {angka:"00", skor:5};
-    const b2 = pilihB2[i] || {angka:"00", skor:5};
+    const d2 = pilihD2[i] || "00";
+    const t2 = pilihT2[i] || "00";
+    const b2 = pilihB2[i] || "00";
     daftar.push({
-      nomor: i+1,
-      d2: {angka:d2.angka, shio:cariShioInfo(d2.angka), jumlah:jumlahSatuDigit(d2.angka), skor:d2.skor},
-      t2: {angka:t2.angka, shio:cariShioInfo(t2.angka), jumlah:jumlahSatuDigit(t2.angka), skor:t2.skor},
-      b2: {angka:b2.angka, shio:cariShioInfo(b2.angka), jumlah:jumlahSatuDigit(b2.angka), skor:b2.skor},
-      angka4: d2.angka + t2.angka.slice(-1) + b2.angka.slice(-1)
+      no: i+1,
+      d2: {angka:d2, jumlah:jumlahSatuDigit(d2), shio:cariShioInfo(d2)},
+      t2: {angka:t2, jumlah:jumlahSatuDigit(t2), shio:cariShioInfo(t2)},
+      b2: {angka:b2, jumlah:jumlahSatuDigit(b2), shio:cariShioInfo(b2)},
+      angka4: d2 + t2.slice(-1) + b2.slice(-1)
     });
   }
   
-  return {terbaru:terbaru, daftar, total:dataPasaran.length};
+  return {terbaru, daftar};
 }
 
 async function ambilTeks(url){
@@ -210,76 +179,48 @@ function parseDataUndian(teks){
 function tampilPasaran(){
   const kode = document.getElementById('pilihPasaran').value;
   const dp = semuaData.filter(d=>d.pasaran === kode);
-  const p = PASARAN_DAFTAR.find(x=>x.kode === kode);
   const hasil = susun10Prediksi(dp);
   
   if(!hasil){
-    document.getElementById('konten').innerHTML = `<div class="card">⚠️ Data kurang, butuh minimal 3 baris</div>`;
+    document.getElementById('kotakTeks').textContent = "⚠️ Data kurang, butuh minimal 3 baris";
     return;
   }
   
-  // Hasil Terakhir
-  document.getElementById('hasilTerakhir').innerHTML = `
-    <div class="pasaran-card">
-      <div class="label">${kode} — ${p.nama}</div>
-      <div class="angka-utama">${hasil.terbaru.asli}</div>
-      <div class="posisi-row">
-        <div class="posisi-box">
-          <div class="posisi-nama">2DD (Depan)</div>
-          <div class="posisi-angka">${hasil.terbaru.d2}</div>
-          <div class="posisi-shio">Shio: ${cariShioInfo(hasil.terbaru.d2).no}. ${cariShioInfo(hasil.terbaru.d2).nama}</div>
-          <div class="posisi-jumlah">Jumlah Akhir: ${jumlahSatuDigit(hasil.terbaru.d2)}</div>
-        </div>
-        <div class="posisi-box">
-          <div class="posisi-nama">2DT (Tengah)</div>
-          <div class="posisi-angka">${hasil.terbaru.t2}</div>
-          <div class="posisi-shio">Shio: ${cariShioInfo(hasil.terbaru.t2).no}. ${cariShioInfo(hasil.terbaru.t2).nama}</div>
-          <div class="posisi-jumlah">Jumlah Akhir: ${jumlahSatuDigit(hasil.terbaru.t2)}</div>
-        </div>
-        <div class="posisi-box">
-          <div class="posisi-nama">2DB (Belakang)</div>
-          <div class="posisi-angka">${hasil.terbaru.b2}</div>
-          <div class="posisi-shio">Shio: ${cariShioInfo(hasil.terbaru.b2).no}. ${cariShioInfo(hasil.terbaru.b2).nama}</div>
-          <div class="posisi-jumlah">Jumlah Akhir: ${jumlahSatuDigit(hasil.terbaru.b2)}</div>
-        </div>
-      </div>
-    </div>`;
+  // === SUSUN FORMAT TEKS — SEMUA DIPISAH * ===
+  let teks = `=== ${kode} — 10 PREDIKSI ===\n`;
+  teks += `Hasil Terakhir: ${hasil.terbaru.asli}\n\n`;
   
-  // Peringatan
-  document.getElementById('teksPeringatan').innerHTML = `⚠️ Hasil terakhir: ${hasil.terbaru.asli} — Semua prediksi berbeda dari ini`;
+  // Baris 4D
+  teks += `4D: ${hasil.daftar.map(p=>p.angka4).join('*')}\n`;
   
-  // 10 Prediksi
-  document.getElementById('daftarPrediksi').innerHTML = hasil.daftar.map(p=>`
-    <div class="pasaran-card prediksi-card">
-      <div class="label"><span class="prediksi-nomor">#${p.nomor}</span> ${kode}</div>
-      <div class="angka-utama" style="font-size:1.4rem">${p.angka4}</div>
-      <div style="margin:4px 0; font-size:0.85rem; line-height:1.5">
-        <strong>2DD:</strong> ${p.d2.angka}
-        <span class="skor ${skorKelas(p.d2.skor)}">${p.d2.skor}</span><br>
-        Shio: ${p.d2.shio.no}. ${p.d2.shio.nama}<br>
-        Jumlah: ${p.d2.jumlah}
-      </div>
-      <div style="margin:4px 0; font-size:0.85rem; line-height:1.5">
-        <strong>2DT:</strong> ${p.t2.angka}
-        <span class="skor ${skorKelas(p.t2.skor)}">${p.t2.skor}</span><br>
-        Shio: ${p.t2.shio.no}. ${p.t2.shio.nama}<br>
-        Jumlah: ${p.t2.jumlah}
-      </div>
-      <div style="margin:4px 0; font-size:0.85rem; line-height:1.5">
-        <strong>2DB:</strong> ${p.b2.angka}
-        <span class="skor ${skorKelas(p.b2.skor)}">${p.b2.skor}</span><br>
-        Shio: ${p.b2.shio.no}. ${p.b2.shio.nama}<br>
-        Jumlah: ${p.b2.jumlah}
-      </div>
-    </div>`).join('');
+  // Baris 2DD
+  teks += `2DD: ${hasil.daftar.map(p=>p.d2.angka).join('*')}\n`;
   
-  // Daftar Shio Lengkap
-  let urut=1;
-  document.getElementById('daftarShio').innerHTML = Object.entries(dataShio).map(([nama, d])=>`
-    <div class="pasaran-card" style="padding:8px">
-      <div class="label">${urut++}. ${nama}</div>
-      <div style="font-size:0.8rem">Angka: ${d.angka.join(', ')}</div>
-    </div>`).join('');
+  // Baris Jumlah 2DD
+  teks += `JML-2DD: ${hasil.daftar.map(p=>p.d2.jumlah).join('*')}\n`;
+  
+  // Baris Shio 2DD
+  teks += `SHIO-2DD: ${hasil.daftar.map(p=>p.d2.shio.no+'.'+p.d2.shio.nama).join('*')}\n\n`;
+  
+  // Baris 2DT
+  teks += `2DT: ${hasil.daftar.map(p=>p.t2.angka).join('*')}\n`;
+  
+  // Baris Jumlah 2DT
+  teks += `JML-2DT: ${hasil.daftar.map(p=>p.t2.jumlah).join('*')}\n`;
+  
+  // Baris Shio 2DT
+  teks += `SHIO-2DT: ${hasil.daftar.map(p=>p.t2.shio.no+'.'+p.t2.shio.nama).join('*')}\n\n`;
+  
+  // Baris 2DB
+  teks += `2DB: ${hasil.daftar.map(p=>p.b2.angka).join('*')}\n`;
+  
+  // Baris Jumlah 2DB
+  teks += `JML-2DB: ${hasil.daftar.map(p=>p.b2.jumlah).join('*')}\n`;
+  
+  // Baris Shio 2DB
+  teks += `SHIO-2DB: ${hasil.daftar.map(p=>p.b2.shio.no+'.'+p.b2.shio.nama).join('*')}\n`;
+  
+  document.getElementById('kotakTeks').textContent = teks;
 }
 
 async function mulai(){
@@ -302,6 +243,13 @@ async function mulai(){
     document.getElementById('status').innerHTML=`❌ Kesalahan: ${err.message}`;
     console.error(err);
   }
+}
+
+function salinTeks(){
+  navigator.clipboard.writeText(document.getElementById('kotakTeks').textContent).then(()=>{
+    document.getElementById('pesanSalin').innerHTML='<span class="sukses">✓ Tersalin!</span>';
+    setTimeout(()=>document.getElementById('pesanSalin').innerHTML='',2000);
+  });
 }
 
 document.addEventListener('DOMContentLoaded', mulai);
