@@ -97,23 +97,32 @@ function hitungFrekuensi(daftarAngka){
   return Object.entries(hitung).sort((a,b)=>b[1]-a[1]).map(x=>x[0]);
 }
 
-// === AMBIL 81 ANGKA — DIURUTKAN ===
-function ambil81Diurutkan(daftarAngka, hindari){
-  // Urutkan dari paling sering muncul
+// === AMBIL TEPAT 81 ANGKA — DIPASTIKAN TIDAK LEBIH ===
+function ambil81Angka(daftarAngka, hindari){
+  // 1. Urutkan dari paling sering muncul
   const urutSering = hitungFrekuensi(daftarAngka.slice(1));
-  const hasil = urutSering.filter(angka => angka !== hindari);
+  const hasil = [];
+  const sudah = new Set();
   
-  // Isi kekurangan sampai 81
-  if(hasil.length < 81){
-    const sudah = new Set(hasil);
-    for(let n=0; n<=99; n++){
-      const cek = String(n).padStart(2,'0');
-      if(!sudah.has(cek) && cek !== hindari && hasil.length < 81){
-        hasil.push(cek);
-      }
+  // 2. Masukkan yang ada di riwayat, kecuali yang terakhir
+  for(const angka of urutSering){
+    if(angka !== hindari && !sudah.has(angka)){
+      hasil.push(angka);
+      sudah.add(angka);
     }
   }
-  return hasil;
+  
+  // 3. Isi dari 00–99 sampai TEPAT 81
+  for(let n=0; n<=99 && hasil.length < 81; n++){
+    const cek = String(n).padStart(2,'0');
+    if(cek !== hindari && !sudah.has(cek)){
+      hasil.push(cek);
+      sudah.add(cek);
+    }
+  }
+  
+  // 4. POTONG TEPAT 81 — JANGAN LEBIH
+  return hasil.slice(0, 81);
 }
 
 // === SUSUN SEMUA ===
@@ -130,10 +139,10 @@ function susunHasil(dataPasaran){
   
   const terbaru = urai4Digit(dataPasaran[0].angka);
   
-  // 81 angka — sudah diurutkan dari paling sering
-  const pilihD2 = ambil81Diurutkan(urutanD2, terbaru.d2);
-  const pilihT2 = ambil81Diurutkan(urutanT2, terbaru.t2);
-  const pilihB2 = ambil81Diurutkan(urutanB2, terbaru.b2);
+  // Tepat 81 angka masing-masing
+  const pilihD2 = ambil81Angka(urutanD2, terbaru.d2);
+  const pilihT2 = ambil81Angka(urutanT2, terbaru.t2);
+  const pilihB2 = ambil81Angka(urutanB2, terbaru.b2);
   
   // 10 Teratas untuk 4D & 3D
   const daftar10 = [];
@@ -145,12 +154,12 @@ function susunHasil(dataPasaran){
     daftar10.push({angka4:a4, angka3:a4.slice(1)});
   }
   
-  // JUMLAH — ambil unik, ambil 8 teratas
+  // JUMLAH — 8 digit saja
   const unikJmlD2 = ambilTeratas(ambilUnik(pilihD2.map(a=>jumlahSatuDigit(a))), 8);
   const unikJmlT2 = ambilTeratas(ambilUnik(pilihT2.map(a=>jumlahSatuDigit(a))), 8);
   const unikJmlB2 = ambilTeratas(ambilUnik(pilihB2.map(a=>jumlahSatuDigit(a))), 8);
   
-  // SHIO — ambil unik, ambil 10 teratas
+  // SHIO — 10 nomor saja
   const unikShioD2 = ambilTeratas(ambilUnik(pilihD2.map(a=>cariShioInfo(a)).filter(Boolean)), 10);
   const unikShioT2 = ambilTeratas(ambilUnik(pilihT2.map(a=>cariShioInfo(a)).filter(Boolean)), 10);
   const unikShioB2 = ambilTeratas(ambilUnik(pilihB2.map(a=>cariShioInfo(a)).filter(Boolean)), 10);
