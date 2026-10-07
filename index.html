@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>10 Prediksi | Tanpa Duplikat</title>
+<title>10 Prediksi | 3D + Format Baru</title>
 <style>
 :root{--hitam:#050505; --emas:#d4af37; --emas2:#f0c808; --gelap:#1a1a1a; --gelap2:#252525; --teks:#eae0c8; --hijau:#4f4; --merah:#f66; --biru:#6af}
 *{margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI',sans-serif}
@@ -12,7 +12,7 @@ body{background:var(--hitam); color:var(--teks); min-height:100vh; padding:15px}
 h1,h2,h3{color:var(--emas); text-align:center; margin:12px 0}
 h1{font-size:1.7rem; border-bottom:2px solid var(--emas); padding-bottom:10px}
 .card{background:var(--gelap); border:1px solid var(--emas); border-radius:10px; padding:15px; margin:12px 0}
-pre{background:#000; padding:15px; border-radius:8px; font-size:0.95rem; line-height:1.8; color:#fff; white-space:pre-wrap; word-break:break-all; max-height:650px; overflow-y:auto}
+pre{background:#000; padding:15px; border-radius:8px; font-size:0.95rem; line-height:1.8; color:#fff; white-space:pre-wrap; word-break:break-all; max-height:700px; overflow-y:auto}
 button{background:linear-gradient(135deg,var(--emas),var(--emas2)); color:#000; border:none; padding:9px 14px; border-radius:6px; font-weight:bold; cursor:pointer; margin:4px}
 button:hover{transform:scale(1.03)}
 button.salin{float:right; margin:-5px 0 10px 0}
@@ -27,15 +27,17 @@ select:focus{border-color:var(--emas2); box-shadow:0 0 5px var(--emas)}
 </head>
 <body>
 <div class="wrap">
-<h1>🔮 10 PREDIKSI — Tanpa Duplikat</h1>
+<h1>🔮 10 PREDIKSI — 3D + Format Baru</h1>
 
 <div class="tombol-baris">
   <label>Pilih Pasaran:</label>
   <select id="pilihPasaran" onchange="tampilPasaran()">
     <option value="CLF">CLF — CALIFORNIA</option>
     <option value="BE">BE — BULLSEYE</option>
+    <option value="SD">SD — SYDNEY</option>
     <option value="SGP">SGP — SINGAPORE</option>
     <option value="PS">PS — PHILIPPINES</option>
+    <option value="HK">HK — HONGKONG</option>
   </select>
   <button onclick="mulai()">🔄 Muat Ulang</button>
   <span id="terakhirMuat" class="info-kecil">Terakhir: —</span>
@@ -49,7 +51,7 @@ select:focus{border-color:var(--emas2); box-shadow:0 0 5px var(--emas)}
     <button class="salin" onclick="salinTeks()">📋 Salin</button>
     <pre id="kotakTeks"></pre>
     <span id="pesanSalin"></span>
-    <div class="catatan">ℹ️ Jumlah & Shio: nilai ganda dihapus → tampil unik saja</div>
+    <div class="catatan">ℹ️ 4D/2DD/2DT/2DB: lengkap 10 • JML/SHIO: unik tanpa duplikat • SHIO: NAMA[NO]-</div>
   </div>
 
 </div>
@@ -76,7 +78,7 @@ function jumlahSatuDigit(angkaStr){
 
 function urai4Digit(angka4){
   const s = String(angka4).padStart(4,'0');
-  return {asli:s, d2:s.slice(0,2), t2:s.slice(1,3), b2:s.slice(2,4)};
+  return {asli:s, d2:s.slice(0,2), t2:s.slice(1,3), b2:s.slice(2,4), tiga:s.slice(1)};
 }
 
 // === CARI NOMOR URUT SHIO + NAMA ===
@@ -90,6 +92,11 @@ function cariShioInfo(angka2){
     urut++;
   }
   return {no:"-", nama:"-"};
+}
+
+// === FORMAT SHIO: NAMA[NO]- ===
+function formatShio(s){
+  return `${s.nama}[${s.no}]-`;
 }
 
 // === HITUNG FREKUENSI ===
@@ -140,12 +147,14 @@ function susun10Prediksi(dataPasaran){
     const d2 = pilihD2[i] || "00";
     const t2 = pilihT2[i] || "00";
     const b2 = pilihB2[i] || "00";
+    const angka4 = d2 + t2.slice(-1) + b2.slice(-1);
     daftar.push({
       no: i+1,
       d2: {angka:d2, jumlah:jumlahSatuDigit(d2), shio:cariShioInfo(d2)},
       t2: {angka:t2, jumlah:jumlahSatuDigit(t2), shio:cariShioInfo(t2)},
       b2: {angka:b2, jumlah:jumlahSatuDigit(b2), shio:cariShioInfo(b2)},
-      angka4: d2 + t2.slice(-1) + b2.slice(-1)
+      angka4: angka4,
+      angka3: angka4.slice(1)
     });
   }
   
@@ -189,39 +198,26 @@ function tampilPasaran(){
   let teks = `=== ${kode} — 10 PREDIKSI ===\n`;
   teks += `Hasil Terakhir: ${hasil.terbaru.asli}\n\n`;
   
-  // 4D & 2DD tetap lengkap 10
+  // 4D
   teks += `4D: ${hasil.daftar.map(p=>p.angka4).join('*')}\n`;
+  
+  // 3D — di bawah 4D
+  teks += `3D: ${hasil.daftar.map(p=>p.angka3).join('*')}\n\n`;
+  
+  // 2DD lengkap
   teks += `2DD: ${hasil.daftar.map(p=>p.d2.angka).join('*')}\n`;
+  teks += `JML-2DD: ${ambilUnik(hasil.daftar.map(p=>p.d2.jumlah)).join('*')}\n`;
+  teks += `SHIO-2DD: ${ambilUnik(hasil.daftar.map(p=>formatShio(p.d2.shio))).join('')}\n\n`;
   
-  // Jumlah 2DD — HAPUS DOBEL
-  const jmlD2unik = ambilUnik(hasil.daftar.map(p=>p.d2.jumlah));
-  teks += `JML-2DD: ${jmlD2unik.join('*')}\n`;
-  
-  // Shio 2DD — HAPUS DOBEL
-  const shioD2unik = ambilUnik(hasil.daftar.map(p=>p.d2.shio.no+'.'+p.d2.shio.nama));
-  teks += `SHIO-2DD: ${shioD2unik.join('*')}\n\n`;
-  
-  // 2DT tetap lengkap 10
+  // 2DT lengkap
   teks += `2DT: ${hasil.daftar.map(p=>p.t2.angka).join('*')}\n`;
+  teks += `JML-2DT: ${ambilUnik(hasil.daftar.map(p=>p.t2.jumlah)).join('*')}\n`;
+  teks += `SHIO-2DT: ${ambilUnik(hasil.daftar.map(p=>formatShio(p.t2.shio))).join('')}\n\n`;
   
-  // Jumlah 2DT — HAPUS DOBEL
-  const jmlT2unik = ambilUnik(hasil.daftar.map(p=>p.t2.jumlah));
-  teks += `JML-2DT: ${jmlT2unik.join('*')}\n`;
-  
-  // Shio 2DT — HAPUS DOBEL
-  const shioT2unik = ambilUnik(hasil.daftar.map(p=>p.t2.shio.no+'.'+p.t2.shio.nama));
-  teks += `SHIO-2DT: ${shioT2unik.join('*')}\n\n`;
-  
-  // 2DB tetap lengkap 10
+  // 2DB lengkap
   teks += `2DB: ${hasil.daftar.map(p=>p.b2.angka).join('*')}\n`;
-  
-  // Jumlah 2DB — HAPUS DOBEL
-  const jmlB2unik = ambilUnik(hasil.daftar.map(p=>p.b2.jumlah));
-  teks += `JML-2DB: ${jmlB2unik.join('*')}\n`;
-  
-  // Shio 2DB — HAPUS DOBEL
-  const shioB2unik = ambilUnik(hasil.daftar.map(p=>p.b2.shio.no+'.'+p.b2.shio.nama));
-  teks += `SHIO-2DB: ${shioB2unik.join('*')}\n`;
+  teks += `JML-2DB: ${ambilUnik(hasil.daftar.map(p=>p.b2.jumlah)).join('*')}\n`;
+  teks += `SHIO-2DB: ${ambilUnik(hasil.daftar.map(p=>formatShio(p.b2.shio))).join('')}\n`;
   
   document.getElementById('kotakTeks').textContent = teks;
 }
