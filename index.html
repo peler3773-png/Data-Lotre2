@@ -78,13 +78,13 @@ function urai4Digit(angka4){
 
 // === CARI SHIO — HANYA NOMOR URUT ===
 function cariShioInfo(angka2){
-  if(!dataShio) return "-";
+  if(!dataShio) return null;
   let urut=1;
   for(const [shio,d] of Object.entries(dataShio)){
-    if(d.angka.includes(angka2)) return String(urut);
+    if(d.angka.includes(angka2)) return urut;
     urut++;
   }
-  return "-";
+  return null;
 }
 
 // === HITUNG FREKUENSI ===
@@ -146,13 +146,13 @@ function susunHasil(dataPasaran){
     });
   }
   
-  // Semua 81 — Shio = hanya nomor
+  // Semua 81 — Shio unik, dipisah koma
   const semuaJmlD2 = pilihD2.map(a=>jumlahSatuDigit(a));
-  const semuaShioD2 = pilihD2.map(a=>cariShioInfo(a));
+  const semuaShioD2 = ambilUnik(pilihD2.map(a=>cariShioInfo(a)).filter(Boolean));
   const semuaJmlT2 = pilihT2.map(a=>jumlahSatuDigit(a));
-  const semuaShioT2 = pilihT2.map(a=>cariShioInfo(a));
+  const semuaShioT2 = ambilUnik(pilihT2.map(a=>cariShioInfo(a)).filter(Boolean));
   const semuaJmlB2 = pilihB2.map(a=>jumlahSatuDigit(a));
-  const semuaShioB2 = pilihB2.map(a=>cariShioInfo(a));
+  const semuaShioB2 = ambilUnik(pilihB2.map(a=>cariShioInfo(a)).filter(Boolean));
   
   return {terbaru, daftar10, pilihD2, pilihT2, pilihB2, semuaJmlD2, semuaShioD2, semuaJmlT2, semuaShioT2, semuaJmlB2, semuaShioB2};
 }
@@ -198,17 +198,17 @@ function tampilPasaran(){
   teks += `-- 81 2DD --\n`;
   teks += `2DD: ${hasil.pilihD2.join('*')}\n`;
   teks += `JML-2DD: ${ambilUnik(hasil.semuaJmlD2).join('*')}\n`;
-  teks += `SHIO-2DD: ${ambilUnik(hasil.semuaShioD2).join('')}\n\n`;
+  teks += `SHIO-2DD: ${hasil.semuaShioD2.join(',')}\n\n`;
   
   teks += `-- 81 2DT --\n`;
   teks += `2DT: ${hasil.pilihT2.join('*')}\n`;
   teks += `JML-2DT: ${ambilUnik(hasil.semuaJmlT2).join('*')}\n`;
-  teks += `SHIO-2DT: ${ambilUnik(hasil.semuaShioT2).join('')}\n\n`;
+  teks += `SHIO-2DT: ${hasil.semuaShioT2.join(',')}\n\n`;
   
   teks += `-- 81 2DB --\n`;
   teks += `2DB: ${hasil.pilihB2.join('*')}\n`;
   teks += `JML-2DB: ${ambilUnik(hasil.semuaJmlB2).join('*')}\n`;
-  teks += `SHIO-2DB: ${ambilUnik(hasil.semuaShioB2).join('')}\n`;
+  teks += `SHIO-2DB: ${hasil.semuaShioB2.join(',')}\n`;
   
   document.getElementById('kotakTeks').textContent = teks;
 }
