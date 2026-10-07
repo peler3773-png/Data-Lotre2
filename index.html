@@ -28,8 +28,20 @@ label{font-size:0.9rem; margin-left:6px}
 .param-box{display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:8px; margin-top:10px; padding:10px; background:#0f0f0f; border-radius:8px}
 .param-item{text-align:center}
 .param-nama{font-size:0.75rem; opacity:0.8}
+.error{color:var(--merah); text-align:center; padding:10px}
 </style>
-<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.15.1/dist/tf.min.js"></script>
+<!-- TensorFlow.js — Dipindah ke HEAD & Pakai Versi Stabil Pasti -->
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.20.0/dist/tf.min.js"></script>
+<script>
+// Cek langsung saat halaman dimuat
+window.addEventListener('load', function(){
+  if(typeof tf === 'undefined'){
+    console.error('TensorFlow gagal dimuat');
+    const st = document.getElementById('status');
+    if(st) st.innerHTML = '❌ TensorFlow gagal dimuat — cek koneksi internet';
+  }
+});
+</script>
 </head>
 <body>
 <div class="wrap">
@@ -38,7 +50,7 @@ label{font-size:0.9rem; margin-left:6px}
 <div class="tombol-baris">
   <label>Pasaran:</label>
   <select id="pilihPasaran" onchange="tampilPasaran()">
-    <option value="CLF">CLF — CALIFORNIA</option>
+    <option value="CLF" selected>CLF — CALIFORNIA</option>
     <option value="BE">BE — BULLSEYE</option>
     <option value="SGP">SGP — SINGAPORE</option>
     <option value="PS">PS — PHILIPPINES</option>
@@ -160,7 +172,7 @@ function ambil10Frekuensi(urutan, hindari){
 }
 
 // ==============================================
-// METODE 2: LSTM — FULL TUNING
+// METODE 2: LSTM — Full Tuning
 // ==============================================
 function siapkanDataUrutan(daftarAngka2digit, panjangUrutan){
   const urutanAngka = daftarAngka2digit.map(a=>parseInt(a));
@@ -181,6 +193,8 @@ function siapkanDataUrutan(daftarAngka2digit, panjangUrutan){
 }
 
 async function latihLSTM(X, y, totalKelas, p){
+  if(typeof tf === 'undefined') throw new Error('TensorFlow belum dimuat');
+  
   const xs = tf.tensor2d(X, [X.length, p.panjang]);
   const ys = tf.oneHot(y, totalKelas);
 
@@ -192,8 +206,7 @@ async function latihLSTM(X, y, totalKelas, p){
   }));
   model.add(tf.layers.lstm({
     units: p.unit,
-    dropout: p.drop,
-    recurrentDropout: 0
+    dropout: p.drop
   }));
   model.add(tf.layers.batchNormalization());
   model.add(tf.layers.dense({
@@ -219,18 +232,14 @@ async function latihLSTM(X, y, totalKelas, p){
 }
 
 function prediksi10LSTM(model, data, hindari, p){
-  const {X, pemetaan, urutanAsli} = data;
+  const {pemetaan, urutanAsli} = data;
   const balikPeta = Object.fromEntries(Object.entries(pemetaan).map(([k,v])=>[v,parseInt(k)]));
   
-  // Ambil urutan paling akhir sebagai awal prediksi
   const urutanTerakhir = urutanAsli.slice(0, p.panjang).map(v=>pemetaan[v]);
   if(urutanTerakhir.includes(undefined)) return null;
 
   const hasil = [];
-  let urutanSaatIni = [...urutanTerakhir];
-
-  // Prediksi langsung dari distribusi peluang
-  const pred = model.predict(tf.tensor2d([urutanSaatIni], [1, p.panjang]), {verbose:0});
+  const pred = model.predict(tf.tensor2d([urutanTerakhir], [1, p.panjang]), {verbose:0});
   const distribusi = pred.dataSync();
   const terurut = Array.from(distribusi)
     .map((peluang, indeks)=>({indeks, peluang}))
@@ -245,7 +254,6 @@ function prediksi10LSTM(model, data, hindari, p){
   }
   pred.dispose();
 
-  // Isi kekurangan
   if(hasil.length < 10){
     const sudah = [...hasil];
     for(let n=0;n<=99;n++){
@@ -260,6 +268,7 @@ function prediksi10LSTM(model, data, hindari, p){
 }
 
 async function ambil10LSTM(daftarAngka2digit, hindari, p){
+  if(typeof tf === 'undefined') return null;
   const data = siapkanDataUrutan(daftarAngka2digit, p.panjang);
   if(!data) return null;
   const {model, akurasi} = await latihLSTM(data.X, data.y, data.totalKelas, p);
@@ -284,6 +293,9 @@ async function susunHasil(dataPasaran, metode){
 
   let pilihD2, pilihT2, pilihB2, infoAkurasi="";
   if(metode === 'lstm'){
+    if(typeof tf === 'undefined'){
+      return {error:true, pesan:"❌ TensorFlow belum dimuat — cek koneksi internet & muat ulang halaman"};
+    }
     const d2 = await ambil10LSTM(urutanD2, terbaru.d2, p);
     const t2 = await ambil10LSTM(urutanT2, terbaru.t2, p);
     const b2 = await ambil10LSTM(urutanB2, terbaru.b2, p);
@@ -337,7 +349,7 @@ async function tampilPasaran(){
   const hasil = await susunHasil(dp, metode);
   
   if(!hasil || hasil.error){
-    document.getElementById('status').innerHTML = hasil?.pesan || "⚠️ Data kurang";
+    document.getElementById('status').innerHTML = `<div class="error">${hasil?.pesan || "⚠️ Data kurang"}</div>`;
     return;
   }
 
@@ -374,7 +386,7 @@ async function mulai(){
     
     await tampilPasaran();
   }catch(err){
-    document.getElementById('status').innerHTML=`❌ ${err.message}`;
+    document.getElementById('status').innerHTML=`<div class="error">❌ ${err.message}</div>`;
     console.error(err);
   }
 }
