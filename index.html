@@ -11,7 +11,7 @@ body{background:var(--hitam); color:var(--teks); min-height:100vh; padding:15px}
 .wrap{max-width:950px; margin:0 auto}
 h1{color:var(--emas); text-align:center; margin:12px 0; font-size:1.4rem}
 .card{background:var(--gelap); border:1px solid var(--emas); border-radius:10px; padding:15px; margin:12px 0}
-pre{background:#000; padding:15px; border-radius:8px; font-size:0.9rem; line-height:1.7; color:#fff; white-space:pre-wrap; word-break:break-all; max-height:900px; overflow-y:auto}
+pre{background:#000; padding:15px; border-radius:8px; font-size:0.9rem; line-height:1.8; color:#fff; white-space:pre-wrap; word-break:break-all; max-height:900px; overflow-y:auto}
 button{background:linear-gradient(135deg,var(--emas),var(--emas2)); color:#000; border:none; padding:9px 14px; border-radius:6px; font-weight:bold; cursor:pointer; margin:4px}
 button:hover{transform:scale(1.03)}
 button.salin{float:right; margin:-5px 0 10px 0}
@@ -86,13 +86,11 @@ function cariShioInfo(angka2){
   return null;
 }
 
-// === AMBIL 90 ANGKA — BELUM PERNAH MUNCUL DULUAN ===
 function ambil90Angka(daftarSudahMuncul, hindari){
   const hasil = [];
   const sudah = new Set(daftarSudahMuncul);
   sudah.add(hindari);
 
-  // Langkah 1: Yang belum pernah muncul duluan
   for(let n=0; n<=99; n++){
     const cek = String(n).padStart(2,'0');
     if(!sudah.has(cek)){
@@ -101,22 +99,17 @@ function ambil90Angka(daftarSudahMuncul, hindari){
     }
   }
 
-  // Langkah 2: Tambah dari yang sudah muncul (kecuali terakhir)
-  if(hasil.length < MAKSIMAL_ANGKA){
-    for(const angka of daftarSudahMuncul){
-      if(angka !== hindari && !hasil.includes(angka)){
-        hasil.push(angka);
-        if(hasil.length === MAKSIMAL_ANGKA) return hasil;
-      }
+  for(const angka of daftarSudahMuncul){
+    if(angka !== hindari && !hasil.includes(angka)){
+      hasil.push(angka);
+      if(hasil.length === MAKSIMAL_ANGKA) return hasil;
     }
   }
   return hasil;
 }
 
-// === BUAT 4D & 3D DARI 90 ANGKA ===
 function buatSemua4D3D(arrD2, arrT2, arrB2){
   const daftar4D = [], daftar3D = [];
-  // Gabungkan semua kemungkinan: D2 + T2[akhir] + B2[akhir]
   for(let i=0; i<arrD2.length; i++){
     const d2 = arrD2[i];
     const t2 = arrT2[i % arrT2.length];
@@ -141,15 +134,12 @@ function susunHasil(dataPasaran){
   
   const terbaru = urai4Digit(dataPasaran[0].angka);
   
-  // 90 angka masing-masing
   const pilihD2 = ambil90Angka(urutanD2, terbaru.d2);
   const pilihT2 = ambil90Angka(urutanT2, terbaru.t2);
   const pilihB2 = ambil90Angka(urutanB2, terbaru.b2);
   
-  // Buat 4D & 3D lengkap dari 90 angka
   const {daftar4D, daftar3D} = buatSemua4D3D(pilihD2, pilihT2, pilihB2);
   
-  // JML & SHIO masing-masing 2
   const unikJmlD2 = ambilTeratas(ambilUnik(pilihD2.map(a=>jumlahSatuDigit(a))), MAKSIMAL_JML);
   const unikJmlT2 = ambilTeratas(ambilUnik(pilihT2.map(a=>jumlahSatuDigit(a))), MAKSIMAL_JML);
   const unikJmlB2 = ambilTeratas(ambilUnik(pilihB2.map(a=>jumlahSatuDigit(a))), MAKSIMAL_JML);
@@ -195,28 +185,26 @@ function tampilPasaran(){
   let teks = `=== ${kode} — 90 PREDIKSI ===\n`;
   teks += `Hasil Terakhir: ${hasil.terbaru.asli}\n\n`;
   
-  // === BLOK UTAMA ===
   teks += `-- 90 2DD --\n`;
-  teks += `2DD: ${hasil.pilihD2.join('*')}\n`;
-  teks += `JML-LMH-2DD: ${hasil.unikJmlD2.join('*')}\n`;
-  teks += `SHIO-LMH-2DD: ${hasil.unikShioD2.join(',')}\n\n`;
+  teks += `${hasil.pilihD2.join('*')}\n`;
+  teks += `JML-LMH-2DD:   ${hasil.unikJmlD2.join('*')}\n`;
+  teks += `SHIO-LMH-2DD:  ${hasil.unikShioD2.join(',')}\n`;
   
   teks += `-- 90 2DT --\n`;
-  teks += `2DT: ${hasil.pilihT2.join('*')}\n`;
-  teks += `JML-LMH-2DT: ${hasil.unikJmlT2.join('*')}\n`;
-  teks += `SHIO-LMH-2DT: ${hasil.unikShioT2.join(',')}\n\n`;
+  teks += `${hasil.pilihT2.join('*')}\n`;
+  teks += `JML-LMH-2DT:   ${hasil.unikJmlT2.join('*')}\n`;
+  teks += `SHIO-LMH-2DT:  ${hasil.unikShioT2.join(',')}\n`;
   
   teks += `-- 90 2DB --\n`;
-  teks += `2DB: ${hasil.pilihB2.join('*')}\n`;
-  teks += `JML-LMH-2DB: ${hasil.unikJmlB2.join('*')}\n`;
-  teks += `SHIO-LMH-2DB: ${hasil.unikShioB2.join(',')}\n\n`;
+  teks += `${hasil.pilihB2.join('*')}\n`;
+  teks += `JML-LMH-2DB:   ${hasil.unikJmlB2.join('*')}\n`;
+  teks += `SHIO-LMH-2DB:  ${hasil.unikShioB2.join(',')}\n`;
   
-  // === BLOK 4D & 3D DI BAWAH ===
   teks += `-- 90 4D --\n`;
-  teks += `4D: ${hasil.daftar4D.join('*')}\n\n`;
+  teks += `${hasil.daftar4D.join('*')}\n`;
   
   teks += `-- 90 3D --\n`;
-  teks += `3D: ${hasil.daftar3D.join('*')}\n`;
+  teks += `${hasil.daftar3D.join('*')}\n`;
   
   document.getElementById('kotakTeks').textContent = teks;
 }
