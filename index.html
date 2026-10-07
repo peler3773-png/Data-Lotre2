@@ -63,6 +63,9 @@ let semuaData = [];
 // === HAPUS DUPLIKAT ===
 function ambilUnik(list){ return [...new Set(list)]; }
 
+// === AMBIL N TERATAS ===
+function ambilTeratas(list, jumlah){ return list.slice(0, jumlah); }
+
 // === JUMLAH SAMPAI 1 DIGIT ===
 function jumlahSatuDigit(angkaStr){
   let nilai = String(angkaStr).split('').reduce((a,b)=>a+parseInt(b),0);
@@ -76,7 +79,7 @@ function urai4Digit(angka4){
   return {asli:s, d2:s.slice(0,2), t2:s.slice(1,3), b2:s.slice(2,4)};
 }
 
-// === CARI SHIO — HANYA NOMOR URUT ===
+// === CARI SHIO — NOMOR URUT ===
 function cariShioInfo(angka2){
   if(!dataShio) return null;
   let urut=1;
@@ -87,25 +90,25 @@ function cariShioInfo(angka2){
   return null;
 }
 
-// === HITUNG FREKUENSI ===
-function hitungFrekuensi(listAngka){
-  const h = {};
-  listAngka.forEach(a=>{ h[a] = (h[a]||0)+1; });
-  return Object.entries(h).sort((a,b)=>b[1]-a[1]);
+// === HITUNG FREKUENSI & URUTKAN ===
+function hitungFrekuensi(daftarAngka){
+  const hitung = {};
+  daftarAngka.forEach(a=>{ hitung[a] = (hitung[a]||0)+1; });
+  return Object.entries(hitung).sort((a,b)=>b[1]-a[1]).map(x=>x[0]);
 }
 
-// === AMBIL 81 ANGKA — SEMUA KECUALI YANG TERAKHIR ===
-function ambil81Angka(urutan, hindari){
-  const frek = hitungFrekuensi(urutan.slice(1));
-  const hasil = [];
-  for(const [angka] of frek){
-    if(angka !== hindari) hasil.push(angka);
-  }
+// === AMBIL 81 ANGKA — DIURUTKAN ===
+function ambil81Diurutkan(daftarAngka, hindari){
+  // Urutkan dari paling sering muncul
+  const urutSering = hitungFrekuensi(daftarAngka.slice(1));
+  const hasil = urutSering.filter(angka => angka !== hindari);
+  
+  // Isi kekurangan sampai 81
   if(hasil.length < 81){
-    const sudah = [...hasil];
+    const sudah = new Set(hasil);
     for(let n=0; n<=99; n++){
       const cek = String(n).padStart(2,'0');
-      if(!sudah.includes(cek) && cek !== hindari && hasil.length < 81){
+      if(!sudah.has(cek) && cek !== hindari && hasil.length < 81){
         hasil.push(cek);
       }
     }
@@ -126,35 +129,33 @@ function susunHasil(dataPasaran){
   }
   
   const terbaru = urai4Digit(dataPasaran[0].angka);
-  const pilihD2 = ambil81Angka(urutanD2, terbaru.d2);
-  const pilihT2 = ambil81Angka(urutanT2, terbaru.t2);
-  const pilihB2 = ambil81Angka(urutanB2, terbaru.b2);
   
-  // 10 Teratas
+  // 81 angka — sudah diurutkan dari paling sering
+  const pilihD2 = ambil81Diurutkan(urutanD2, terbaru.d2);
+  const pilihT2 = ambil81Diurutkan(urutanT2, terbaru.t2);
+  const pilihB2 = ambil81Diurutkan(urutanB2, terbaru.b2);
+  
+  // 10 Teratas untuk 4D & 3D
   const daftar10 = [];
   for(let i=0; i<10; i++){
     const d2 = pilihD2[i]||"00";
     const t2 = pilihT2[i]||"00";
     const b2 = pilihB2[i]||"00";
     const a4 = d2 + t2.slice(-1) + b2.slice(-1);
-    daftar10.push({
-      d2:{angka:d2, jumlah:jumlahSatuDigit(d2), shio:cariShioInfo(d2)},
-      t2:{angka:t2, jumlah:jumlahSatuDigit(t2), shio:cariShioInfo(t2)},
-      b2:{angka:b2, jumlah:jumlahSatuDigit(b2), shio:cariShioInfo(b2)},
-      angka4:a4,
-      angka3:a4.slice(1)
-    });
+    daftar10.push({angka4:a4, angka3:a4.slice(1)});
   }
   
-  // Semua 81 — Shio unik, dipisah koma
-  const semuaJmlD2 = pilihD2.map(a=>jumlahSatuDigit(a));
-  const semuaShioD2 = ambilUnik(pilihD2.map(a=>cariShioInfo(a)).filter(Boolean));
-  const semuaJmlT2 = pilihT2.map(a=>jumlahSatuDigit(a));
-  const semuaShioT2 = ambilUnik(pilihT2.map(a=>cariShioInfo(a)).filter(Boolean));
-  const semuaJmlB2 = pilihB2.map(a=>jumlahSatuDigit(a));
-  const semuaShioB2 = ambilUnik(pilihB2.map(a=>cariShioInfo(a)).filter(Boolean));
+  // JUMLAH — ambil unik, ambil 8 teratas
+  const unikJmlD2 = ambilTeratas(ambilUnik(pilihD2.map(a=>jumlahSatuDigit(a))), 8);
+  const unikJmlT2 = ambilTeratas(ambilUnik(pilihT2.map(a=>jumlahSatuDigit(a))), 8);
+  const unikJmlB2 = ambilTeratas(ambilUnik(pilihB2.map(a=>jumlahSatuDigit(a))), 8);
   
-  return {terbaru, daftar10, pilihD2, pilihT2, pilihB2, semuaJmlD2, semuaShioD2, semuaJmlT2, semuaShioT2, semuaJmlB2, semuaShioB2};
+  // SHIO — ambil unik, ambil 10 teratas
+  const unikShioD2 = ambilTeratas(ambilUnik(pilihD2.map(a=>cariShioInfo(a)).filter(Boolean)), 10);
+  const unikShioT2 = ambilTeratas(ambilUnik(pilihT2.map(a=>cariShioInfo(a)).filter(Boolean)), 10);
+  const unikShioB2 = ambilTeratas(ambilUnik(pilihB2.map(a=>cariShioInfo(a)).filter(Boolean)), 10);
+  
+  return {terbaru, daftar10, pilihD2, pilihT2, pilihB2, unikJmlD2, unikShioD2, unikJmlT2, unikShioT2, unikJmlB2, unikShioB2};
 }
 
 async function ambilTeks(url){
@@ -197,18 +198,18 @@ function tampilPasaran(){
   
   teks += `-- 81 2DD --\n`;
   teks += `2DD: ${hasil.pilihD2.join('*')}\n`;
-  teks += `JML-2DD: ${ambilUnik(hasil.semuaJmlD2).join('*')}\n`;
-  teks += `SHIO-2DD: ${hasil.semuaShioD2.join(',')}\n\n`;
+  teks += `JML-2DD: ${hasil.unikJmlD2.join('*')}\n`;
+  teks += `SHIO-2DD: ${hasil.unikShioD2.join(',')}\n\n`;
   
   teks += `-- 81 2DT --\n`;
   teks += `2DT: ${hasil.pilihT2.join('*')}\n`;
-  teks += `JML-2DT: ${ambilUnik(hasil.semuaJmlT2).join('*')}\n`;
-  teks += `SHIO-2DT: ${hasil.semuaShioT2.join(',')}\n\n`;
+  teks += `JML-2DT: ${hasil.unikJmlT2.join('*')}\n`;
+  teks += `SHIO-2DT: ${hasil.unikShioT2.join(',')}\n\n`;
   
   teks += `-- 81 2DB --\n`;
   teks += `2DB: ${hasil.pilihB2.join('*')}\n`;
-  teks += `JML-2DB: ${ambilUnik(hasil.semuaJmlB2).join('*')}\n`;
-  teks += `SHIO-2DB: ${hasil.semuaShioB2.join(',')}\n`;
+  teks += `JML-2DB: ${hasil.unikJmlB2.join('*')}\n`;
+  teks += `SHIO-2DB: ${hasil.unikShioB2.join(',')}\n`;
   
   document.getElementById('kotakTeks').textContent = teks;
 }
