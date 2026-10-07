@@ -28,6 +28,7 @@ h1{font-size:1.7rem; border-bottom:2px solid var(--emas); padding-bottom:10px}
 .baris{display:flex; justify-content:space-between; padding:4px 0; border-bottom:1px solid #333; flex-wrap:wrap; gap:4px}
 .baris.pred{border-bottom:1px dotted var(--biru)}
 .baris.terang{background:#2a2a2a; padding:6px 4px; border-radius:4px}
+.jumlah-langkah{font-size:0.8rem; opacity:0.7; margin-left:6px}
 button{background:linear-gradient(135deg,var(--emas),var(--emas2)); color:#000; border:none; padding:9px 14px; border-radius:6px; font-weight:bold; cursor:pointer; margin:4px}
 button:hover{transform:scale(1.03)}
 button.mini{padding:5px 10px; font-size:0.85rem}
@@ -48,8 +49,8 @@ pre{background:#000; padding:10px; border-radius:6px; overflow-x:auto; font-size
 </head>
 <body>
 <div class="wrap">
-<h1>🔮 LSTM-JUMLAH-SHIO FINAL</h1>
-<h2>CLF · BE · SGP · PS | 2DD · 2DT · 2DB | GRAFIK + OTOMATIS</h2>
+<h1>🔮 LSTM-JUMLAH-SHIO — REVISI JUMLAH</h1>
+<h2>CLF · BE · SGP · PS | 2DD · 2DT · 2DB | Jumlah Akhir 1 Digit</h2>
 <div class="tombol-refresh">
   <button class="mini" onclick="mulai()">🔄 Muat Ulang Data</button>
   <span id="terakhirMuat" class="info-kecil">Terakhir: —</span>
@@ -116,6 +117,23 @@ const HARI_IND = ["Senin","Selasa","Rabu","Kamis","Jumat","Sabtu","Minggu"];
 let dataShio = {};
 let grafikSimpan = {};
 
+// === REVISI: JUMLAH SAMPAI 1 DIGIT AKHIR ===
+function jumlahSatuDigit(angkaStr){
+  const langkah = [];
+  let nilai = String(angkaStr).split('').reduce((a,b)=>a+parseInt(b),0);
+  langkah.push(nilai);
+  
+  while(nilai >= 10){
+    nilai = String(nilai).split('').reduce((a,b)=>a+parseInt(b),0);
+    langkah.push(nilai);
+  }
+  
+  return {
+    akhir: nilai,
+    langkah: langkah.join(' → ')
+  };
+}
+
 // === UTILITAS ===
 function ambilHariNama(tanggalStr){
   const d = new Date(tanggalStr + "T00:00:00");
@@ -140,10 +158,6 @@ function cariShio(angka2){
     if(d.angka.includes(angka2)) return shio;
   }
   return "-";
-}
-
-function jumlahAngka(angkaStr){
-  return String(angkaStr).split('').reduce((a,b)=>a+parseInt(b),0);
 }
 
 async function ambilTeks(url){
@@ -190,9 +204,9 @@ function hitungPrediksi(dataPasaran){
     shioT2[sT] = (shioT2[sT]||0)+1;
     shioB2[sB] = (shioB2[sB]||0)+1;
 
-    const jD = jumlahAngka(u.d2);
-    const jT = jumlahAngka(u.t2);
-    const jB = jumlahAngka(u.b2);
+    const jD = jumlahSatuDigit(u.d2).akhir;
+    const jT = jumlahSatuDigit(u.t2).akhir;
+    const jB = jumlahSatuDigit(u.b2).akhir;
     jumlahD2[jD] = (jumlahD2[jD]||0)+1;
     jumlahT2[jT] = (jumlahT2[jT]||0)+1;
     jumlahB2[jB] = (jumlahB2[jB]||0)+1;
@@ -347,13 +361,19 @@ async function mulai(){
         ringkasanFrekuensi.db.push(...pred.frekuensi.freqB2);
       }
 
+      const jmlD2 = jumlahSatuDigit(urai.d2);
+      const jmlDT2 = jumlahSatuDigit(urai.t2);
+      const jmlDB2 = jumlahSatuDigit(urai.b2);
+
       hasilAkhir.push({
         pasaran: p.kode, nama: p.nama,
         tanggal: terbaru.tanggal, hari: ambilHariNama(terbaru.tanggal),
         angka4: urai.asli,
         d2: urai.d2, t2: urai.t2, b2: urai.b2,
         shio_d2: cariShio(urai.d2), shio_t2: cariShio(urai.t2), shio_b2: cariShio(urai.b2),
-        jumlah_d2: jumlahAngka(urai.d2), jumlah_t2: jumlahAngka(urai.t2), jumlah_b2: jumlahAngka(urai.b2),
+        jumlah_d2: jmlD2,
+        jumlah_t2: jmlDT2,
+        jumlah_b2: jmlDB2,
         libur: isLibur(p.kode, terbaru.tanggal), prediksi: pred
       });
       prediksiDaftar.push({pasaran:p.kode, pred:pred, total:dataPasaran.length});
@@ -376,9 +396,21 @@ async function mulai(){
         <div>${h.tanggal} | ${h.hari}</div>
         <div class="angka">${h.angka4}</div>
         ${h.libur?'<div class="teks-merah">⚠️ Libur</div>':'<div class="teks-hijau">✅ Buka</div>'}
-        <div class="baris"><span>2DD:</span><span>${h.d2} | ${h.shio_d2} | Jml:${h.jumlah_d2}</span></div>
-        <div class="baris"><span>2DT:</span><span>${h.t2} | ${h.shio_t2} | Jml:${h.jumlah_t2}</span></div>
-        <div class="baris"><span>2DB:</span><span>${h.b2} | ${h.shio_b2} | Jml:${h.jumlah_b2}</span></div>
+        <div class="baris">
+          <span>2DD:</span>
+          <span>${h.d2} | ${h.shio_d2} | Akhir:${h.jumlah_d2.akhir}</span>
+        </div>
+        <div class="jumlah-langkah">Langkah: ${h.jumlah_d2.langkah}</div>
+        <div class="baris">
+          <span>2DT:</span>
+          <span>${h.t2} | ${h.shio_t2} | Akhir:${h.jumlah_t2.akhir}</span>
+        </div>
+        <div class="jumlah-langkah">Langkah: ${h.jumlah_t2.langkah}</div>
+        <div class="baris">
+          <span>2DB:</span>
+          <span>${h.b2} | ${h.shio_b2} | Akhir:${h.jumlah_b2.akhir}</span>
+        </div>
+        <div class="jumlah-langkah">Langkah: ${h.jumlah_b2.langkah}</div>
       </div>`).join('');
 
     // Prediksi
@@ -388,19 +420,19 @@ async function mulai(){
         <div class="angka teks-biru">${h.pred.prediksi_4d}</div>
         <div class="baris pred">
           <span>2DD:</span>
-          <span>${h.pred.pred_dd.angka} | ${cariShio(h.pred.pred_dd.angka)} | Jml:${jumlahAngka(h.pred.pred_dd.angka)}
+          <span>${h.pred.pred_dd.angka} | ${cariShio(h.pred.pred_dd.angka)} | Akhir:${jumlahSatuDigit(h.pred.pred_dd.angka).akhir}
             <span class="skor ${skorKelas(h.pred.pred_dd.skor)}">${h.pred.pred_dd.skor}</span>
           </span>
         </div>
         <div class="baris pred">
           <span>2DT:</span>
-          <span>${h.pred.pred_dt.angka} | ${cariShio(h.pred.pred_dt.angka)} | Jml:${jumlahAngka(h.pred.pred_dt.angka)}
+          <span>${h.pred.pred_dt.angka} | ${cariShio(h.pred.pred_dt.angka)} | Akhir:${jumlahSatuDigit(h.pred.pred_dt.angka).akhir}
             <span class="skor ${skorKelas(h.pred.pred_dt.skor)}">${h.pred.pred_dt.skor}</span>
           </span>
         </div>
         <div class="baris pred">
           <span>2DB:</span>
-          <span>${h.pred.pred_db.angka} | ${cariShio(h.pred.pred_db.angka)} | Jml:${jumlahAngka(h.pred.pred_db.angka)}
+          <span>${h.pred.pred_db.angka} | ${cariShio(h.pred.pred_db.angka)} | Akhir:${jumlahSatuDigit(h.pred.pred_db.angka).akhir}
             <span class="skor ${skorKelas(h.pred.pred_db.skor)}">${h.pred.pred_db.skor}</span>
           </span>
         </div>
@@ -423,13 +455,13 @@ async function mulai(){
     // Rekap
     document.getElementById('rekapBagian').innerHTML = `
       <div class="baris terang" style="font-weight:bold">
-        <span>Pasaran</span><span>2DD | Shio | Jml</span><span>2DT | Shio | Jml</span><span>2DB | Shio | Jml</span><span>Prediksi</span>
+        <span>Pasaran</span><span>2DD | Shio | Akhir</span><span>2DT | Shio | Akhir</span><span>2DB | Shio | Akhir</span><span>Prediksi</span>
       </div>` + hasilAkhir.map(h=>`
       <div class="baris">
         <span style="font-weight:bold">${h.pasaran}</span>
-        <span>${h.d2} ${h.shio_d2} ${h.jumlah_d2}</span>
-        <span>${h.t2} ${h.shio_t2} ${h.jumlah_t2}</span>
-        <span>${h.b2} ${h.shio_b2} ${h.jumlah_b2}</span>
+        <span>${h.d2} ${h.shio_d2} ${h.jumlah_d2.akhir}</span>
+        <span>${h.t2} ${h.shio_t2} ${h.jumlah_t2.akhir}</span>
+        <span>${h.b2} ${h.shio_b2} ${h.jumlah_b2.akhir}</span>
         <span class="teks-biru">${h.prediksi?.prediksi_4d||"-"}</span>
       </div>`).join('');
 
@@ -438,7 +470,16 @@ async function mulai(){
       waktu_proses: new Date().toLocaleString('id-ID'),
       urutan_pasaran: PASARAN_DAFTAR.map(p=>p.kode),
       jadwal_libur: Object.fromEntries(PASARAN_DAFTAR.map(p=>[p.kode, p.libur.length===0?"Tidak Ada Libur":p.libur])),
-      hasil_terbaru: hasilAkhir.map(h=>({pasaran:h.pasaran, angka:h.angka4, tanggal:h.tanggal})),
+      hasil_terbaru: hasilAkhir.map(h=>({
+        pasaran: h.pasaran,
+        angka: h.angka4,
+        tanggal: h.tanggal,
+        jumlah: {
+          d2: {akhir: h.jumlah_d2.akhir, langkah: h.jumlah_d2.langkah},
+          t2: {akhir: h.jumlah_t2.akhir, langkah: h.jumlah_t2.langkah},
+          b2: {akhir: h.jumlah_b2.akhir, langkah: h.jumlah_b2.langkah}
+        }
+      })),
       prediksi: prediksiDaftar.filter(p=>p.pred).map(p=>({
         pasaran: p.pasaran,
         angka_4d: p.pred.prediksi_4d,
