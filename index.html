@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>10 Prediksi | Format Lengkap *</title>
+<title>10 Prediksi | Tanpa Duplikat</title>
 <style>
 :root{--hitam:#050505; --emas:#d4af37; --emas2:#f0c808; --gelap:#1a1a1a; --gelap2:#252525; --teks:#eae0c8; --hijau:#4f4; --merah:#f66; --biru:#6af}
 *{margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI',sans-serif}
@@ -22,12 +22,12 @@ select:focus{border-color:var(--emas2); box-shadow:0 0 5px var(--emas)}
 .tombol-baris{text-align:center; margin:10px; display:flex; justify-content:center; align-items:center; gap:10px; flex-wrap:wrap}
 .sukses{color:var(--hijau); margin-left:8px}
 .info-kecil{font-size:0.8rem; opacity:0.7; margin-top:4px}
-.baris-kunci{color:var(--emas2); font-weight:bold}
+.catatan{color:var(--biru); font-size:0.85rem; margin-top:8px}
 </style>
 </head>
 <body>
 <div class="wrap">
-<h1>🔮 10 PREDIKSI — Format * Lengkap</h1>
+<h1>🔮 10 PREDIKSI — Tanpa Duplikat</h1>
 
 <div class="tombol-baris">
   <label>Pilih Pasaran:</label>
@@ -49,6 +49,7 @@ select:focus{border-color:var(--emas2); box-shadow:0 0 5px var(--emas)}
     <button class="salin" onclick="salinTeks()">📋 Salin</button>
     <pre id="kotakTeks"></pre>
     <span id="pesanSalin"></span>
+    <div class="catatan">ℹ️ Jumlah & Shio: nilai ganda dihapus → tampil unik saja</div>
   </div>
 
 </div>
@@ -58,15 +59,13 @@ select:focus{border-color:var(--emas2); box-shadow:0 0 5px var(--emas)}
 const PENGATURAN_URL = "https://raw.githubusercontent.com/peler3773-png/Data-Lotre/main/pengaturan.json";
 const DATA_UNDIAN_URL = "https://raw.githubusercontent.com/peler3773-png/Data-Lotre/main/data_undian.txt";
 
-const PASARAN_DAFTAR = [
-  {kode:"CLF", nama:"CALIFORNIA"},
-  {kode:"BE", nama:"BULLSEYE"},
-  {kode:"SGP", nama:"SINGAPORE"},
-  {kode:"PS", nama:"PHILIPPINES"}
-];
-
 let dataShio = {};
 let semuaData = [];
+
+// === HAPUS NILAI GANDA ===
+function ambilUnik(list){
+  return [...new Set(list)];
+}
 
 // === JUMLAH SAMPAI 1 DIGIT ===
 function jumlahSatuDigit(angkaStr){
@@ -186,39 +185,43 @@ function tampilPasaran(){
     return;
   }
   
-  // === SUSUN FORMAT TEKS — SEMUA DIPISAH * ===
+  // === SUSUN FORMAT TEKS ===
   let teks = `=== ${kode} — 10 PREDIKSI ===\n`;
   teks += `Hasil Terakhir: ${hasil.terbaru.asli}\n\n`;
   
-  // Baris 4D
+  // 4D & 2DD tetap lengkap 10
   teks += `4D: ${hasil.daftar.map(p=>p.angka4).join('*')}\n`;
-  
-  // Baris 2DD
   teks += `2DD: ${hasil.daftar.map(p=>p.d2.angka).join('*')}\n`;
   
-  // Baris Jumlah 2DD
-  teks += `JML-2DD: ${hasil.daftar.map(p=>p.d2.jumlah).join('*')}\n`;
+  // Jumlah 2DD — HAPUS DOBEL
+  const jmlD2unik = ambilUnik(hasil.daftar.map(p=>p.d2.jumlah));
+  teks += `JML-2DD: ${jmlD2unik.join('*')}\n`;
   
-  // Baris Shio 2DD
-  teks += `SHIO-2DD: ${hasil.daftar.map(p=>p.d2.shio.no+'.'+p.d2.shio.nama).join('*')}\n\n`;
+  // Shio 2DD — HAPUS DOBEL
+  const shioD2unik = ambilUnik(hasil.daftar.map(p=>p.d2.shio.no+'.'+p.d2.shio.nama));
+  teks += `SHIO-2DD: ${shioD2unik.join('*')}\n\n`;
   
-  // Baris 2DT
+  // 2DT tetap lengkap 10
   teks += `2DT: ${hasil.daftar.map(p=>p.t2.angka).join('*')}\n`;
   
-  // Baris Jumlah 2DT
-  teks += `JML-2DT: ${hasil.daftar.map(p=>p.t2.jumlah).join('*')}\n`;
+  // Jumlah 2DT — HAPUS DOBEL
+  const jmlT2unik = ambilUnik(hasil.daftar.map(p=>p.t2.jumlah));
+  teks += `JML-2DT: ${jmlT2unik.join('*')}\n`;
   
-  // Baris Shio 2DT
-  teks += `SHIO-2DT: ${hasil.daftar.map(p=>p.t2.shio.no+'.'+p.t2.shio.nama).join('*')}\n\n`;
+  // Shio 2DT — HAPUS DOBEL
+  const shioT2unik = ambilUnik(hasil.daftar.map(p=>p.t2.shio.no+'.'+p.t2.shio.nama));
+  teks += `SHIO-2DT: ${shioT2unik.join('*')}\n\n`;
   
-  // Baris 2DB
+  // 2DB tetap lengkap 10
   teks += `2DB: ${hasil.daftar.map(p=>p.b2.angka).join('*')}\n`;
   
-  // Baris Jumlah 2DB
-  teks += `JML-2DB: ${hasil.daftar.map(p=>p.b2.jumlah).join('*')}\n`;
+  // Jumlah 2DB — HAPUS DOBEL
+  const jmlB2unik = ambilUnik(hasil.daftar.map(p=>p.b2.jumlah));
+  teks += `JML-2DB: ${jmlB2unik.join('*')}\n`;
   
-  // Baris Shio 2DB
-  teks += `SHIO-2DB: ${hasil.daftar.map(p=>p.b2.shio.no+'.'+p.b2.shio.nama).join('*')}\n`;
+  // Shio 2DB — HAPUS DOBEL
+  const shioB2unik = ambilUnik(hasil.daftar.map(p=>p.b2.shio.no+'.'+p.b2.shio.nama));
+  teks += `SHIO-2DB: ${shioB2unik.join('*')}\n`;
   
   document.getElementById('kotakTeks').textContent = teks;
 }
