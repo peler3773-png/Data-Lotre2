@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>90 Prediksi | Frekuensi</title>
+<title>90 Prediksi | Yang Jarang Muncul</title>
 <style>
 :root{--hitam:#050505; --emas:#d4af37; --emas2:#f0c808; --gelap:#1a1a1a; --gelap2:#252525; --teks:#eae0c8; --hijau:#4f4; --merah:#f66}
 *{margin:0; padding:0; box-sizing:border-box; font-family:system-ui,sans-serif}
@@ -25,7 +25,7 @@ select:focus{border-color:var(--emas2); box-shadow:0 0 5px var(--emas)}
 </head>
 <body>
 <div class="wrap">
-<h1>🔮 90 PREDIKSI — Yang Belum Pernah Muncul</h1>
+<h1>🔮 90 PREDIKSI — Yang Jarang Muncul</h1>
 <div class="tombol-baris">
   <label>Pasaran:</label>
   <select id="pilihPasaran" onchange="tampilPasaran()">
@@ -87,26 +87,32 @@ function cariShioInfo(angka2){
   return null;
 }
 
-function ambil90Angka(daftarSudahMuncul, hindari){
-  const hasil = [];
-  const sudah = new Set(daftarSudahMuncul);
-  sudah.add(hindari);
+// === URUTKAN PALING JARANG MUNCUL DULUAN ===
+function urutPalingJarang(daftarAngka, hindari, jumlahAmbil){
+  const hitung = {};
+  daftarAngka.forEach(a=>{ hitung[a] = (hitung[a]||0)+1; });
 
+  // Urut dari PALING SEDIKIT → PALING BANYAK
+  const urutJarang = Object.entries(hitung)
+    .filter(([angka])=> angka !== hindari) // kecuali hasil terakhir
+    .sort((a,b)=>a[1] - b[1]) // ← KECIL → BESAR = PALING JARANG DULU
+    .map(x=>x[0]);
+
+  const hasil = [...urutJarang]; // yang jarang muncul duluan
+
+  // Isi sisa dari yang belum pernah muncul sama sekali
+  const sudah = new Set(hasil);
+  sudah.add(hindari);
   for(let n=0; n<=99; n++){
     const cek = String(n).padStart(2,'0');
     if(!sudah.has(cek)){
       hasil.push(cek);
-      if(hasil.length === MAKSIMAL_90) return hasil;
+      sudah.add(cek);
+      if(hasil.length === jumlahAmbil) break;
     }
   }
 
-  for(const angka of daftarSudahMuncul){
-    if(angka !== hindari && !hasil.includes(angka)){
-      hasil.push(angka);
-      if(hasil.length === MAKSIMAL_90) return hasil;
-    }
-  }
-  return hasil;
+  return hasil.slice(0, jumlahAmbil);
 }
 
 // === ACAK URUTAN FISHER-YATES ===
@@ -119,23 +125,16 @@ function acakDaftar(arr){
   return salin;
 }
 
-// === BUAT 100 ACAK DARI GABUNGAN 2DD+2DT+2DB ===
+// === BUAT 100 ACAK DARI GABUNGAN ===
 function buat100Acak(arrD2, arrT2, arrB2){
-  // Gabungkan semua pasangan
-  const gabungD2 = [...arrD2];
-  const gabungT2 = [...arrT2];
-  const gabungB2 = [...arrB2];
-  
-  // Acak masing-masing
-  const acakD2 = acakDaftar(gabungD2);
-  const acakT2 = acakDaftar(gabungT2);
-  const acakB2 = acakDaftar(gabungB2);
+  const acakD2 = acakDaftar(arrD2);
+  const acakT2 = acakDaftar(arrT2);
+  const acakB2 = acakDaftar(arrB2);
   
   const daftar4D = [];
   const daftar3D = [];
   const sudah4D = new Set();
   
-  // Buat 100 unik
   for(let i=0; daftar4D.length < MAKSIMAL_100 && i<500; i++){
     const d2 = acakD2[i % acakD2.length];
     const t2 = acakT2[Math.floor(Math.random() * acakT2.length)];
@@ -164,20 +163,38 @@ function susunHasil(dataPasaran){
   
   const terbaru = urai4Digit(dataPasaran[0].angka);
   
-  const pilihD2 = ambil90Angka(urutanD2, terbaru.d2);
-  const pilihT2 = ambil90Angka(urutanT2, terbaru.t2);
-  const pilihB2 = ambil90Angka(urutanB2, terbaru.b2);
+  // ✅ 90 angka — PALING JARANG MUNCUL DULUAN
+  const pilihD2 = urutPalingJarang(urutanD2, terbaru.d2, MAKSIMAL_90);
+  const pilihT2 = urutPalingJarang(urutanT2, terbaru.t2, MAKSIMAL_90);
+  const pilihB2 = urutPalingJarang(urutanB2, terbaru.b2, MAKSIMAL_90);
   
-  // 100 acak dari gabungan ketiganya
+  // 100 acak dari gabungan
   const {daftar4D, daftar3D} = buat100Acak(pilihD2, pilihT2, pilihB2);
   
-  const unikJmlD2 = ambilTeratas(ambilUnik(pilihD2.map(a=>jumlahSatuDigit(a))), MAKSIMAL_JML);
-  const unikJmlT2 = ambilTeratas(ambilUnik(pilihT2.map(a=>jumlahSatuDigit(a))), MAKSIMAL_JML);
-  const unikJmlB2 = ambilTeratas(ambilUnik(pilihB2.map(a=>jumlahSatuDigit(a))), MAKSIMAL_JML);
+  // ✅ JML & SHIO — AMBIL 2 PALING JARANG MUNCUL
+  const hitungJmlD2 = {};
+  pilihD2.forEach(a=>{ const j=jumlahSatuDigit(a); hitungJmlD2[j]=(hitungJmlD2[j]||0)+1; });
+  const unikJmlD2 = Object.entries(hitungJmlD2).sort((a,b)=>a[1]-b[1]).map(x=>Number(x[0])).slice(0, MAKSIMAL_JML);
   
-  const unikShioD2 = ambilTeratas(ambilUnik(pilihD2.map(a=>cariShioInfo(a)).filter(Boolean)), MAKSIMAL_SHIO);
-  const unikShioT2 = ambilTeratas(ambilUnik(pilihT2.map(a=>cariShioInfo(a)).filter(Boolean)), MAKSIMAL_SHIO);
-  const unikShioB2 = ambilTeratas(ambilUnik(pilihB2.map(a=>cariShioInfo(a)).filter(Boolean)), MAKSIMAL_SHIO);
+  const hitungJmlT2 = {};
+  pilihT2.forEach(a=>{ const j=jumlahSatuDigit(a); hitungJmlT2[j]=(hitungJmlT2[j]||0)+1; });
+  const unikJmlT2 = Object.entries(hitungJmlT2).sort((a,b)=>a[1]-b[1]).map(x=>Number(x[0])).slice(0, MAKSIMAL_JML);
+  
+  const hitungJmlB2 = {};
+  pilihB2.forEach(a=>{ const j=jumlahSatuDigit(a); hitungJmlB2[j]=(hitungJmlB2[j]||0)+1; });
+  const unikJmlB2 = Object.entries(hitungJmlB2).sort((a,b)=>a[1]-b[1]).map(x=>Number(x[0])).slice(0, MAKSIMAL_JML);
+  
+  const hitungShioD2 = {};
+  pilihD2.map(a=>cariShioInfo(a)).filter(Boolean).forEach(s=>{ hitungShioD2[s]=(hitungShioD2[s]||0)+1; });
+  const unikShioD2 = Object.entries(hitungShioD2).sort((a,b)=>a[1]-b[1]).map(x=>Number(x[0])).slice(0, MAKSIMAL_SHIO);
+  
+  const hitungShioT2 = {};
+  pilihT2.map(a=>cariShioInfo(a)).filter(Boolean).forEach(s=>{ hitungShioT2[s]=(hitungShioT2[s]||0)+1; });
+  const unikShioT2 = Object.entries(hitungShioT2).sort((a,b)=>a[1]-b[1]).map(x=>Number(x[0])).slice(0, MAKSIMAL_SHIO);
+  
+  const hitungShioB2 = {};
+  pilihB2.map(a=>cariShioInfo(a)).filter(Boolean).forEach(s=>{ hitungShioB2[s]=(hitungShioB2[s]||0)+1; });
+  const unikShioB2 = Object.entries(hitungShioB2).sort((a,b)=>a[1]-b[1]).map(x=>Number(x[0])).slice(0, MAKSIMAL_SHIO);
   
   return {terbaru, daftar4D, daftar3D, pilihD2, pilihT2, pilihB2, unikJmlD2, unikShioD2, unikJmlT2, unikShioT2, unikJmlB2, unikShioB2};
 }
@@ -213,7 +230,7 @@ function tampilPasaran(){
     return;
   }
   
-  let teks = `=== ${kode} — 90+100 PREDIKSI ===\n`;
+  let teks = `=== ${kode} — 90 PREDIKSI ===\n`;
   teks += `Hasil Terakhir: ${hasil.terbaru.asli}\n\n`;
   
   teks += `-- 90 2DD --\n`;
