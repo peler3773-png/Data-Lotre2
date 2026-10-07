@@ -3,18 +3,18 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>8 Prediksi | No.Shio + Nama</title>
+<title>10 Prediksi | No.Shio + Nama</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
 :root{--hitam:#050505; --emas:#d4af37; --emas2:#f0c808; --gelap:#1a1a1a; --gelap2:#252525; --teks:#eae0c8; --hijau:#4f4; --merah:#f66; --biru:#6af; --ungu:#a6f}
 *{margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI',sans-serif}
 body{background:var(--hitam); color:var(--teks); min-height:100vh; padding:15px}
-.wrap{max-width:1000px; margin:0 auto}
+.wrap{max-width:1200px; margin:0 auto}
 h1,h2,h3{color:var(--emas); text-align:center; margin:12px 0}
 h1{font-size:1.7rem; border-bottom:2px solid var(--emas); padding-bottom:10px}
 .card{background:var(--gelap); border:1px solid var(--emas); border-radius:10px; padding:15px; margin:12px 0}
 .grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:12px}
-.grid8{display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:10px}
+.grid10{display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:10px}
 .pasaran-card{border-left:3px solid var(--emas); padding:12px; border-radius:6px; transition:all 0.3s ease}
 .label{font-weight:bold; color:var(--emas2); font-size:1.05rem}
 .angka-utama{font-size:1.8rem; font-weight:bold; letter-spacing:2px; margin:6px 0; color:var(--emas2)}
@@ -43,7 +43,7 @@ select:focus{border-color:var(--emas2); box-shadow:0 0 5px var(--emas)}
 </head>
 <body>
 <div class="wrap">
-<h1>🔮 8 PREDIKSI — No.Shio + Nama</h1>
+<h1>🔮 10 PREDIKSI — No.Shio + Nama</h1>
 
 <div class="tombol-refresh">
   <label class="label">Pilih Pasaran:</label>
@@ -66,9 +66,9 @@ select:focus{border-color:var(--emas2); box-shadow:0 0 5px var(--emas)}
   </div>
 
   <div class="card">
-    <h3>🔥 8 PILIHAN PREDIKSI</h3>
+    <h3>🔥 10 PILIHAN PREDIKSI</h3>
     <div class="peringatan" id="teksPeringatan"></div>
-    <div class="grid8" id="daftarPrediksi"></div>
+    <div class="grid10" id="daftarPrediksi"></div>
   </div>
 
   <div class="card">
@@ -129,22 +129,22 @@ function hitungFrekuensi(listAngka){
   return Object.entries(h).sort((a,b)=>b[1]-a[1]);
 }
 
-// === AMBIL 8 TERPILIH, HINDARI YANG TERAKHIR ===
-function ambil8Pilihan(urutan, hindari){
+// === AMBIL 10 TERPILIH, HINDARI YANG TERAKHIR ===
+function ambil10Pilihan(urutan, hindari){
   const frek = hitungFrekuensi(urutan.slice(1)); // kecuali terakhir
   const hasil = [];
   for(const [angka, jml] of frek){
-    if(angka !== hindari && hasil.length < 8){
+    if(angka !== hindari && hasil.length < 10){
       const skor = Math.min(10, jml + 2);
       hasil.push({angka, skor});
     }
   }
-  // Isi kekurangan
-  if(hasil.length < 8){
+  // Isi kekurangan sampai 10
+  if(hasil.length < 10){
     const sudah = hasil.map(x=>x.angka);
     for(let n=0; n<=99; n++){
       const cek = String(n).padStart(2,'0');
-      if(!sudah.includes(cek) && cek !== hindari && hasil.length < 8){
+      if(!sudah.includes(cek) && cek !== hindari && hasil.length < 10){
         hasil.push({angka:cek, skor:5});
       }
     }
@@ -152,8 +152,8 @@ function ambil8Pilihan(urutan, hindari){
   return hasil;
 }
 
-// === SUSUN 8 PREDIKSI LENGKAP ===
-function susun8Prediksi(dataPasaran){
+// === SUSUN 10 PREDIKSI LENGKAP ===
+function susun10Prediksi(dataPasaran){
   if(dataPasaran.length < 3) return null;
   
   const urutanD2 = [], urutanT2 = [], urutanB2 = [];
@@ -163,12 +163,12 @@ function susun8Prediksi(dataPasaran){
   }
   
   const terbaru = urai4Digit(dataPasaran[0].angka);
-  const pilihD2 = ambil8Pilihan(urutanD2, terbaru.d2);
-  const pilihT2 = ambil8Pilihan(urutanT2, terbaru.t2);
-  const pilihB2 = ambil8Pilihan(urutanB2, terbaru.b2);
+  const pilihD2 = ambil10Pilihan(urutanD2, terbaru.d2);
+  const pilihT2 = ambil10Pilihan(urutanT2, terbaru.t2);
+  const pilihB2 = ambil10Pilihan(urutanB2, terbaru.b2);
   
   const daftar = [];
-  for(let i=0; i<8; i++){
+  for(let i=0; i<10; i++){
     const d2 = pilihD2[i] || {angka:"00", skor:5};
     const t2 = pilihT2[i] || {angka:"00", skor:5};
     const b2 = pilihB2[i] || {angka:"00", skor:5};
@@ -211,7 +211,7 @@ function tampilPasaran(){
   const kode = document.getElementById('pilihPasaran').value;
   const dp = semuaData.filter(d=>d.pasaran === kode);
   const p = PASARAN_DAFTAR.find(x=>x.kode === kode);
-  const hasil = susun8Prediksi(dp);
+  const hasil = susun10Prediksi(dp);
   
   if(!hasil){
     document.getElementById('konten').innerHTML = `<div class="card">⚠️ Data kurang, butuh minimal 3 baris</div>`;
@@ -246,13 +246,13 @@ function tampilPasaran(){
     </div>`;
   
   // Peringatan
-  document.getElementById('teksPeringatan').innerHTML = `⚠️ Hasil terakhir: ${hasil.terbaru.asli} → Semua prediksi berbeda dari ini`;
+  document.getElementById('teksPeringatan').innerHTML = `⚠️ Hasil terakhir: ${hasil.terbaru.asli} — Semua prediksi berbeda dari ini`;
   
-  // 8 Prediksi
+  // 10 Prediksi
   document.getElementById('daftarPrediksi').innerHTML = hasil.daftar.map(p=>`
     <div class="pasaran-card prediksi-card">
       <div class="label"><span class="prediksi-nomor">#${p.nomor}</span> ${kode}</div>
-      <div class="angka-utama" style="font-size:1.3rem">${p.angka4}</div>
+      <div class="angka-utama" style="font-size:1.4rem">${p.angka4}</div>
       <div style="margin:4px 0; font-size:0.85rem; line-height:1.5">
         <strong>2DD:</strong> ${p.d2.angka}
         <span class="skor ${skorKelas(p.d2.skor)}">${p.d2.skor}</span><br>
