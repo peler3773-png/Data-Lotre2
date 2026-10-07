@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LSTM-JUMLAH-SHIO | CLF·BE·SGP·PS</title>
+<style>
+:root{--hitam:#050505; --emas:#d4af37; --emas2:#f0c808; --gelap:#1a1a1a; --teks:#eae0c8}
+*{margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI',sans-serif}
+body{background:var(--hitam); color:var(--teks); min-height:100vh; padding:15px}
+.wrap{max-width:960px; margin:0 auto}
+h1,h2,h3{color:var(--emas); text-align:center; margin:12px 0}
+h1{font-size:1.7rem; border-bottom:2px solid var(--emas); padding-bottom:10px}
+.card{background:var(--gelap); border:1px solid var(--emas); border-radius:10px; padding:15px; margin:12px 0}
+.grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:12px}
+.pasaran-card{border-left:3px solid var(--emas); padding:10px; border-radius:6px}
+.label{font-weight:bold; color:var(--emas2)}
+.angka{font-size:1.3rem; font-weight:bold; letter-spacing:2px; margin:6px 0}
+.libur{opacity:0.6; border-style:dashed}
+.loading{text-align:center; padding:25px; color:var(--emas)}
+.baris{display:flex; justify-content:space-between; padding:4px 0; border-bottom:1px solid #333}
+button{background:linear-gradient(135deg,var(--emas),var(--emas2)); color:#000; border:none; padding:9px 14px; border-radius:6px; font-weight:bold; cursor:pointer; margin:4px}
+button:hover{transform:scale(1.03)}
+pre{background:#000; padding:10px; border-radius:6px; overflow-x:auto; font-size:0.85rem; max-height:300px}
+.copy-btn{float:right; margin:-2px 0 0 0; padding:4px 8px; font-size:0.8rem}
+.sukses{color:#4f4; margin-left:8px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>🔮 LSTM-JUMLAH-SHIO</h1>
+<h2>CLF · BE · SGP · PS | 2DD · 2DT · 2DB</h2>
+<div id="status" class="loading">Sedang memuat data & memproses...</div>
+
+<div id="konten" style="display:none">
+  <div class="card">
+    <h3>📅 Jadwal Pasaran</h3>
+    <div class="grid" id="jadwalPasaran"></div>
+  </div>
+
+  <div class="card">
+    <h3>📊 Hasil Terbaru & Analisis</h3>
+    <div class="grid" id="hasilGrid"></div>
+  </div>
+
+  <div class="card">
+    <h3>🧮 Rekap 2DD · 2DT · 2DB + Shio</h3>
+    <div id="rekapBagian"></div>
+  </div>
+
+  <div class="card">
+    <h3>📋 Hasil JSON</h3>
+    <button class="copy-btn" onclick="salinJSON()">Salin JSON</button>
+    <pre id="jsonHasil"></pre>
+    <span id="pesanSalin"></span>
+  </div>
+</div>
+</div>
+
+<script>
+const PENGATURAN_URL = "https://raw.githubusercontent.com/peler3773-png/Data-Lotre/main/pengaturan.json";
+const DATA_UNDIAN_URL = "https://raw.githubusercontent.com/peler3773-png/Data-Lotre/main/data_undian.txt";
+
+// === PASARAN UTAMA & JADWAL LIBUR ===
+const PASARAN_DAFTAR = [
+  {kode:"CLF", nama:"CALIFORNIA", libur:["Minggu"]},
+  {kode:"BE", nama:"BULLSEYE", libur:["Minggu"]},
+  {kode:"SGP", nama:"SINGAPORE", libur:["Selasa","Jumat"]},
+  {kode:"PS", nama:"PHILIPPINES", libur:["Minggu"]}
+];
+
+const HARI_IND = ["Senin","Selasa","Rabu","Kamis","Jumat","Sabtu","Minggu"];
+
+// === DATA SHIO dari pengaturan ===
+let dataShio = {};
+
+// --- UTILITAS: ambil hari nama ---
+function ambilHariNama(tanggalStr){
+  const d = new Date(tanggalStr + "T00:00:00");
+  return HARI_IND[d.getDay()];
+}
+
+// --- cek hari libur ---
+function isLibur(kodePasaran, tanggalStr){
+  const p = PASARAN_DAFTAR.find(x=>x.kode===kodePasaran);
+  if(!p) return false;
+  const hari = ambilHariNama(tanggalStr);
+  return p.libur.includes(hari);
+}
+
+// --- ambil 2DD / 2DT / 2DB ---
+function urai4Digit(angka4){
+  const s = String(angka4).padStart(4,'0');
+  return {
+    asli: s,
+    d2: s.slice(0,2),  // DEPAN-DEPAN
+    t2: s.slice(1,3),  // TENGAH-TENGAH
+    b2: s.slice(2,4)   // BELAKANG-BELAKANG
+  };
+}
+
+// --- cari Shio dari angka ---
+function cariShio(angka2){
+  if(!dataShio) return "-";
+  for(const [shio, data] of Object.entries(dataShio)){
+    if(data.angka.includes(angka2)) return shio;
+  }
+  return "-";
+}
+
+// --- jumlah digit ---
+function jumlahAngka(angkaStr){
+  return String(angkaStr).split('').reduce((a,b)=>a+parseInt(b),0);
+}
+
+// --- ambil data ---
+async function ambilTeks(url){
+  const r = await fetch(url);
+  if(!r.ok) throw new Error("Gagal ambil: "+url);
+  return r.text();
+}
+
+async function ambilJSON(url){
+  const r = await fetch(url);
+  if(!r.ok) throw new Error("Gagal ambil JSON: "+url);
+  return r.json();
+}
+
+// --- parsing data_undian.txt ---
+function parseDataUndian(teks){
+  const baris = teks.trim().split('\n').filter(b=>b.trim());
+  const data = [];
+  for(const b of baris){
+    const [pasaran, tgl, angka, waktu] = b.split('|');
+    if(!pasaran || !tgl || !angka) continue;
+    data.push({pasaran, tanggal:tgl, angka:angka, waktu: waktu||''});
+  }
+  return data.sort((a,b)=>a.tanggal.localeCompare(b.tanggal)).reverse();
+}
+
+// --- utama ---
+async function mulai(){
+  try{
+    // 1. ambil pengaturan
+    const pengaturan = await ambilJSON(PENGATURAN_URL);
+    dataShio = pengaturan.data_shio;
+
+    // 2. ambil data undian
+    const teksUndian = await ambilTeks(DATA_UNDIAN_URL);
+    const semuaData = parseDataUndian(teksUndian);
+
+    // 3. tampil jadwal
+    const jadwalEl = document.getElementById('jadwalPasaran');
+    jadwalEl.innerHTML = PASARAN_DAFTAR.map(p=>`
+      <div class="pasaran-card">
+        <div class="label">${p.kode} — ${p.nama}</div>
+        <div>Buka: Senin–Sabtu</div>
+        <div style="color:#f66">Libur: ${p.libur.join(', ')}</div>
+      </div>`).join('');
+
+    // 4. filter & kelompokkan pasaran utama
+    const hasilAkhir = [];
+    const rekap = {};
+    for(const p of PASARAN_DAFTAR){
+      const dataPasaran = semuaData.filter(d=>d.pasaran===p.kode);
+      if(!dataPasaran.length) continue;
+      
+      // lewati yang hari libur
+      const aktif = dataPasaran.filter(d=>!isLibur(p.kode, d.tanggal));
+      const terbaru = aktif[0] || dataPasaran[0];
+      const urai = urai4Digit(terbaru.angka);
+
+      const entri = {
+        pasaran: p.kode,
+        nama: p.nama,
+        tanggal: terbaru.tanggal,
+        hari: ambilHariNama(terbaru.tanggal),
+        angka4: urai.asli,
+        d2: urai.d2,
+        t2: urai.t2,
+        b2: urai.b2,
+        shio_d2: cariShio(urai.d2),
+        shio_t2: cariShio(urai.t2),
+        shio_b2: cariShio(urai.b2),
+        jumlah_d2: jumlahAngka(urai.d2),
+        jumlah_t2: jumlahAngka(urai.t2),
+        jumlah_b2: jumlahAngka(urai.b2),
+        libur: isLibur(p.kode, terbaru.tanggal)
+      };
+      hasilAkhir.push(entri);
+      rekap[p.kode] = entri;
+    }
+
+    // 5. tampil hasil grid
+    const gridEl = document.getElementById('hasilGrid');
+    gridEl.innerHTML = hasilAkhir.map(h=>`
+      <div class="pasaran-card ${h.libur?'libur':''}">
+        <div class="label">${h.pasaran} — ${h.nama}</div>
+        <div>${h.tanggal} | ${h.hari}</div>
+        <div class="angka">${h.angka4}</div>
+        ${h.libur?'<div style="color:#f66">⚠️ Hari Libur</div>':''}
+        <div class="baris"><span>2DD:</span><span>${h.d2} | ${h.shio_d2} | Jml:${h.jumlah_d2}</span></div>
+        <div class="baris"><span>2DT:</span><span>${h.t2} | ${h.shio_t2} | Jml:${h.jumlah_t2}</span></div>
+        <div class="baris"><span>2DB:</span><span>${h.b2} | ${h.shio_b2} | Jml:${h.jumlah_b2}</span></div>
+      </div>`).join('');
+
+    // 6. rekap gabungan
+    const rekapEl = document.getElementById('rekapBagian');
+    rekapEl.innerHTML = `
+      <div class="baris" style="font-weight:bold; background:#2a2a2a; padding:8px">
+        <span>Pasaran</span><span>2DD | Shio | Jumlah</span><span>2DT | Shio | Jumlah</span><span>2DB | Shio | Jumlah</span>
+      </div>` + hasilAkhir.map(h=>`
+      <div class="baris">
+        <span style="font-weight:bold">${h.pasaran}</span>
+        <span>${h.d2} ${h.shio_d2} ${h.jumlah_d2}</span>
+        <span>${h.t2} ${h.shio_t2} ${h.jumlah_t2}</span>
+        <span>${h.b2} ${h.shio_b2} ${h.jumlah_b2}</span>
+      </div>`).join('');
+
+    // 7. JSON
+    const keluaran = {
+      waktu_proses: new Date().toLocaleString('id-ID'),
+      urutan_pasaran: PASARAN_DAFTAR.map(p=>p.kode),
+      jadwal_libur: Object.fromEntries(PASARAN_DAFTAR.map(p=>[p.kode, p.libur])),
+      hasil: hasilAkhir
+    };
+    document.getElementById('jsonHasil').textContent = JSON.stringify(keluaran,null,2);
+
+    // tampil
+    document.getElementById('status').style.display = 'none';
+    document.getElementById('konten').style.display = 'block';
+
+  }catch(err){
+    document.getElementById('status').innerHTML = `❌ Kesalahan: ${err.message}<br>${err.stack}`;
+    console.error(err);
+  }
+}
+
+function salinJSON(){
+  const teks = document.getElementById('jsonHasil').textContent;
+  navigator.clipboard.writeText(teks).then(()=>{
+    document.getElementById('pesanSalin').innerHTML='<span class="sukses">✓ Tersalin!</span>';
+    setTimeout(()=>document.getElementById('pesanSalin').innerHTML='',2000);
+  });
+}
+
+document.addEventListener('DOMContentLoaded', mulai);
+</script>
+</body>
+</html>
