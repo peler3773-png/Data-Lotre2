@@ -99,30 +99,33 @@ function hitungFrekuensi(daftarAngka){
 
 // === AMBIL TEPAT 81 ANGKA — DIPASTIKAN TIDAK LEBIH ===
 function ambil81Angka(daftarAngka, hindari){
-  // 1. Urutkan dari paling sering muncul
+  const MAKSIMAL = 81;
   const urutSering = hitungFrekuensi(daftarAngka.slice(1));
   const hasil = [];
   const sudah = new Set();
-  
-  // 2. Masukkan yang ada di riwayat, kecuali yang terakhir
+
+  // Tambah dari frekuensi
   for(const angka of urutSering){
     if(angka !== hindari && !sudah.has(angka)){
       hasil.push(angka);
       sudah.add(angka);
+      if(hasil.length === MAKSIMAL) break; // BERHENTI KETEMU 81
     }
   }
-  
-  // 3. Isi dari 00–99 sampai TEPAT 81
-  for(let n=0; n<=99 && hasil.length < 81; n++){
-    const cek = String(n).padStart(2,'0');
-    if(cek !== hindari && !sudah.has(cek)){
-      hasil.push(cek);
-      sudah.add(cek);
+
+  // Isi sisa dari 00–99
+  if(hasil.length < MAKSIMAL){
+    for(let n=0; n<=99; n++){
+      const cek = String(n).padStart(2,'0');
+      if(cek !== hindari && !sudah.has(cek)){
+        hasil.push(cek);
+        sudah.add(cek);
+        if(hasil.length === MAKSIMAL) break; // BERHENTI PAS 81
+      }
     }
   }
-  
-  // 4. POTONG TEPAT 81 — JANGAN LEBIH
-  return hasil.slice(0, 81);
+
+  return hasil; // PASTI 81
 }
 
 // === SUSUN SEMUA ===
