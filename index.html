@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>3×800 Sesuai Rumus | 2DD-2DT-2DB</title>
+<title>3×800 Tanpa Duplikat | 2DD-2DT-2DB</title>
 <style>
 :root{--hitam:#050505; --emas:#d4af37; --emas2:#f0c808; --gelap:#1a1a1a; --gelap2:#252525; --teks:#eae0c8}
 *{margin:0; padding:0; box-sizing:border-box; font-family:system-ui,sans-serif}
@@ -11,7 +11,7 @@ body{background:var(--hitam); color:var(--teks); min-height:100vh; padding:15px}
 .wrap{max-width:950px; margin:0 auto}
 h1{color:var(--emas); text-align:center; margin:12px 0; font-size:1.35rem}
 .card{background:var(--gelap); border:1px solid var(--emas); border-radius:10px; padding:15px; margin:12px 0}
-pre{background:#000; padding:15px; border-radius:8px; font-size:0.9rem; line-height:1.8; color:#fff; white-space:pre-wrap; word-break:break-all; max-height:900px; overflow-y:auto; margin:0}
+pre{background:#000; padding:15px; border-radius:8px; font-size:0.85rem; line-height:1.8; color:#fff; white-space:pre-wrap; word-break:break-all; max-height:900px; overflow-y:auto; margin:0}
 button{background:linear-gradient(135deg,var(--emas),var(--emas2)); color:#000; border:none; padding:9px 14px; border-radius:6px; font-weight:bold; cursor:pointer; margin:4px}
 button:hover{transform:scale(1.03)}
 select{background:var(--gelap2); color:var(--teks); border:1px solid var(--emas); padding:8px 12px; border-radius:6px; font-weight:bold; cursor:pointer; outline:none; margin:4px}
@@ -23,7 +23,7 @@ select:focus{border-color:var(--emas2); box-shadow:0 0 5px var(--emas)}
 </head>
 <body>
 <div class="wrap">
-<h1>🔮 3×800 SESUAI RUMUS</h1>
+<h1>🔮 3×800 TANPA DUPLIKAT 3D</h1>
 <div class="tombol-baris">
   <label>Pasaran:</label>
   <select id="pilihPasaran" onchange="tampilPasaran()">
@@ -105,21 +105,18 @@ function acakDaftar(arr){
   return salin;
 }
 
-// === SUSUN SESUAI RUMUS ANDA ===
-// Contoh: 2DD=12 | 2DT=24 | 2DB=46
-// Langkah 2: 1(dari 2DD) + 24 = 124
-// Langkah 3: 1 + 2(dari 2DT) + 46 = 1246
+// === RUMUS: A + C + 2DB = ACEF ===
+// 2DD=12→A=1 | 2DT=24→C=2 | 2DB=46→46 → 1+2+46=1246
 function susunSesuaiRumus(pilihD2, pilihT2, pilihB2){
   const semua34D = [];
   const sudah = new Set();
 
   for(const d2 of pilihD2){
-    const A = d2[0];       // digit pertama 2DD
+    const A = d2[0];
     for(const t2 of pilihT2){
-      const C = t2[0];      // digit pertama 2DT
+      const C = t2[0];
       for(const b2 of pilihB2){
-        // Gabung: A + C + b2(utuh) = A C EF → 4 digit
-        const gabung = A + C + b2;  // 1 + 2 + 46 = 1246
+        const gabung = A + C + b2;
         if(!sudah.has(gabung)){
           sudah.add(gabung);
           semua34D.push(gabung);
@@ -130,12 +127,25 @@ function susunSesuaiRumus(pilihD2, pilihT2, pilihB2){
 
   const acak = acakDaftar(semua34D);
 
-  // Bagi 3 bagian masing-masing 800
-  const teratas = acak.slice(0, TARGET_800);
-  const tengah = acak.slice(TARGET_800, TARGET_800*2);
-  const terbawah = acak.slice(TARGET_800*2, TARGET_800*3);
+  // === PENTING: Pastikan 3D TIDAK ADA YANG SAMA antar bagian ===
+  const dipakai3D = new Set();
+  const teratas = [], tengah = [], terbawah = [];
 
-  // 3D = ambil 3 digit belakang
+  for(const nomor of acak){
+    const k3d = nomor.slice(1); // ambil 3 digit belakang
+    if(teratas.length < TARGET_800 && !dipakai3D.has(k3d)){
+      teratas.push(nomor);
+      dipakai3D.add(k3d);
+    } else if(tengah.length < TARGET_800 && !dipakai3D.has(k3d)){
+      tengah.push(nomor);
+      dipakai3D.add(k3d);
+    } else if(terbawah.length < TARGET_800 && !dipakai3D.has(k3d)){
+      terbawah.push(nomor);
+      dipakai3D.add(k3d);
+    }
+    if(teratas.length === TARGET_800 && tengah.length === TARGET_800 && terbawah.length === TARGET_800) break;
+  }
+
   const ke3D = arr => arr.map(n => n.slice(1));
 
   return {
@@ -219,10 +229,10 @@ function tampilPasaran(){
     return;
   }
 
-  let teks = `=== ${kode} — RUMUS: A + C + EF = ACEF ===\n`;
-  teks += `Contoh: 2DD=12(A=1) | 2DT=24(C=2) | 2DB=46(EF) → 1 2 4 6 = 1246\n`;
+  let teks = `=== ${kode} — 3×800 3D TANPA DUPLIKAT ===\n`;
+  teks += `Rumus: A(2DD) + C(2DT) + 2DB = ACEF | 3D=CEF\n`;
   teks += `Hasil Terakhir: ${hasil.terbaru.asli}\n`;
-  teks += `Total kombinasi murni: ${hasil.bagi.totalSemua} — masing-masing 800 ✅\n\n`;
+  teks += `3D Teratas ≠ Tengah ≠ Terbawah — Semua BERBEDA ✅\n\n`;
 
   teks += `-- 90 2DD --\n${hasil.pilihD2.join('*')}\nJML-LMH-2DD:   ${hasil.unikJmlD2.join('*')}\nSHIO-LMH-2DD:  ${hasil.unikShioD2.join(',')}\n\n`;
   teks += `-- 90 2DT --\n${hasil.pilihT2.join('*')}\nJML-LMH-2DT:   ${hasil.unikJmlT2.join('*')}\nSHIO-LMH-2DT:  ${hasil.unikShioT2.join(',')}\n\n`;
