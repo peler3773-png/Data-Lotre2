@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>900 4D · 900 3D | Rumus A+C+2DB</title>
+<title>900 3D | Rumus CEF</title>
 <style>
 :root{--hitam:#050505; --emas:#d4af37; --emas2:#f0c808; --gelap:#1a1a1a; --gelap2:#252525; --teks:#eae0c8}
 *{margin:0; padding:0; box-sizing:border-box; font-family:system-ui,sans-serif}
@@ -23,7 +23,7 @@ select:focus{border-color:var(--emas2); box-shadow:0 0 5px var(--emas)}
 </head>
 <body>
 <div class="wrap">
-<h1>🔮 900 4D · 900 3D</h1>
+<h1>🔮 900 3D — CEF</h1>
 <div class="tombol-baris">
   <label>Pasaran:</label>
   <select id="pilihPasaran" onchange="tampilPasaran()">
@@ -43,7 +43,7 @@ select:focus{border-color:var(--emas2); box-shadow:0 0 5px var(--emas)}
 <div id="status" class="loading">⏳ Memuat data & menyusun angka...</div>
 <div id="konten" style="display:none">
   <div class="card">
-    <h3>📋 Hasil Format Teks</h3>
+    <h3>📋 3D 900 LN</h3>
     <pre id="kotakTeks"></pre>
   </div>
 </div>
@@ -52,29 +52,13 @@ select:focus{border-color:var(--emas2); box-shadow:0 0 5px var(--emas)}
 const PENGATURAN_URL = "https://raw.githubusercontent.com/peler3773-png/Data-Lotre/main/pengaturan.json";
 const DATA_UNDIAN_URL = "https://raw.githubusercontent.com/peler3773-png/Data-Lotre/main/data_undian.txt";
 const MAKSIMAL_90 = 90;
-const MAKSIMAL_JML = 2;
-const MAKSIMAL_SHIO = 2;
-const TARGET = 900;
+const TARGET_3D = 900;
 let dataShio = {};
 let semuaData = [];
 
-function jumlahSatuDigit(angkaStr){
-  let nilai = String(angkaStr).split('').reduce((a,b)=>a+parseInt(b),0);
-  while(nilai >= 10) nilai = String(nilai).split('').reduce((a,b)=>a+parseInt(b),0);
-  return nilai;
-}
 function urai4Digit(angka4){
   const s = String(angka4).padStart(4,'0');
   return {asli:s, d2:s.slice(0,2), t2:s.slice(1,3), b2:s.slice(2,4)};
-}
-function cariShioInfo(angka2){
-  if(!dataShio) return null;
-  let urut=1;
-  for(const [shio,d] of Object.entries(dataShio)){
-    if(d.angka.includes(angka2)) return urut;
-    urut++;
-  }
-  return null;
 }
 function urutPalingJarang(daftarAngka, hindari, jumlahAmbil){
   const hitung = {};
@@ -105,34 +89,28 @@ function acakDaftar(arr){
   return salin;
 }
 
-// === RUMUS: A + C + 2DB = ACEF ===
-// 2DD=12→A=1 | 2DT=24→C=2 | 2DB=46→46 → 1+2+46=1246
-function buat900(pilihD2, pilihT2, pilihB2){
-  const semua4D = [];
+// === RUMUS: CEF = 3D ===
+// A(2DD[0]) + C(2DT[0]) + 2DB → 4D = ACEF → ambil CEF = 3D
+function buat900_3D(pilihD2, pilihT2, pilihB2){
+  const semua3D = [];
   const sudah = new Set();
 
   for(const d2 of pilihD2){
-    const A = d2[0];
+    const A = d2[0]; // digit pertama 2DD
     for(const t2 of pilihT2){
-      const C = t2[0];
+      const C = t2[0]; // digit pertama 2DT
       for(const b2 of pilihB2){
-        const gabung = A + C + b2;
-        if(!sudah.has(gabung)){
-          sudah.add(gabung);
-          semua4D.push(gabung);
+        // CEF = digit pertama 2DT + utuh 2DB
+        const CEF = C + b2;
+        if(!sudah.has(CEF)){
+          sudah.add(CEF);
+          semua3D.push(CEF);
         }
       }
     }
   }
 
-  const acak = acakDaftar(semua4D).slice(0, TARGET);
-  const ke3D = arr => arr.map(n => n.slice(1));
-
-  return {
-    daftar4D: acak,
-    daftar3D: ke3D(acak),
-    totalAsli: semua4D.length
-  };
+  return acakDaftar(semua3D).slice(0, TARGET_3D);
 }
 
 function susunHasil(dataPasaran){
@@ -149,33 +127,9 @@ function susunHasil(dataPasaran){
   const pilihT2 = urutPalingJarang(urutanT2, terbaru.t2, MAKSIMAL_90);
   const pilihB2 = urutPalingJarang(urutanB2, terbaru.b2, MAKSIMAL_90);
 
-  const hasil = buat900(pilihD2, pilihT2, pilihB2);
+  const daftar3D = buat900_3D(pilihD2, pilihT2, pilihB2);
 
-  const hitungJmlD2 = {};
-  pilihD2.forEach(a=>{ const j=jumlahSatuDigit(a); hitungJmlD2[j]=(hitungJmlD2[j]||0)+1; });
-  const unikJmlD2 = Object.entries(hitungJmlD2).sort((a,b)=>a[1]-b[1]).map(x=>Number(x[0])).slice(0, MAKSIMAL_JML);
-
-  const hitungJmlT2 = {};
-  pilihT2.forEach(a=>{ const j=jumlahSatuDigit(a); hitungJmlT2[j]=(hitungJmlT2[j]||0)+1; });
-  const unikJmlT2 = Object.entries(hitungJmlT2).sort((a,b)=>a[1]-b[1]).map(x=>Number(x[0])).slice(0, MAKSIMAL_JML);
-
-  const hitungJmlB2 = {};
-  pilihB2.forEach(a=>{ const j=jumlahSatuDigit(a); hitungJmlB2[j]=(hitungJmlB2[j]||0)+1; });
-  const unikJmlB2 = Object.entries(hitungJmlB2).sort((a,b)=>a[1]-b[1]).map(x=>Number(x[0])).slice(0, MAKSIMAL_JML);
-
-  const hitungShioD2 = {};
-  pilihD2.map(a=>cariShioInfo(a)).filter(Boolean).forEach(s=>{ hitungShioD2[s]=(hitungShioD2[s]||0)+1; });
-  const unikShioD2 = Object.entries(hitungShioD2).sort((a,b)=>a[1]-b[1]).map(x=>Number(x[0])).slice(0, MAKSIMAL_SHIO);
-
-  const hitungShioT2 = {};
-  pilihT2.map(a=>cariShioInfo(a)).filter(Boolean).forEach(s=>{ hitungShioT2[s]=(hitungShioT2[s]||0)+1; });
-  const unikShioT2 = Object.entries(hitungShioT2).sort((a,b)=>a[1]-b[1]).map(x=>Number(x[0])).slice(0, MAKSIMAL_SHIO);
-
-  const hitungShioB2 = {};
-  pilihB2.map(a=>cariShioInfo(a)).filter(Boolean).forEach(s=>{ hitungShioB2[s]=(hitungShioB2[s]||0)+1; });
-  const unikShioB2 = Object.entries(hitungShioB2).sort((a,b)=>a[1]-b[1]).map(x=>Number(x[0])).slice(0, MAKSIMAL_SHIO);
-
-  return {terbaru, pilihD2, pilihT2, pilihB2, hasil, unikJmlD2, unikShioD2, unikJmlT2, unikShioT2, unikJmlB2, unikShioB2};
+  return {terbaru, pilihD2, pilihT2, pilihB2, daftar3D};
 }
 
 async function ambilTeks(url){
@@ -208,17 +162,15 @@ function tampilPasaran(){
     return;
   }
 
-  let teks = `=== ${kode} — 900 4D · 900 3D ===\n`;
-  teks += `Rumus: A(2DD) + C(2DT) + 2DB = ACEF | 3D=CEF\n`;
-  teks += `Hasil Terakhir: ${h.terbaru.asli}\n`;
-  teks += `Total kombinasi murni: ${h.hasil.totalAsli}\n\n`;
+  let teks = `${kode} — 3D 900 LN\n`;
+  teks += `Rumus: CEF = C(2DT[0]) + 2DB\n`;
+  teks += `Hasil Terakhir: ${h.terbaru.asli}\n\n`;
 
-  teks += `-- 90 2DD --\n${h.pilihD2.join('*')}\nJML-LMH-2DD:   ${h.unikJmlD2.join('*')}\nSHIO-LMH-2DD:  ${h.unikShioD2.join(',')}\n\n`;
-  teks += `-- 90 2DT --\n${h.pilihT2.join('*')}\nJML-LMH-2DT:   ${h.unikJmlT2.join('*')}\nSHIO-LMH-2DT:  ${h.unikShioT2.join(',')}\n\n`;
-  teks += `-- 90 2DB --\n${h.pilihB2.join('*')}\nJML-LMH-2DB:   ${h.unikJmlB2.join('*')}\nSHIO-LMH-2DB:  ${h.unikShioB2.join(',')}\n\n`;
+  teks += `-- 90 2DD --\n${h.pilihD2.join('*')}\n\n`;
+  teks += `-- 90 2DT --\n${h.pilihT2.join('*')}\n\n`;
+  teks += `-- 90 2DB --\n${h.pilihB2.join('*')}\n\n`;
 
-  teks += `-- 900 4D --\n${h.hasil.daftar4D.join('*')}\n\n`;
-  teks += `-- 900 3D --\n${h.hasil.daftar3D.join('*')}\n`;
+  teks += `-- 3D 900 --\n${h.daftar3D.join('*')}\n`;
 
   document.getElementById('kotakTeks').textContent = teks;
 }
