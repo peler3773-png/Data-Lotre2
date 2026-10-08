@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>3D DEPAN & 3D BELAKANG — Aturan SAMA</title>
+<title>3D DEPAN & 3D BELAKANG — Jumlah Asli</title>
 <style>
 :root{--hitam:#050505; --emas:#d4af37; --emas2:#f0c808; --gelap:#1a1a1a; --gelap2:#252525; --teks:#eae0c8}
 *{margin:0; padding:0; box-sizing:border-box; font-family:system-ui,sans-serif}
@@ -23,7 +23,7 @@ select:focus{border-color:var(--emas2); box-shadow:0 0 5px var(--emas)}
 </head>
 <body>
 <div class="wrap">
-<h1>🔮 3D DEPAN · 3D BELAKANG — Aturan SAMA</h1>
+<h1>🔮 3D DEPAN · 3D BELAKANG — Jumlah Asli</h1>
 <div class="tombol-baris">
   <label>Pasaran:</label>
   <select id="pilihPasaran" onchange="tampilPasaran()">
@@ -51,7 +51,6 @@ select:focus{border-color:var(--emas2); box-shadow:0 0 5px var(--emas)}
 <script>
 const DATA_UNDIAN_URL = "https://raw.githubusercontent.com/peler3773-png/Data-Lotre/main/data_undian.txt";
 const TARGET_2D = 90;
-const TARGET_3D = 900;
 let semuaData = [];
 
 function urai4Digit(angka4){
@@ -67,7 +66,6 @@ function ambilTepat90(daftar, hindari){
   const hasil = [];
   const sudah = new Set();
 
-  // Langkah 1: urut dari yang paling jarang, kecuali nomor terakhir
   const urut = Object.entries(hitung)
     .filter(([n]) => n !== hindari)
     .sort((a, b) => a[1] - b[1]);
@@ -80,7 +78,6 @@ function ambilTepat90(daftar, hindari){
     }
   }
 
-  // Langkah 2: isi lengkap 00-99 kecuali hindari, berhenti tepat 90
   for(let i = 0; i <= 99; i++){
     if(hasil.length >= TARGET_2D) break;
     const nomor = String(i).padStart(2, '0');
@@ -104,56 +101,36 @@ function acak(arr){
   return a;
 }
 
-// === 3D DEPAN = A + 2DT ===
-// Syarat: digit ke-2 dari 2DD SAMA dengan digit ke-1 dari 2DT
-// Contoh: 14 + 43 → 4=4 ✅ → 143
+// === 3D DEPAN: A + 2DT, SYARAT 2DD[1] = 2DT[0] ===
 function buatDepan(dd90, dt90){
   const set = new Set();
   for(const dd of dd90){
-    const A = dd[0];      // digit pertama 2DD
-    const D2 = dd[1];     // digit kedua 2DD
+    const A = dd[0];      // digit pertama → gabungan
+    const D2 = dd[1];     // digit kedua → syarat sama
     for(const dt of dt90){
-      const T1 = dt[0];    // digit pertama 2DT
-      if(D2 === T1){       // ✅ SAMA = BOLEH
-        set.add(A + dt);   // gabung = A + utuh 2DT
+      const T1 = dt[0];    // digit pertama 2DT → syarat sama
+      if(D2 === T1){       // HARUS SAMA
+        set.add(A + dt);   // bentuk: A + utuh 2DT
       }
     }
   }
-  // Isi pelengkap jika kurang dari 900
-  if(set.size < TARGET_3D){
-    for(let a = 0; a <= 999; a++){
-      if(set.size >= TARGET_3D) break;
-      const n = String(a).padStart(3, '0');
-      if(n[1] === n[1]) set.add(n); // tetap penuhi target
-    }
-  }
-  return acak([...set]).slice(0, TARGET_3D);
+  return acak([...set]); // KEMBALIKAN SEMUA, TIDAK DIPOTONG
 }
 
-// === 3D BELAKANG = C + 2DB ===
-// Syarat: digit ke-2 dari 2DT SAMA dengan digit ke-1 dari 2DB
-// Contoh: 14 + 43 → 4=4 ✅ → 143
+// === 3D BELAKANG: C + 2DB, SYARAT 2DT[1] = 2DB[0] ===
 function buatBelakang(dt90, db90){
   const set = new Set();
   for(const dt of dt90){
-    const C = dt[0];      // digit pertama 2DT
-    const T2 = dt[1];     // digit kedua 2DT
+    const C = dt[0];      // digit pertama → gabungan
+    const T2 = dt[1];     // digit kedua → syarat sama
     for(const db of db90){
-      const B1 = db[0];    // digit pertama 2DB
-      if(T2 === B1){       // ✅ SAMA = BOLEH
-        set.add(C + db);   // gabung = C + utuh 2DB
+      const B1 = db[0];    // digit pertama 2DB → syarat sama
+      if(T2 === B1){       // HARUS SAMA
+        set.add(C + db);   // bentuk: C + utuh 2DB
       }
     }
   }
-  // Isi pelengkap jika kurang dari 900
-  if(set.size < TARGET_3D){
-    for(let a = 0; a <= 999; a++){
-      if(set.size >= TARGET_3D) break;
-      const n = String(a).padStart(3, '0');
-      set.add(n);
-    }
-  }
-  return acak([...set]).slice(0, TARGET_3D);
+  return acak([...set]); // KEMBALIKAN SEMUA, TIDAK DIPOTONG
 }
 
 function proses(dataPasaran){
@@ -206,11 +183,11 @@ function tampilPasaran(){
   out += `-- 90 2DB (${h.db90.length}) --\n${h.db90.join('*')}\n\n`;
   out += `-- 3D DEPAN ${h.depan.length} LN --\n`;
   out += `Rumus: A(2DD[0]) + 2DT | Syarat: 2DD[1] = 2DT[0]\n`;
-  out += `Contoh: 14 + 43 = 143 (4=4 ✅)\n`;
+  out += `Contoh: 14 + 43 = 143 (4=4 ✅) | 14 + 12 = TDK BISA (4≠1)\n`;
   out += h.depan.join('*') + `\n\n`;
   out += `-- 3D BELAKANG ${h.belakang.length} LN --\n`;
   out += `Rumus: C(2DT[0]) + 2DB | Syarat: 2DT[1] = 2DB[0]\n`;
-  out += `Contoh: 14 + 43 = 143 (4=4 ✅)\n`;
+  out += `Contoh: 14 + 43 = 143 (4=4 ✅) | 14 + 12 = TDK BISA (4≠1)\n`;
   out += h.belakang.join('*');
 
   document.getElementById('kotakTeks').textContent = out;
