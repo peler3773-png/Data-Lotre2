@@ -3,225 +3,602 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ubah Angka dari Web — Dinamis</title>
+<title>Oto Pilot Kombinasi</title>
 <style>
-:root{--hitam:#050505; --emas:#d4af37; --emas2:#f0c808; --gelap:#1a1a1a; --gelap2:#252525; --teks:#eae0c8}
+:root{--hitam:#000000; --emas:#d4af37; --emas2:#f0c808; --gelap:#121212; --gelap2:#1e1e1e; --gelap3:#2a2a2a; --teks:#f5e7c8}
 *{margin:0; padding:0; box-sizing:border-box; font-family:system-ui,sans-serif}
 body{background:var(--hitam); color:var(--teks); min-height:100vh; padding:15px}
-.wrap{max-width:950px; margin:0 auto}
+.wrap{max-width:960px; margin:0 auto}
 h1{color:var(--emas); text-align:center; margin:12px 0; font-size:1.35rem}
-.card{background:var(--gelap); border:1px solid var(--emas); border-radius:10px; padding:15px; margin:12px 0}
-pre{background:#000; padding:15px; border-radius:8px; font-size:0.9rem; line-height:1.8; color:#fff; white-space:pre-wrap; word-break:break-all; max-height:800px; overflow-y:auto; margin:0}
+h2{color:var(--emas2); margin:20px 0 10px; font-size:1.1rem; border-bottom:1px solid var(--emas); padding-bottom:6px}
+.card{background:var(--gelap); border:2px solid var(--emas); border-radius:10px; padding:15px; margin:12px 0}
+
+/* === 2DD + 2DT + 2DB → 3 KOTAK SAMA LEBAR === */
+.grid-2d{
+  display:grid;
+  grid-template-columns:repeat(3, 1fr);
+  gap:15px;
+  margin:10px 0;
+}
+@media(max-width:768px){
+  .grid-2d{grid-template-columns:1fr}
+}
+
+/* === 3DD + 3DB → 2 KOTAK LEBAR === */
+.grid-3d{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:15px;
+  margin:10px 0;
+}
+@media(max-width:768px){
+  .grid-3d{grid-template-columns:1fr}
+}
+
+.card-2d{background:var(--gelap3); border:2px solid var(--emas); border-radius:10px; padding:12px; min-width:0}
+.card-3d{background:var(--gelap3); border:2px solid var(--emas); border-radius:10px; padding:12px; min-width:0}
+.card-judul{text-align:center; color:var(--emas2); font-weight:bold; margin-bottom:10px}
+
+/* === 2DD/2DT/2DB — TURUN KE BAWAH OTOMATIS === */
+.card-kotak{
+  background:#000;
+  border:1px solid var(--emas);
+  border-radius:6px;
+  padding:12px;
+  min-height:180px;
+  max-height:220px;
+  overflow-y:auto;
+  overflow-x:hidden;
+  margin-bottom:10px;
+  font-family:monospace;
+  font-size:0.9rem;
+  line-height:1.8;
+  color:#fff;
+  white-space:normal;
+  word-break:break-all;
+}
+
+/* === 3DD/3DB/4D — JUGA TURUN KE BAWAH === */
+.form-control{
+  width:100%;
+  padding:8px;
+  border:1px solid var(--emas);
+  border-radius:4px;
+  box-sizing:border-box;
+  resize:vertical;
+  background:#000;
+  color:#fff;
+  min-height:180px;
+  max-height:220px;
+  overflow-y:auto;
+  overflow-x:hidden;
+  white-space:normal;
+  word-break:break-all;
+}
+
+.baris-salin{cursor:pointer; transition:background 0.2s; padding:2px 4px; border-radius:3px; display:block}
+.baris-salin:hover{background:rgba(212,175,55,0.2)}
+.baris-salin.tersalin, .tombol-salin.tersalin{background:rgba(74,222,128,0.4); transition:background 0s}
 button{background:linear-gradient(135deg,var(--emas),var(--emas2)); color:#000; border:none; padding:9px 14px; border-radius:6px; font-weight:bold; cursor:pointer; margin:4px}
 button:hover{transform:scale(1.03)}
-select, input{background:var(--gelap2); color:var(--teks); border:1px solid var(--emas); padding:8px 12px; border-radius:6px; font-weight:bold; outline:none; margin:4px; width:90px; text-align:center}
-select:focus, input:focus{border-color:var(--emas2); box-shadow:0 0 5px var(--emas)}
+select, input, textarea{background:var(--gelap2); color:var(--teks); border:1px solid var(--emas); padding:8px 12px; border-radius:6px; font-weight:bold; outline:none; margin:4px; font-family:monospace; font-size:0.9rem}
+select:focus, input:focus, textarea:focus{border-color:var(--emas2); box-shadow:0 0 5px var(--emas)}
 .loading{text-align:center; padding:25px; color:var(--emas)}
-.tombol-baris{text-align:center; margin:10px; display:flex; justify-content:center; align-items:center; gap:10px; flex-wrap:wrap}
-.info-kecil{font-size:0.8rem; opacity:0.7; margin-top:4px}
-.sudut{background:#222; border:1px solid #444; border-radius:6px; padding:8px; margin:8px 0; display:flex; align-items:center; gap:8px; flex-wrap:wrap}
+
+/* === BARIS ATAS — RAPI SEJAJAR === */
+.baris-atas{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:12px;
+  flex-wrap:wrap;
+  background:var(--gelap);
+  border:2px solid var(--emas);
+  border-radius:10px;
+  padding:12px 15px;
+  margin:12px 0;
+}
+.baris-tombol{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+  flex-wrap:wrap;
+  margin:8px 0;
+}
+.info-kecil{font-size:0.8rem; opacity:0.7; margin-left:4px}
+.cepat{color:#4ade80; font-size:0.8rem; margin-left:6px}
+.tombol-segar{background:linear-gradient(135deg,#60a5fa,#3b82f6)}
+.tombol-segar:hover{transform:scale(1.05)}
+.btn-salin-hijau{background:linear-gradient(135deg,#28a745,#4ade80); color:#fff; display:block; width:100%; margin:0 auto; max-width:160px}
+.btn-salin-hijau:hover{color:#fff}
+.btn-success{background:linear-gradient(135deg,#28a745,#4ade80); color:#fff}
+.btn-danger{background:linear-gradient(135deg,#dc3545,#f87171); color:#fff}
+.m-t-sm{margin-top:15px}
+.text-success{color:#4ade80; font-size:1rem; font-weight:bold; display:block; margin:6px 0}
+.libur-indikator{color:#f87171; font-size:0.75rem; margin-top:2px}
+
+/* === RINGKASAN PASAR — DITAMBAH 2 DATA === */
+.ringkas{
+  background:var(--hitam);
+  border:2px solid var(--emas);
+  border-radius:12px;
+  padding:16px 20px;
+  margin:15px 0;
+  box-shadow:0 0 12px rgba(212,175,55,0.25);
+}
+.ringkas-judul{
+  color:var(--emas2);
+  font-size:1.15rem;
+  font-weight:bold;
+  margin-bottom:14px;
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.ringkas-judul::before{
+  content:"";
+  display:inline-block;
+  width:24px;
+  height:16px;
+  background:linear-gradient(90deg,green 0%,green 33%,white 33%,white 66%,red 66%,red 100%);
+  border-radius:2px;
+}
+.ringkas-baris{
+  display:grid;
+  grid-template-columns:repeat(8, 1fr);
+  gap:10px;
+}
+.ringkas-kolom{
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+}
+.ringkas-label{
+  font-size:0.7rem;
+  color:#999;
+  text-transform:uppercase;
+  letter-spacing:0.5px;
+}
+.ringkas-nilai{
+  background:var(--gelap2);
+  border:1px solid var(--emas);
+  border-radius:6px;
+  padding:8px 4px;
+  text-align:center;
+  font-weight:bold;
+  color:var(--emas2);
+  font-size:0.9rem;
+}
+@media(max-width:768px){
+  .ringkas-baris{grid-template-columns:repeat(2, 1fr); gap:8px}
+}
 </style>
 </head>
 <body>
 <div class="wrap">
-<h1>🔮 3D DEPAN · 3D BELAKANG — Ubah dari Web</h1>
+<h1>🔮 Oto Pilot Kombinasi</h1>
 
-<div class="sudut">
+<!-- === BARIS ATAS — RAPI TANPA TOMBOL HAPUS === -->
+<div class="baris-atas">
   <label>Jumlah 2D:</label>
-  <input type="number" id="inputTarget" value="90" min="1" max="99">
+  <input type="number" id="inputTarget" value="90" min="1" max="99" style="width:70px">
   <button onclick="terapkanAngka()">✅ Terapkan</button>
   <span class="info-kecil">Sekarang: <b id="nilaiSaatIni">90</b></span>
+  <span id="dariBuffer" class="cepat"></span>
 </div>
 
-<div class="tombol-baris">
+<div class="baris-tombol">
   <label>Pasaran:</label>
   <select id="pilihPasaran" onchange="tampilPasaran()">
-    <option value="BE">BE — BULLSEYE</option>
-    <option value="CLF">CLF — CALIFORNIA</option>
-    <option value="NCE">NCE — NORTH CAROLINA</option>
-    <option value="SD">SD — SYDNEY</option>
-    <option value="SGP">SGP — SINGAPORE</option>
-    <option value="PS">PS — PHILIPPINES</option>
-    <option value="TM">TM — TENNESSE MORNING</option>
-    <option value="TXM">TXM — TEXAS MORNING</option>
-    <option value="HK">HK — HONGKONG</option>
+<option value="GM5">GERMANY PLUS 5</option>
+<option value="IDM">INDIANA MID</option>
+<option value="KYM">KENTUCKY MID</option>
+<option value="TMD">TENNESSEE MID</option>
+<option value="FLM">FLORIDA MID</option>
+<option value="RIM">RHODE ISLAND MID</option>
+<option value="TXD">TEXAS DAY (SENIN LIBUR)</option>
+<option value="INM">ILLINOIS MID</option>
+<option value="MSM">MISSOURI MID</option>
+<option value="MCSM">MASSACHUSETTS MID</option>
+<option value="DCM">WASHINGTON DC MID</option>
+<option value="DWD">DELAWARE DAY</option>
+<option value="VD">VIRGINIA DAY</option>
+<option value="NYM">NEW YORK MID</option>
+<option value="WCS">WISCONSIN DAY</option>
+<option value="NCD">NORTH CAROLINA DAY</option>
+<option value="MQ03">MOROCCO QUATRO 03:00</option>
+<option value="OG1">OREGON JAM 03:00</option>
+<option value="WV">WEST VIRGINIA (SENIN LIBUR)</option>
+<option value="GGE">GEORGIA EVENING</option>
+<option value="OG2">OREGON JAM 06:00</option>
+<option value="TXE">TEXAS EVENING (SENIN LIBUR)</option>
+<option value="TE">TENNESSEE EVENING</option>
+<option value="MGE">MICHIGAN EVENING</option>
+<option value="OHE">OHIO EVENING</option>
+<option value="DCE">WASHINGTON DC EVENING</option>
+<option value="DWN">DELAWARE NIGHT</option>
+<option value="MLE">MARYLAND EVENING</option>
+<option value="MCSE">MASSACHUSETTS EVENING</option>
+<option value="CLF">CALIFORNIA</option>
+<option value="FLE">FLORIDA EVENING</option>
+<option value="MSE">MISSOURI EVENING</option>
+<option value="OG3" selected>OREGON JAM 09:00</option>
+<option value="INE">ILLINOIS EVENING</option>
+<option value="NYE">NEW YORK EVENING</option>
+<option value="IDE">INDIANA EVENING</option>
+<option value="NJE">NEW JERSEY EVENING</option>
+<option value="VN">VIRGINIA NIGHT</option>
+<option value="KYE">KENTUCKY EVENING</option>
+<option value="TXN">TEXAS NIGHT (SENIN LIBUR)</option>
+<option value="NCE">NORTH CAROLINA EVENING</option>
+<option value="GGN">GEORGIA NIGHT</option>
+<option value="OG4">OREGON JAM 12:00</option>
+<option value="BE">BULLSEYE</option>
+<option value="TTM1">TOTO MACAU JAM 13:10</option>
+<option value="SD">SYDNEY</option>
+<option value="SDLT">SYDNEY LOTTO</option>
+<option value="TTM2">TOTO MACAU JAM 16:00</option>
+<option value="SGP">SINGAPORE (SEL/JUM LIBUR)</option>
+<option value="MQ18">MOROCCO QUATRO 18:00</option>
+<option value="TTM3">TOTO MACAU JAM 19:00</option>
+<option value="PS">PHILIPPINES (MINGGU LIBUR)</option>
+<option value="MQ21">MOROCCO QUATRO 21:00</option>
+<option value="TM">TENNESSEE MORNING (MINGGU LIBUR)</option>
+<option value="TXM">TEXAS MORNING (MINGGU LIBUR)</option>
+<option value="TTM4">TOTO MACAU JAM 22:10</option>
+<option value="HK">HONGKONG</option>
+<option value="HKLT">HONGKONG LOTTO</option>
+<option value="MLM">MARYLAND MID</option>
+<option value="GGM">GEORGIA MID</option>
+<option value="OHM">OHIO MID</option>
+<option value="MGM">MICHIGAN MID</option>
+<option value="MQ00">MOROCCO QUATRO 00:00</option>
+<option value="NJM">NEW JERSEY MID</option>
+<option value="SCM">SOUTH CAROLINA MID (MINGGU LIBUR)</option>
   </select>
   <button onclick="mulai()">🔄 Muat Ulang Data</button>
+  <button class="tombol-segar" onclick="segarHalaman()">🔃 Reload Halaman</button>
   <span id="terakhirMuat" class="info-kecil">Terakhir: —</span>
 </div>
 
 <div id="status" class="loading">⏳ Memuat data & menyusun angka...</div>
 <div id="konten" style="display:none">
+  <!-- === RINGKASAN PASAR — DITAMBAH 2 DATA === -->
+  <div class="ringkas">
+    <div class="ringkas-judul">📊 RINGKASAN PASAR TERPILIH</div>
+    <div class="ringkas-baris">
+      <div class="ringkas-kolom">
+        <span class="ringkas-label">HARI</span>
+        <span class="ringkas-nilai" id="r-hari">—</span>
+      </div>
+      <div class="ringkas-kolom">
+        <span class="ringkas-label">TANGGAL</span>
+        <span class="ringkas-nilai" id="r-tgl">—</span>
+      </div>
+      <div class="ringkas-kolom">
+        <span class="ringkas-label">SHIO</span>
+        <span class="ringkas-nilai" id="r-shio">—</span>
+      </div>
+      <div class="ringkas-kolom">
+        <span class="ringkas-label">DATA 1</span>
+        <span class="ringkas-nilai" id="r-data1">—</span>
+      </div>
+      <div class="ringkas-kolom">
+        <span class="ringkas-label">DATA 2</span>
+        <span class="ringkas-nilai" id="r-data2">—</span>
+      </div>
+      <div class="ringkas-kolom">
+        <span class="ringkas-label">2DD</span>
+        <span class="ringkas-nilai" id="r-d2d">—</span>
+      </div>
+      <div class="ringkas-kolom">
+        <span class="ringkas-label">2DT</span>
+        <span class="ringkas-nilai" id="r-d2t">—</span>
+      </div>
+      <div class="ringkas-kolom">
+        <span class="ringkas-label">2DB</span>
+        <span class="ringkas-nilai" id="r-d2b">—</span>
+      </div>
+    </div>
+    <div class="info-kecil" style="margin-top:10px">
+      Jam Tutup: <b id="jamTutup">—</b>
+      <span id="infoLibur" class="libur-indikator"></span>
+    </div>
+  </div>
+
+  <!-- === BLOK DATA 2D === -->
   <div class="card">
-    <h3>📋 Hasil</h3>
-    <pre id="kotakTeks"></pre>
+    <div class="card-judul">📋 Data 2D <span style="font-size:0.8rem; color:#999">(klik baris untuk menyalin)</span></div>
+    <div class="grid-2d">
+      <div class="card-2d">
+        <div class="card-judul">2DD</div>
+        <div class="card-kotak" id="kotak2DD"></div>
+        <button type="button" class="btn-salin-hijau tombol-salin" onclick="salinElemen(this, 'kotak2DD')">📋 Salin 2DD</button>
+      </div>
+      <div class="card-2d">
+        <div class="card-judul">2DT</div>
+        <div class="card-kotak" id="kotak2DT"></div>
+        <button type="button" class="btn-salin-hijau tombol-salin" onclick="salinElemen(this, 'kotak2DT')">📋 Salin 2DT</button>
+      </div>
+      <div class="card-2d">
+        <div class="card-judul">2DB</div>
+        <div class="card-kotak" id="kotak2DB"></div>
+        <button type="button" class="btn-salin-hijau tombol-salin" onclick="salinElemen(this, 'kotak2DB')">📋 Salin 2DB</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- === BLOK 3DD & 3DB === -->
+  <div class="card">
+    <div class="card-judul">🧩 Hasil: 3DD & 3DB</div>
+    <div class="grid-3d">
+      <div class="card-3d">
+        <div class="card-judul">3DD<br><small>2DD + 2DT Otomatis</small></div>
+        <textarea class="form-control" id="databet2" readonly placeholder="Otomatis terisi saat pilih pasaran"></textarea>
+        <button type="button" class="btn-salin-hijau tombol-salin" onclick="salinElemen(this, 'databet2')">📋 Salin 3DD</button>
+      </div>
+      <div class="card-3d">
+        <div class="card-judul">3DB<br><small>2DT + 2DB Otomatis</small></div>
+        <textarea class="form-control" id="databet3" readonly placeholder="Otomatis terisi saat pilih pasaran"></textarea>
+        <button type="button" class="btn-salin-hijau tombol-salin" onclick="salinElemen(this, 'databet3')">📋 Salin 3DB</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- === BLOK 4D LN === -->
+  <div class="card">
+    <div class="card-judul">🔗 Gabung 3DD + 3DB → 4D LN</div>
+    <div style="text-align:center; margin-bottom:10px">
+      <button type="button" class="btn-success" onclick="prosesGenerate()">✅ Generate 4D LN</button>
+      <button type="button" class="btn-danger" onclick="hapus()">🗑️ Reset</button>
+    </div>
+    <p class="text-success" style="text-align:center">Hasil : <strong id="jumlahLN">0 LN</strong></p>
+    <textarea class="form-control" id="output" rows="6" readonly placeholder="Klik Generate untuk melihat hasil..."></textarea>
+    <button type="button" class="btn-salin-hijau tombol-salin" onclick="salinElemen(this, 'output')">📋 Salin Hasil 4D</button>
   </div>
 </div>
 </div>
 
 <script>
+// === DATA REFERENSI ===
+const NAMA_PANJANG = {
+  "GM5": "GERMANY PLUS 5", "IDM": "INDIANA MID", "KYM": "KENTUCKY MID",
+  "TMD": "TENNESSEE MID", "FLM": "FLORIDA MID", "RIM": "RHODE ISLAND MID",
+  "TXD": "TEXAS DAY", "INM": "ILLINOIS MID", "MSM": "MISSOURI MID",
+  "MCSM": "MASSACHUSETTS MID", "DCM": "WASHINGTON DC MID", "DWD": "DELAWARE DAY",
+  "VD": "VIRGINIA DAY", "NYM": "NEW YORK MID", "WCS": "WISCONSIN DAY",
+  "NCD": "NORTH CAROLINA DAY", "MQ03": "MOROCCO QUATRO 03:00", "OG1": "OREGON JAM 03:00",
+  "WV": "WEST VIRGINIA", "GGE": "GEORGIA EVENING", "OG2": "OREGON JAM 06:00",
+  "TXE": "TEXAS EVENING", "TE": "TENNESSEE EVENING", "MGE": "MICHIGAN EVENING",
+  "OHE": "OHIO EVENING", "DCE": "WASHINGTON DC EVENING", "DWN": "DELAWARE NIGHT",
+  "MLE": "MARYLAND EVENING", "MCSE": "MASSACHUSETTS EVENING", "CLF": "CALIFORNIA",
+  "FLE": "FLORIDA EVENING", "MSE": "MISSOURI EVENING", "OG3": "OREGON JAM 09:00",
+  "INE": "ILLINOIS EVENING", "NYE": "NEW YORK EVENING", "IDE": "INDIANA EVENING",
+  "NJE": "NEW JERSEY EVENING", "VN": "VIRGINIA NIGHT", "KYE": "KENTUCKY EVENING",
+  "TXN": "TEXAS NIGHT", "NCE": "NORTH CAROLINA EVENING", "GGN": "GEORGIA NIGHT",
+  "OG4": "OREGON JAM 12:00", "BE": "BULLSEYE", "TTM1": "TOTO MACAU JAM 13:10",
+  "SD": "SYDNEY", "SDLT": "SYDNEY LOTTO", "TTM2": "TOTO MACAU JAM 16:00",
+  "SGP": "SINGAPORE", "MQ18": "MOROCCO QUATRO 18:00", "TTM3": "TOTO MACAU JAM 19:00",
+  "PS": "PHILIPPINES", "MQ21": "MOROCCO QUATRO 21:00", "TM": "TENNESSEE MORNING",
+  "TXM": "TEXAS MORNING", "TTM4": "TOTO MACAU JAM 22:10", "HK": "HONGKONG",
+  "HKLT": "HONGKONG LOTTO", "MLM": "MARYLAND MID", "GGM": "GEORGIA MID",
+  "OHM": "OHIO MID", "MGM": "MICHIGAN MID", "MQ00": "MOROCCO QUATRO 00:00",
+  "NJM": "NEW JERSEY MID", "SCM": "SOUTH CAROLINA MID"
+};
+const JADWAL_TUTUP = {
+  "GM5":"00:00","IDM":"00:05","KYM":"00:05","TMD":"00:05","FLM":"00:15","RIM":"00:15","TXD":"00:15","INM":"00:25",
+  "MSM":"00:30","MCSM":"00:35","DCM":"00:40","DWD":"00:40","VD":"00:40","NYM":"01:10","WCS":"01:14","NCD":"01:45",
+  "MQ03":"02:45","OG1":"02:45","WV":"05:40","GGE":"05:45","OG2":"05:45","TXE":"05:45","TE":"06:05","MGE":"06:15",
+  "OHE":"06:15","DCE":"06:40","DWN":"06:40","MLE":"06:40","MCSE":"07:37","CLF":"08:15","FLE":"08:30","MSE":"08:40",
+  "OG3":"08:45","INE":"09:05","NYE":"09:10","IDE":"09:35","NJE":"09:40","VN":"09:40","KYE":"09:45","TXN":"09:55",
+  "NCE":"10:05","GGN":"10:20","OG4":"11:45","BE":"12:55","TTM1":"13:00","SD":"13:30","SDLT":"13:30","TTM2":"16:00",
+  "SGP":"17:30","MQ18":"17:45","TTM3":"19:00","PS":"19:50","MQ21":"20:45","TM":"21:05","TXM":"21:45","TTM4":"22:00",
+  "HK":"22:30","HKLT":"22:45","MLM":"23:10","GGM":"23:15","OHM":"23:15","MGM":"23:45","MQ00":"23:45","NJM":"23:45","SCM":"23:59"
+};
+const JADWAL_LIBUR = {
+  "PS": ["Minggu"], "SGP": ["Selasa", "Jumat"], "TXM": ["Minggu"],
+  "TM": ["Minggu"], "TMD": ["Senin"], "TXD": ["Senin"],
+  "TXE": ["Senin"], "TXN": ["Senin"], "WV": ["Senin"], "SCM": ["Minggu"]
+};
 const DATA_UNDIAN_URL = "https://raw.githubusercontent.com/peler3773-png/Data-Lotre/main/data_undian.txt";
-let TARGET_2D = 90; // nilai awal
+const PENYIMPANAN_KUNCI = "hasil_3d_permanen";
+let TARGET_2D = 90;
 let semuaData = [];
+let hasilSaatIni = null;
+
+// === DAFTAR SHIO ===
+const SHIO = [
+  {awal:0, nama:'Tikus'}, {awal:1, nama:'Kerbau'}, {awal:2, nama:'Harimau'}, {awal:3, nama:'Kelinci'},
+  {awal:4, nama:'Naga'}, {awal:5, nama:'Ular'}, {awal:6, nama:'Kuda'}, {awal:7, nama:'Kambing'},
+  {awal:8, nama:'Monyet'}, {awal:9, nama:'Ayam'}, {awal:10, nama:'Anjing'}, {awal:11, nama:'Babi'}
+];
+function dapatkanShio(angka4){
+  const nomor = parseInt(angka4, 10);
+  const idx = nomor % 12;
+  return SHIO[idx].nama;
+}
+function dapatkanHari(tanggalStr){
+  const tgl = new Date(tanggalStr + 'T00:00:00');
+  const hari = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+  return hari[tgl.getDay()];
+}
+function cekLibur(kodePasaran, hariNama){
+  const daftar = JADWAL_LIBUR[kodePasaran];
+  if(!daftar) return '';
+  return daftar.includes(hariNama) ? '⚠️ HARI LIBUR' : '';
+}
+function segarHalaman(){ location.reload(true); }
+
+// === SALIN SENYAP ===
+async function salinTeks(teks, el){
+  if(!teks) return;
+  try{
+    await navigator.clipboard.writeText(teks);
+    if(el){ el.classList.add('tersalin'); setTimeout(()=>el.classList.remove('tersalin'), 700); }
+  }catch(e){
+    const ta = document.createElement('textarea');
+    ta.value = teks;
+    document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
+    if(el){ el.classList.add('tersalin'); setTimeout(()=>el.classList.remove('tersalin'), 700); }
+  }
+}
+function salinElemen(btn, idEl){
+  const el = document.getElementById(idEl);
+  if(!el) return;
+  let teks = el.textContent || el.value || '';
+  salinTeks(teks.trim(), btn);
+}
+
+let buffer = {};
+function muatDariPenyimpanan(){ try{ const s = localStorage.getItem(PENYIMPANAN_KUNCI); if(s) buffer = JSON.parse(s); }catch(e){ buffer = {}; } }
+function simpanKePenyimpanan(){ try{ localStorage.setItem(PENYIMPANAN_KUNCI, JSON.stringify(buffer)); }catch(e){} }
+// TOMBOL BERSIHKAN DIHAPUS → fungsi tidak dipakai lagi
 
 function urai4Digit(angka4){
   const s = String(angka4).padStart(4,'0');
   return {asli:s, d2:s.slice(0,2), t2:s.slice(1,3), b2:s.slice(2,4)};
 }
-
 function ambilSesuai(daftar, hindari){
   const hitung = {};
   daftar.forEach(x => { hitung[x] = (hitung[x] || 0) + 1; });
-
-  const hasil = [];
-  const sudah = new Set();
-
-  const urut = Object.entries(hitung)
-    .filter(([n]) => n !== hindari)
-    .sort((a, b) => a[1] - b[1]);
-
-  for(const [nomor] of urut){
-    if(hasil.length >= TARGET_2D) break;
-    if(!sudah.has(nomor)){
-      hasil.push(nomor);
-      sudah.add(nomor);
-    }
-  }
-
-  for(let i = 0; i <= 99; i++){
-    if(hasil.length >= TARGET_2D) break;
-    const nomor = String(i).padStart(2, '0');
-    if(nomor === hindari) continue;
-    if(!sudah.has(nomor)){
-      hasil.push(nomor);
-      sudah.add(nomor);
-    }
-  }
-
+  const hasil = [], sudah = new Set();
+  const urut = Object.entries(hitung).filter(([n]) => n !== hindari).sort((a,b) => a[1] - b[1]);
+  for(const [nomor] of urut){ if(hasil.length >= TARGET_2D) break; if(!sudah.has(nomor)){ hasil.push(nomor); sudah.add(nomor); } }
+  for(let i=0; i<=99; i++){ if(hasil.length >= TARGET_2D) break; const n=String(i).padStart(2,'0'); if(n===hindari||sudah.has(n))continue; hasil.push(n); sudah.add(n); }
   while(hasil.length > TARGET_2D) hasil.pop();
   return hasil;
 }
+function urutkanAngka(arr){ return [...arr].sort((a,b) => a.localeCompare(b)); }
 
-function acak(arr){
-  const a = [...arr];
-  for(let i = a.length - 1; i > 0; i--){
-    const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
-  }
-  return a;
-}
-
-function buatDepan(ddList, dtList){
+// 2DD + 2DT → 3DD
+function buat3DD(ddList, dtList){
   const set = new Set();
   for(const dd of ddList){
-    const A = dd[0];
-    const D2 = dd[1];
+    const dDepan = dd[0], dTengah = dd[1];
     for(const dt of dtList){
-      const T1 = dt[0];
-      if(D2 === T1){ set.add(A + dt); }
+      if(dTengah === dt[0]) set.add(dDepan + dt);
     }
   }
-  return acak([...set]);
+  return urutkanAngka([...set]);
 }
-
-function buatBelakang(dtList, dbList){
+// 2DT + 2DB → 3DB
+function buat3DB(dtList, dbList){
   const set = new Set();
   for(const dt of dtList){
-    const C = dt[0];
-    const T2 = dt[1];
+    const dDepan = dt[0], dTengah = dt[1];
     for(const db of dbList){
-      const B1 = db[0];
-      if(T2 === B1){ set.add(C + db); }
+      if(dTengah === db[0]) set.add(dDepan + db);
     }
   }
-  return acak([...set]);
+  return urutkanAngka([...set]);
 }
 
 function proses(dataPasaran){
   if(dataPasaran.length < 3) return null;
-  const d2 = [], t2 = [], b2 = [];
-  for(const r of dataPasaran){
-    const u = urai4Digit(r.angka);
-    d2.push(u.d2);
-    t2.push(u.t2);
-    b2.push(u.b2);
-  }
+  const d2=[], t2=[], b2=[];
+  for(const r of dataPasaran){ const u=urai4Digit(r.angka); d2.push(u.d2); t2.push(u.t2); b2.push(u.b2); }
   const terakhir = urai4Digit(dataPasaran[0].angka);
-
-  const dd = ambilSesuai(d2, terakhir.d2);
-  const dt = ambilSesuai(t2, terakhir.t2);
-  const db = ambilSesuai(b2, terakhir.b2);
-
-  const depan = buatDepan(dd, dt);
-  const belakang = buatBelakang(dt, db);
-
-  return {terakhir, dd, dt, db, depan, belakang};
+  const kedua = dataPasaran[1] ? urai4Digit(dataPasaran[1].angka) : null;
+  const ketiga = dataPasaran[2] ? urai4Digit(dataPasaran[2].angka) : null;
+  const hariNama = dapatkanHari(dataPasaran[0].tanggal);
+  const dd = ambilSesuai(d2,terakhir.d2);
+  const dt = ambilSesuai(t2,terakhir.t2);
+  const db = ambilSesuai(b2,terakhir.b2);
+  return {
+    terakhir,
+    data1: kedua ? kedua.asli : '—',
+    data2: ketiga ? ketiga.asli : '—',
+    hari: hariNama,
+    tanggal: dataPasaran[0].tanggal,
+    shio: dapatkanShio(terakhir.asli),
+    jamTutup: JADWAL_TUTUP[dataPasaran[0].pasaran] || '—',
+    infoLibur: cekLibur(dataPasaran[0].pasaran, hariNama),
+    dd, dt, db,
+    depan: buat3DD(dd, dt),
+    belakang: buat3DB(dt, db)
+  };
 }
 
-async function muat(url){
-  const res = await fetch(url, {cache:'no-store'});
-  if(!res.ok) throw new Error("Gagal ambil data");
-  return res.text();
-}
-
-function parse(teks){
-  return teks.trim().split('\n').filter(b => b.trim()).map(b => {
-    const p = b.split('|');
-    return {pasaran:p[0].trim(), tanggal:p[1].trim(), angka:String(p[2]).padStart(4,'0')};
-  }).sort((a,b) => a.tanggal.localeCompare(b.tanggal)).reverse();
-}
+async function muat(url){ const r=await fetch(url,{cache:'no-store'}); if(!r.ok)throw new Error("Gagal ambil data"); return r.text(); }
+function parse(teks){ return teks.trim().split('\n').filter(b=>b.trim()).map(b=>{const p=b.split('|'); return {pasaran:p[0].trim(), tanggal:p[1].trim(), angka:String(p[2]).padStart(4,'0')}}).sort((a,b)=>a.tanggal.localeCompare(b.tanggal)).reverse(); }
 
 function tampilPasaran(){
   const kode = document.getElementById('pilihPasaran').value;
+  const kunci = `${kode}-${TARGET_2D}`;
   const data = semuaData.filter(x => x.pasaran === kode);
-  const h = proses(data);
-
-  if(!h){
-    document.getElementById('kotakTeks').textContent = "⚠️ Data kurang, minimal 3 baris";
-    return;
-  }
-
-  let out = `${kode} Terakhir: ${h.terakhir.asli}\n\n`;
-  out += `-- ${TARGET_2D} 2DD (${h.dd.length}) --\n${h.dd.join('*')}\n\n`;
-  out += `-- ${TARGET_2D} 2DT (${h.dt.length}) --\n${h.dt.join('*')}\n\n`;
-  out += `-- ${TARGET_2D} 2DB (${h.db.length}) --\n${h.db.join('*')}\n\n`;
-  out += `-- 3D DEPAN ${h.depan.length} LN --\n`;
-  out += `Rumus: 2DD[0] + 2DT | Syarat: 2DD[1] = 2DT[0]\n`;
-  out += `Contoh: 14 + 43 = 143 (4=4 ✅) | 14 + 12 = TDK BISA (4≠1)\n`;
-  out += h.depan.join('*') + `\n\n`;
-  out += `-- 3D BELAKANG ${h.belakang.length} LN --\n`;
-  out += `Rumus: 2DT[0] + 2DB | Syarat: 2DT[1] = 2DB[0]\n`;
-  out += `Contoh: 14 + 43 = 143 (4=4 ✅) | 14 + 12 = TDK BISA (4≠1)\n`;
-  out += h.belakang.join('*');
-
-  document.getElementById('kotakTeks').textContent = out;
+  if(buffer[kunci]){ hasilSaatIni = buffer[kunci]; tampilHasil(buffer[kunci]); document.getElementById('dariBuffer').textContent = '⚡ Tersimpan'; return; }
+  document.getElementById('dariBuffer').textContent = '';
+  const h = proses(data); if(!h){ document.getElementById('kotak2DD').innerHTML = '<span class="baris-salin">⚠️ Data kurang, minimal 3 baris</span>'; return; }
+  buffer[kunci] = h; hasilSaatIni = h; simpanKePenyimpanan(); tampilHasil(h);
 }
 
-// === UBAH ANGKA DARI WEB ===
+function tampilHasil(h){
+  // === ISI RINGKASAN TERBARU ===
+  document.getElementById('r-hari').textContent = h.hari;
+  document.getElementById('r-tgl').textContent = h.tanggal;
+  document.getElementById('r-shio').textContent = h.shio;
+  document.getElementById('r-data1').textContent = h.data1;
+  document.getElementById('r-data2').textContent = h.data2;
+  document.getElementById('r-d2d').textContent = h.terakhir.d2;
+  document.getElementById('r-d2t').textContent = h.terakhir.t2;
+  document.getElementById('r-d2b').textContent = h.terakhir.b2;
+  document.getElementById('jamTutup').textContent = h.jamTutup;
+  document.getElementById('infoLibur').textContent = h.infoLibur;
+  
+  // Data 2D
+  document.getElementById('kotak2DD').innerHTML = `<span class="baris-salin" onclick="salinTeks(this.textContent,this)">${h.dd.join('*')}</span>`;
+  document.getElementById('kotak2DT').innerHTML = `<span class="baris-salin" onclick="salinTeks(this.textContent,this)">${h.dt.join('*')}</span>`;
+  document.getElementById('kotak2DB').innerHTML = `<span class="baris-salin" onclick="salinTeks(this.textContent,this)">${h.db.join('*')}</span>`;
+  
+  // Isi otomatis ke kotak 3D
+  document.getElementById('databet2').value = h.depan.join('*');
+  document.getElementById('databet3').value = h.belakang.join('*');
+}
+
 function terapkanAngka(){
-  const nilaiBaru = parseInt(document.getElementById('inputTarget').value) || 90;
-  // Batasi 1–99
-  TARGET_2D = Math.max(1, Math.min(99, nilaiBaru));
-  document.getElementById('inputTarget').value = TARGET_2D;
-  document.getElementById('nilaiSaatIni').textContent = TARGET_2D;
-  // Langsung perbarui hasil
-  tampilPasaran();
+  const n = Math.max(1, Math.min(99, parseInt(document.getElementById('inputTarget').value)||90));
+  TARGET_2D = n; document.getElementById('inputTarget').value = n; document.getElementById('nilaiSaatIni').textContent = n; tampilPasaran();
 }
 
 async function mulai(){
   try{
-    document.getElementById('status').style.display = 'block';
-    document.getElementById('konten').style.display = 'none';
+    buffer = {}; localStorage.removeItem(PENYIMPANAN_KUNCI);
+    document.getElementById('status').style.display='block'; document.getElementById('konten').style.display='none';
     document.getElementById('status').innerHTML = '⏳ Memuat data...';
     semuaData = parse(await muat(DATA_UNDIAN_URL));
     document.getElementById('terakhirMuat').textContent = 'Terakhir: ' + new Date().toLocaleString('id-ID');
-    document.getElementById('status').style.display = 'none';
-    document.getElementById('konten').style.display = 'block';
+    document.getElementById('status').style.display='none'; document.getElementById('konten').style.display='block';
     tampilPasaran();
-  }catch(err){
-    document.getElementById('status').innerHTML = `❌ ${err.message}`;
-  }
+  }catch(err){ document.getElementById('status').innerHTML = `<span class="baris-salin">❌ ${err.message}</span>`; }
 }
+
+// === GABUNG 3DD+3DB → 4D ===
+function hapus(){
+  document.getElementById('output').value=''; document.getElementById('jumlahLN').textContent='0 LN';
+}
+function prosesGenerate(){
+  const d2 = document.getElementById('databet2').value.trim();
+  const d3 = document.getElementById('databet3').value.trim();
+  if(!d2||!d3){ document.getElementById('output').value='⚠️ 3DD atau 3DB kosong'; document.getElementById('jumlahLN').textContent='0 LN'; return; }
+  const arr2 = d2.split('*').map(s=>s.trim()).filter(s=>s.length===3);
+  const arr3 = d3.split('*').map(s=>s.trim()).filter(s=>s.length===3);
+  let hasil4D = [];
+  arr2.forEach(v2 => {
+    const cocokDariV2 = v2.substring(1,3);
+    arr3.forEach(v3 => {
+      const cocokDariV3 = v3.substring(0,2);
+      if(cocokDariV2 === cocokDariV3){
+        hasil4D.push(v2 + v3.substring(2,3));
+      }
+    });
+  });
+  hasil4D = [...new Set(hasil4D)].sort((a,b)=>a.localeCompare(b));
+  document.getElementById('output').value = hasil4D.join('*');
+  document.getElementById('jumlahLN').textContent = hasil4D.length + ' LN';
+}
+
+muatDariPenyimpanan();
 document.addEventListener('DOMContentLoaded', mulai);
 </script>
 </body>
