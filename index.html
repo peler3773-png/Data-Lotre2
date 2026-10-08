@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>800 4D + 800 3D | Rumus A+C+2DB</title>
+<title>900 4D · 900 3D | Rumus A+C+2DB</title>
 <style>
 :root{--hitam:#050505; --emas:#d4af37; --emas2:#f0c808; --gelap:#1a1a1a; --gelap2:#252525; --teks:#eae0c8}
 *{margin:0; padding:0; box-sizing:border-box; font-family:system-ui,sans-serif}
@@ -23,7 +23,7 @@ select:focus{border-color:var(--emas2); box-shadow:0 0 5px var(--emas)}
 </head>
 <body>
 <div class="wrap">
-<h1>🔮 800 4D · 800 3D</h1>
+<h1>🔮 900 4D · 900 3D</h1>
 <div class="tombol-baris">
   <label>Pasaran:</label>
   <select id="pilihPasaran" onchange="tampilPasaran()">
@@ -54,7 +54,7 @@ const DATA_UNDIAN_URL = "https://raw.githubusercontent.com/peler3773-png/Data-Lo
 const MAKSIMAL_90 = 90;
 const MAKSIMAL_JML = 2;
 const MAKSIMAL_SHIO = 2;
-const TARGET = 800;
+const TARGET = 900;
 let dataShio = {};
 let semuaData = [];
 
@@ -107,7 +107,7 @@ function acakDaftar(arr){
 
 // === RUMUS: A + C + 2DB = ACEF ===
 // 2DD=12→A=1 | 2DT=24→C=2 | 2DB=46→46 → 1+2+46=1246
-function buat800(pilihD2, pilihT2, pilihB2){
+function buat900(pilihD2, pilihT2, pilihB2){
   const semua4D = [];
   const sudah = new Set();
 
@@ -149,7 +149,7 @@ function susunHasil(dataPasaran){
   const pilihT2 = urutPalingJarang(urutanT2, terbaru.t2, MAKSIMAL_90);
   const pilihB2 = urutPalingJarang(urutanB2, terbaru.b2, MAKSIMAL_90);
 
-  const hasil = buat800(pilihD2, pilihT2, pilihB2);
+  const hasil = buat900(pilihD2, pilihT2, pilihB2);
 
   const hitungJmlD2 = {};
   pilihD2.forEach(a=>{ const j=jumlahSatuDigit(a); hitungJmlD2[j]=(hitungJmlD2[j]||0)+1; });
@@ -208,7 +208,7 @@ function tampilPasaran(){
     return;
   }
 
-  let teks = `=== ${kode} — 800 4D · 800 3D ===\n`;
+  let teks = `=== ${kode} — 900 4D · 900 3D ===\n`;
   teks += `Rumus: A(2DD) + C(2DT) + 2DB = ACEF | 3D=CEF\n`;
   teks += `Hasil Terakhir: ${h.terbaru.asli}\n`;
   teks += `Total kombinasi murni: ${h.hasil.totalAsli}\n\n`;
@@ -217,8 +217,8 @@ function tampilPasaran(){
   teks += `-- 90 2DT --\n${h.pilihT2.join('*')}\nJML-LMH-2DT:   ${h.unikJmlT2.join('*')}\nSHIO-LMH-2DT:  ${h.unikShioT2.join(',')}\n\n`;
   teks += `-- 90 2DB --\n${h.pilihB2.join('*')}\nJML-LMH-2DB:   ${h.unikJmlB2.join('*')}\nSHIO-LMH-2DB:  ${h.unikShioB2.join(',')}\n\n`;
 
-  teks += `-- 800 4D --\n${h.hasil.daftar4D.join('*')}\n\n`;
-  teks += `-- 800 3D --\n${h.hasil.daftar3D.join('*')}\n`;
+  teks += `-- 900 4D --\n${h.hasil.daftar4D.join('*')}\n\n`;
+  teks += `-- 900 3D --\n${h.hasil.daftar3D.join('*')}\n`;
 
   document.getElementById('kotakTeks').textContent = teks;
 }
