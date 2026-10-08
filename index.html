@@ -258,7 +258,7 @@ function salinElemen(btn,idEl){
   const el=document.getElementById(idEl);if(!el)return;
   if(el.tagName==='TEXTAREA'){salinTeks(el.value.trim(),btn);return}
   const d=[];el.querySelectorAll('.baris-salin').forEach(x=>d.push(x.textContent.trim()));
-  salinTeks(d.join(' * '),btn);
+  salinTeks(d.join('*'),btn);
 }
 
 function urai4Digit(a){const s=String(a).padStart(4,'0');return {asli:s,d2:s.slice(0,2),t2:s.slice(1,3),b2:s.slice(2,4)}}
@@ -286,11 +286,11 @@ function susunWarnaItem(arrBelum,arrSekali){
   if(arrBelum.length)arrBelum.forEach(n=>semua.push({teks:n,kelas:'belum-keluar-item'}));
   if(arrSekali.length)arrSekali.forEach(n=>semua.push({teks:n,kelas:'satu-keluar-item'}));
   if(!semua.length)return '<span class="kosong">✅ Semua angka sudah muncul</span>';
-  return semua.map(x=>`<span class="baris-salin ${x.kelas}" onclick="salinTeks('${x.teks}',this)">${x.teks}</span>`).join('<span class="pemisah"> * </span>');
+  return semua.map(x=>`<span class="baris-salin ${x.kelas}" onclick="salinTeks('${x.teks}',this)">${x.teks}</span>`).join('<span class="pemisah">*</span>');
 }
 function susunWarnaSering(arrSering){
   if(!arrSering.length)return '<span class="kosong">Belum ada data</span>';
-  return arrSering.map(n=>`<span class="baris-salin sering-keluar-item" onclick="salinTeks('${n}',this)">${n}</span>`).join('<span class="pemisah"> * </span>');
+  return arrSering.map(n=>`<span class="baris-salin sering-keluar-item" onclick="salinTeks('${n}',this)">${n}</span>`).join('<span class="pemisah">*</span>');
 }
 function urutkan(a){return [...a].sort((x,y)=>x.localeCompare(y))}
 function buat3DD(d,t){const s=new Set();d.forEach(d1=>{t.forEach(t1=>{if(d1[1]===t1[0])s.add(d1[0]+t1)})});return urutkan([...s])}
@@ -339,9 +339,9 @@ function tampilHasil(h){
   document.getElementById('jamTutup').textContent=h.jamTutup;
   document.getElementById('infoLibur').textContent=h.infoLibur;
 
-  document.getElementById('kotak2DD').innerHTML=`<span class="baris-salin">${h.dd.join(' * ')}</span>`;
-  document.getElementById('kotak2DT').innerHTML=`<span class="baris-salin">${h.dt.join(' * ')}</span>`;
-  document.getElementById('kotak2DB').innerHTML=`<span class="baris-salin">${h.db.join(' * ')}</span>`;
+  document.getElementById('kotak2DD').innerHTML=`<span class="baris-salin">${h.dd.join('*')}</span>`;
+  document.getElementById('kotak2DT').innerHTML=`<span class="baris-salin">${h.dt.join('*')}</span>`;
+  document.getElementById('kotak2DB').innerHTML=`<span class="baris-salin">${h.db.join('*')}</span>`;
 
   document.getElementById('kotakBelumDD').innerHTML=susunWarnaItem(h.belumDD,h.sekaliDD);
   document.getElementById('kotakBelumDT').innerHTML=susunWarnaItem(h.belumDT,h.sekaliDT);
@@ -351,8 +351,8 @@ function tampilHasil(h){
   document.getElementById('kotakSeringDT').innerHTML=susunWarnaSering(h.seringDT);
   document.getElementById('kotakSeringDB').innerHTML=susunWarnaSering(h.seringDB);
 
-  document.getElementById('databet2').value=h.depan.join(' * ');
-  document.getElementById('databet3').value=h.belakang.join(' * ');
+  document.getElementById('databet2').value=h.depan.join('*');
+  document.getElementById('databet3').value=h.belakang.join('*');
 }
 function terapkanAngka(){const n=Math.max(1,Math.min(99,parseInt(document.getElementById('inputTarget').value)||90));TARGET_2D=n;document.getElementById('inputTarget').value=n;document.getElementById('nilaiSaatIni').textContent=n;tampilPasaran()}
 async function mulai(){
@@ -374,7 +374,7 @@ function prosesGenerate(){
   let res=[];
   a2.forEach(v2=>{const m2=v2.substring(1,3);a3.forEach(v3=>{if(m2===v3.substring(0,2))res.push(v2+v3.substring(2,3))})});
   res=[...new Set(res)].sort((x,y)=>x.localeCompare(y));
-  document.getElementById('output').value=res.join(' * ');
+  document.getElementById('output').value=res.join('*');
   document.getElementById('jumlahLN').textContent=res.length+' LN';
 }
 document.addEventListener('DOMContentLoaded',mulai);
