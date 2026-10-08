@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>729 + 34D Prediksi | Kombinasi 90</title>
+<title>34D — 200 Atas · 300 Tengah · 300 Bawah</title>
 <style>
 :root{--hitam:#050505; --emas:#d4af37; --emas2:#f0c808; --gelap:#1a1a1a; --gelap2:#252525; --teks:#eae0c8; --hijau:#4f4; --merah:#f66}
 *{margin:0; padding:0; box-sizing:border-box; font-family:system-ui,sans-serif}
@@ -23,7 +23,7 @@ select:focus{border-color:var(--emas2); box-shadow:0 0 5px var(--emas)}
 </head>
 <body>
 <div class="wrap">
-<h1>🔮 34D — KOMBINASI 90 2DD 2DT 2DB</h1>
+<h1>🔮 34D — 200 ATAS · 300 TENGAH · 300 BAWAH</h1>
 <div class="tombol-baris">
   <label>Pasaran:</label>
   <select id="pilihPasaran" onchange="tampilPasaran()">
@@ -52,9 +52,9 @@ select:focus{border-color:var(--emas2); box-shadow:0 0 5px var(--emas)}
 const PENGATURAN_URL = "https://raw.githubusercontent.com/peler3773-png/Data-Lotre/main/pengaturan.json";
 const DATA_UNDIAN_URL = "https://raw.githubusercontent.com/peler3773-png/Data-Lotre/main/data_undian.txt";
 const MAKSIMAL_90 = 90;
-const MAKSIMAL_4D = 729;
 const MAKSIMAL_JML = 2;
 const MAKSIMAL_SHIO = 2;
+const ATAS = 200, TENGAH = 300, BAWAH = 300;
 let dataShio = {};
 let semuaData = [];
 
@@ -105,20 +105,17 @@ function acakDaftar(arr){
   return salin;
 }
 
-// === KOMBINASI 34D: 2DD + digit akhir 2DT + digit akhir 2DB ===
+// === 34D + BAGI 3 BAGIAN ===
 function buat34D(pilihD2, pilihT2, pilihB2){
-  const daftar34D = [];
-  const sudah = new Set();
-  
-  // Ambil digit akhir masing-masing
   const digitAkhirT2 = pilihT2.map(x => x.slice(-1));
   const digitAkhirB2 = pilihB2.map(x => x.slice(-1));
   
-  // Kombinasi silang semua 90×90×90, ambil unik
+  const daftar34D = [];
+  const sudah = new Set();
   for(const d2 of pilihD2){
     for(const t of digitAkhirT2){
       for(const b of digitAkhirB2){
-        const gabung = d2 + t + b; // 4 digit = 34D
+        const gabung = d2 + t + b;
         if(!sudah.has(gabung)){
           sudah.add(gabung);
           daftar34D.push(gabung);
@@ -126,18 +123,38 @@ function buat34D(pilihD2, pilihT2, pilihB2){
       }
     }
   }
-  return acakDaftar(daftar34D);
+  // Acak dulu sebelum dibagi
+  const acak = acakDaftar(daftar34D);
+  const total = acak.length;
+  
+  // Bagi posisi
+  const bagianAtas = acak.slice(0, ATAS);
+  const sisa = acak.slice(ATAS);
+  const bagianTengah = sisa.slice(Math.floor(sisa.length/2) - Math.floor(TENGAH/2), Math.floor(sisa.length/2) + Math.ceil(TENGAH/2));
+  const bagianBawah = acak.slice(-BAWAH);
+  
+  // Isi kekurangan jika total kurang
+  const isiKekurangan = (arr, butuh) => {
+    while(arr.length < butuh && arr.length < total) arr.push(acak[arr.length % total]);
+    return arr.slice(0, butuh);
+  };
+  
+  return {
+    atas: acakDaftar(isiKekurangan(bagianAtas, ATAS)),
+    tengah: acakDaftar(isiKekurangan(bagianTengah, TENGAH)),
+    bawah: acakDaftar(isiKekurangan(bagianBawah, BAWAH)),
+    totalAsli: total
+  };
 }
 
-// === 729 dari 9 terpilih masing-masing ===
+// === 729 4D/3D tetap ===
 function buat729Acak(arrD2, arrT2, arrB2){
   const ambil9 = list => acakDaftar([...new Set(list)]).slice(0,9);
   const d9 = ambil9(arrD2);
   const t9 = ambil9(arrT2);
   const b9 = ambil9(arrB2);
   
-  const daftar4D = [];
-  const daftar3D = [];
+  const daftar4D = [], daftar3D = [];
   for(const d2 of d9){
     for(const t2 of t9){
       for(const b2 of b9){
@@ -166,7 +183,7 @@ function susunHasil(dataPasaran){
   const pilihT2 = urutPalingJarang(urutanT2, terbaru.t2, MAKSIMAL_90);
   const pilihB2 = urutPalingJarang(urutanB2, terbaru.b2, MAKSIMAL_90);
   
-  const daftar34D = buat34D(pilihD2, pilihT2, pilihB2);
+  const bagi34D = buat34D(pilihD2, pilihT2, pilihB2);
   const {daftar4D, daftar3D} = buat729Acak(pilihD2, pilihT2, pilihB2);
   
   const hitungJmlD2 = {};
@@ -193,7 +210,7 @@ function susunHasil(dataPasaran){
   pilihB2.map(a=>cariShioInfo(a)).filter(Boolean).forEach(s=>{ hitungShioB2[s]=(hitungShioB2[s]||0)+1; });
   const unikShioB2 = Object.entries(hitungShioB2).sort((a,b)=>a[1]-b[1]).map(x=>Number(x[0])).slice(0, MAKSIMAL_SHIO);
   
-  return {terbaru, pilihD2, pilihT2, pilihB2, daftar34D, daftar4D, daftar3D, unikJmlD2, unikShioD2, unikJmlT2, unikShioT2, unikJmlB2, unikShioB2};
+  return {terbaru, pilihD2, pilihT2, pilihB2, bagi34D, daftar4D, daftar3D, unikJmlD2, unikShioD2, unikJmlT2, unikShioT2, unikJmlB2, unikShioB2};
 }
 
 async function ambilTeks(url){
@@ -226,9 +243,9 @@ function tampilPasaran(){
     return;
   }
   
-  let teks = `=== ${kode} — 34D KOMBINASI 90 ===\n`;
+  let teks = `=== ${kode} — 34D 200A·300T·300B ===\n`;
   teks += `Hasil Terakhir: ${hasil.terbaru.asli}\n`;
-  teks += `Total 34D: ${hasil.daftar34D.length}\n\n`;
+  teks += `Total kombinasi asli: ${hasil.bagi34D.totalAsli}\n\n`;
   
   teks += `-- 90 2DD --\n`;
   teks += `${hasil.pilihD2.join('*')}\n`;
@@ -245,8 +262,14 @@ function tampilPasaran(){
   teks += `JML-LMH-2DB:   ${hasil.unikJmlB2.join('*')}\n`;
   teks += `SHIO-LMH-2DB:  ${hasil.unikShioB2.join(',')}\n\n`;
   
-  teks += `-- 34D KOMBINASI --\n`;
-  teks += `${hasil.daftar34D.join('*')}\n\n`;
+  teks += `-- 34D 200 TERATAS --\n`;
+  teks += `${hasil.bagi34D.atas.join('*')}\n\n`;
+  
+  teks += `-- 34D 300 TENGAH --\n`;
+  teks += `${hasil.bagi34D.tengah.join('*')}\n\n`;
+  
+  teks += `-- 34D 300 TERBAWAH --\n`;
+  teks += `${hasil.bagi34D.bawah.join('*')}\n\n`;
   
   teks += `-- 729 4D --\n`;
   teks += `${hasil.daftar4D.join('*')}\n\n`;
