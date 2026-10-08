@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>3D DEPAN & 3D BELAKANG — Jumlah Asli</title>
+<title>3D DEPAN & 3D BELAKANG — Dinamis</title>
 <style>
 :root{--hitam:#050505; --emas:#d4af37; --emas2:#f0c808; --gelap:#1a1a1a; --gelap2:#252525; --teks:#eae0c8}
 *{margin:0; padding:0; box-sizing:border-box; font-family:system-ui,sans-serif}
@@ -23,7 +23,7 @@ select:focus{border-color:var(--emas2); box-shadow:0 0 5px var(--emas)}
 </head>
 <body>
 <div class="wrap">
-<h1>🔮 3D DEPAN · 3D BELAKANG — Jumlah Asli</h1>
+<h1>🔮 3D DEPAN · 3D BELAKANG — Dinamis</h1>
 <div class="tombol-baris">
   <label>Pasaran:</label>
   <select id="pilihPasaran" onchange="tampilPasaran()">
@@ -49,8 +49,13 @@ select:focus{border-color:var(--emas2); box-shadow:0 0 5px var(--emas)}
 </div>
 </div>
 <script>
+// ==============================================
+// ✅ UBAH ANGKA DI SINI SAJA → SEMUA IKUT BERUBAH
+// ==============================================
+const TARGET_2D = 90;  // ← GANTI ANGKA INI SAJA
+// ==============================================
+
 const DATA_UNDIAN_URL = "https://raw.githubusercontent.com/peler3773-png/Data-Lotre/main/data_undian.txt";
-const TARGET_2D = 90;
 let semuaData = [];
 
 function urai4Digit(angka4){
@@ -58,14 +63,15 @@ function urai4Digit(angka4){
   return {asli:s, d2:s.slice(0,2), t2:s.slice(1,3), b2:s.slice(2,4)};
 }
 
-// === AMBIL TEPAT 90 ===
-function ambilTepat90(daftar, hindari){
+// === AMBIL SESUAI ANGKA TARGET_2D ===
+function ambilSesuai(daftar, hindari){
   const hitung = {};
   daftar.forEach(x => { hitung[x] = (hitung[x] || 0) + 1; });
 
   const hasil = [];
   const sudah = new Set();
 
+  // Langkah 1: ambil dari data, urut paling jarang
   const urut = Object.entries(hitung)
     .filter(([n]) => n !== hindari)
     .sort((a, b) => a[1] - b[1]);
@@ -78,6 +84,7 @@ function ambilTepat90(daftar, hindari){
     }
   }
 
+  // Langkah 2: isi sampai sesuai TARGET_2D
   for(let i = 0; i <= 99; i++){
     if(hasil.length >= TARGET_2D) break;
     const nomor = String(i).padStart(2, '0');
@@ -101,36 +108,32 @@ function acak(arr){
   return a;
 }
 
-// === 3D DEPAN: A + 2DT, SYARAT 2DD[1] = 2DT[0] ===
-function buatDepan(dd90, dt90){
+// === 3D DEPAN: A + 2DT | Syarat: 2DD[1] = 2DT[0] ===
+function buatDepan(ddList, dtList){
   const set = new Set();
-  for(const dd of dd90){
-    const A = dd[0];      // digit pertama → gabungan
-    const D2 = dd[1];     // digit kedua → syarat sama
-    for(const dt of dt90){
-      const T1 = dt[0];    // digit pertama 2DT → syarat sama
-      if(D2 === T1){       // HARUS SAMA
-        set.add(A + dt);   // bentuk: A + utuh 2DT
-      }
+  for(const dd of ddList){
+    const A = dd[0];
+    const D2 = dd[1];
+    for(const dt of dtList){
+      const T1 = dt[0];
+      if(D2 === T1){ set.add(A + dt); }
     }
   }
-  return acak([...set]); // KEMBALIKAN SEMUA, TIDAK DIPOTONG
+  return acak([...set]);
 }
 
-// === 3D BELAKANG: C + 2DB, SYARAT 2DT[1] = 2DB[0] ===
-function buatBelakang(dt90, db90){
+// === 3D BELAKANG: C + 2DB | Syarat: 2DT[1] = 2DB[0] ===
+function buatBelakang(dtList, dbList){
   const set = new Set();
-  for(const dt of dt90){
-    const C = dt[0];      // digit pertama → gabungan
-    const T2 = dt[1];     // digit kedua → syarat sama
-    for(const db of db90){
-      const B1 = db[0];    // digit pertama 2DB → syarat sama
-      if(T2 === B1){       // HARUS SAMA
-        set.add(C + db);   // bentuk: C + utuh 2DB
-      }
+  for(const dt of dtList){
+    const C = dt[0];
+    const T2 = dt[1];
+    for(const db of dbList){
+      const B1 = db[0];
+      if(T2 === B1){ set.add(C + db); }
     }
   }
-  return acak([...set]); // KEMBALIKAN SEMUA, TIDAK DIPOTONG
+  return acak([...set]);
 }
 
 function proses(dataPasaran){
@@ -144,14 +147,14 @@ function proses(dataPasaran){
   }
   const terakhir = urai4Digit(dataPasaran[0].angka);
 
-  const dd90 = ambilTepat90(d2, terakhir.d2);
-  const dt90 = ambilTepat90(t2, terakhir.t2);
-  const db90 = ambilTepat90(b2, terakhir.b2);
+  const dd = ambilSesuai(d2, terakhir.d2);
+  const dt = ambilSesuai(t2, terakhir.t2);
+  const db = ambilSesuai(b2, terakhir.b2);
 
-  const depan = buatDepan(dd90, dt90);
-  const belakang = buatBelakang(dt90, db90);
+  const depan = buatDepan(dd, dt);
+  const belakang = buatBelakang(dt, db);
 
-  return {terakhir, dd90, dt90, db90, depan, belakang};
+  return {terakhir, dd, dt, db, depan, belakang};
 }
 
 async function muat(url){
@@ -178,15 +181,15 @@ function tampilPasaran(){
   }
 
   let out = `${kode} Terakhir: ${h.terakhir.asli}\n\n`;
-  out += `-- 90 2DD (${h.dd90.length}) --\n${h.dd90.join('*')}\n\n`;
-  out += `-- 90 2DT (${h.dt90.length}) --\n${h.dt90.join('*')}\n\n`;
-  out += `-- 90 2DB (${h.db90.length}) --\n${h.db90.join('*')}\n\n`;
+  out += `-- ${TARGET_2D} 2DD (${h.dd.length}) --\n${h.dd.join('*')}\n\n`;
+  out += `-- ${TARGET_2D} 2DT (${h.dt.length}) --\n${h.dt.join('*')}\n\n`;
+  out += `-- ${TARGET_2D} 2DB (${h.db.length}) --\n${h.db.join('*')}\n\n`;
   out += `-- 3D DEPAN ${h.depan.length} LN --\n`;
-  out += `Rumus: A(2DD[0]) + 2DT | Syarat: 2DD[1] = 2DT[0]\n`;
+  out += `Rumus: 2DD[0] + 2DT | Syarat: 2DD[1] = 2DT[0]\n`;
   out += `Contoh: 14 + 43 = 143 (4=4 ✅) | 14 + 12 = TDK BISA (4≠1)\n`;
   out += h.depan.join('*') + `\n\n`;
   out += `-- 3D BELAKANG ${h.belakang.length} LN --\n`;
-  out += `Rumus: C(2DT[0]) + 2DB | Syarat: 2DT[1] = 2DB[0]\n`;
+  out += `Rumus: 2DT[0] + 2DB | Syarat: 2DT[1] = 2DB[0]\n`;
   out += `Contoh: 14 + 43 = 143 (4=4 ✅) | 14 + 12 = TDK BISA (4≠1)\n`;
   out += h.belakang.join('*');
 
