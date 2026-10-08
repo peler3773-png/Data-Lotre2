@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>3D DEPAN & 3D BELAKANG — Jumlah Asli</title>
+<title>3D DEPAN & 3D BELAKANG — 90×90 Tepat</title>
 <style>
 :root{--hitam:#050505; --emas:#d4af37; --emas2:#f0c808; --gelap:#1a1a1a; --gelap2:#252525; --teks:#eae0c8}
 *{margin:0; padding:0; box-sizing:border-box; font-family:system-ui,sans-serif}
@@ -11,7 +11,7 @@ body{background:var(--hitam); color:var(--teks); min-height:100vh; padding:15px}
 .wrap{max-width:950px; margin:0 auto}
 h1{color:var(--emas); text-align:center; margin:12px 0; font-size:1.35rem}
 .card{background:var(--gelap); border:1px solid var(--emas); border-radius:10px; padding:15px; margin:12px 0}
-pre{background:#000; padding:15px; border-radius:8px; font-size:0.9rem; line-height:1.8; color:#fff; white-space:pre-wrap; word-break:break-all; max-height:700px; overflow-y:auto; margin:0}
+pre{background:#000; padding:15px; border-radius:8px; font-size:0.9rem; line-height:1.8; color:#fff; white-space:pre-wrap; word-break:break-all; max-height:750px; overflow-y:auto; margin:0}
 button{background:linear-gradient(135deg,var(--emas),var(--emas2)); color:#000; border:none; padding:9px 14px; border-radius:6px; font-weight:bold; cursor:pointer; margin:4px}
 button:hover{transform:scale(1.03)}
 select{background:var(--gelap2); color:var(--teks); border:1px solid var(--emas); padding:8px 12px; border-radius:6px; font-weight:bold; cursor:pointer; outline:none; margin:4px}
@@ -23,7 +23,7 @@ select:focus{border-color:var(--emas2); box-shadow:0 0 5px var(--emas)}
 </head>
 <body>
 <div class="wrap">
-<h1>🔮 3D DEPAN · 3D BELAKANG — Jumlah Asli</h1>
+<h1>🔮 3D DEPAN · 3D BELAKANG — 90×90</h1>
 <div class="tombol-baris">
   <label>Pasaran:</label>
   <select id="pilihPasaran" onchange="tampilPasaran()">
@@ -49,152 +49,154 @@ select:focus{border-color:var(--emas2); box-shadow:0 0 5px var(--emas)}
 </div>
 </div>
 <script>
-const PENGATURAN_URL = "https://raw.githubusercontent.com/peler3773-png/Data-Lotre/main/pengaturan.json";
 const DATA_UNDIAN_URL = "https://raw.githubusercontent.com/peler3773-png/Data-Lotre/main/data_undian.txt";
-const MAKSIMAL_90 = 90;
+const JUMLAH_AMBIL = 90;
 let semuaData = [];
 
 function urai4Digit(angka4){
   const s = String(angka4).padStart(4,'0');
   return {asli:s, d2:s.slice(0,2), t2:s.slice(1,3), b2:s.slice(2,4)};
 }
-function urutPalingJarang(daftarAngka, hindari, jumlahAmbil){
-  const hitung = {};
-  daftarAngka.forEach(a=>{ hitung[a] = (hitung[a]||0)+1; });
-  const urutJarang = Object.entries(hitung)
-    .filter(([angka])=> angka !== hindari)
-    .sort((a,b)=>a[1] - b[1])
-    .map(x=>x[0]);
-  const hasil = [...urutJarang];
+
+// === Pilih TEPAT 90: jarang muncul dulu, lalu isi sampai 90 ===
+function ambilTepat90(daftar, hindari){
+  const hit = {};
+  daftar.forEach(x => { hit[x] = (hit[x] || 0) + 1; });
+  let hasil = Object.entries(hit)
+    .filter(([n]) => n !== hindari)
+    .sort((a,b) => a[1] - b[1])
+    .map(x => x[0]);
+  
   const sudah = new Set(hasil);
   sudah.add(hindari);
-  for(let n=0; n<=99; n++){
-    const cek = String(n).padStart(2,'0');
-    if(!sudah.has(cek)){
-      hasil.push(cek);
-      sudah.add(cek);
-      if(hasil.length === jumlahAmbil) break;
+  // isi nomor yang belum ada sampai pas 90
+  for(let i=0; i<=99; i++){
+    const n = String(i).padStart(2,'0');
+    if(!sudah.has(n)){
+      hasil.push(n);
+      sudah.add(n);
+      if(hasil.length === JUMLAH_AMBIL) break;
     }
   }
-  return hasil.slice(0, jumlahAmbil);
-}
-function acakDaftar(arr){
-  const salin = [...arr];
-  for(let i = salin.length - 1; i > 0; i--){
-    const j = Math.floor(Math.random() * (i + 1));
-    [salin[i], salin[j]] = [salin[j], salin[i]];
-  }
-  return salin;
+  return hasil;
 }
 
-// === 3D DEPAN: A + 2DT — Ambil SEMUA yang terbentuk ===
-function buat3dDepan(pilihD2, pilihT2){
-  const daftar = [];
-  const sudah = new Set();
-  for(const d2 of pilihD2){
-    const A = d2[0];
-    for(const t2 of pilihT2){
-      const gabung = A + t2;
-      if(!sudah.has(gabung)){
-        sudah.add(gabung);
-        daftar.push(gabung);
+function acak(arr){
+  const a = [...arr];
+  for(let i=a.length-1; i>0; i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+// === 3D DEPAN: A(2DD[0]) + 2DT ===
+function buatDepan(dd90, dt90){
+  const set = new Set();
+  const list = [];
+  for(const dd of dd90){
+    const A = dd[0];
+    for(const dt of dt90){
+      const gab = A + dt;
+      if(!set.has(gab)){
+        set.add(gab);
+        list.push(gab);
       }
     }
   }
-  return acakDaftar(daftar); // kembalikan SEMUA, tidak dipotong
+  return acak(list);
 }
 
-// === 3D BELAKANG: C + 2DB — Ambil SEMUA yang terbentuk ===
-function buat3dBelakang(pilihT2, pilihB2){
-  const daftar = [];
-  const sudah = new Set();
-  for(const t2 of pilihT2){
-    const C = t2[0];
-    for(const b2 of pilihB2){
-      const gabung = C + b2;
-      if(!sudah.has(gabung)){
-        sudah.add(gabung);
-        daftar.push(gabung);
+// === 3D BELAKANG: C(2DT[0]) + 2DB ===
+function buatBelakang(dt90, db90){
+  const set = new Set();
+  const list = [];
+  for(const dt of dt90){
+    const C = dt[0];
+    for(const db of db90){
+      const gab = C + db;
+      if(!set.has(gab)){
+        set.add(gab);
+        list.push(gab);
       }
     }
   }
-  return acakDaftar(daftar); // kembalikan SEMUA, tidak dipotong
+  return acak(list);
 }
 
-function susunHasil(dataPasaran){
+function proses(dataPasaran){
   if(dataPasaran.length < 3) return null;
-  const urutanD2 = [], urutanT2 = [], urutanB2 = [];
-  for(const d of dataPasaran){
-    const u = urai4Digit(d.angka);
-    urutanD2.push(u.d2);
-    urutanT2.push(u.t2);
-    urutanB2.push(u.b2);
+  const d2List = [], t2List = [], b2List = [];
+  for(const r of dataPasaran){
+    const u = urai4Digit(r.angka);
+    d2List.push(u.d2);
+    t2List.push(u.t2);
+    b2List.push(u.b2);
   }
   const terbaru = urai4Digit(dataPasaran[0].angka);
-  const pilihD2 = urutPalingJarang(urutanD2, terbaru.d2, MAKSIMAL_90);
-  const pilihT2 = urutPalingJarang(urutanT2, terbaru.t2, MAKSIMAL_90);
-  const pilihB2 = urutPalingJarang(urutanB2, terbaru.b2, MAKSIMAL_90);
-
-  const depan = buat3dDepan(pilihD2, pilihT2);
-  const belakang = buat3dBelakang(pilihT2, pilihB2);
-
-  return {terbaru, pilihD2, pilihT2, pilihB2, depan, belakang};
+  const dd90 = ambilTepat90(d2List, terbaru.d2);
+  const dt90 = ambilTepat90(t2List, terbaru.t2);
+  const db90 = ambilTepat90(b2List, terbaru.b2);
+  
+  const depan = buatDepan(dd90, dt90);
+  const belakang = buatBelakang(dt90, db90);
+  
+  return {terbaru, dd90, dt90, db90, depan, belakang};
 }
 
-async function ambilTeks(url){
-  const r = await fetch(url,{cache:'no-store'});
-  if(!r.ok) throw new Error("Gagal ambil: "+url);
-  return r.text();
+async function muatTeks(url){
+  const res = await fetch(url, {cache:'no-store'});
+  if(!res.ok) throw new Error("Gagal ambil data");
+  return res.text();
 }
-function parseDataUndian(teks){
-  return teks.trim().split('\n').filter(b=>b.trim()).map(b=>{
-    const bagian = b.split('|');
+
+function parseTeks(teks){
+  return teks.trim().split('\n').filter(baris => baris.trim()).map(baris => {
+    const p = baris.split('|');
     return {
-      pasaran: bagian[0].trim(),
-      tanggal: bagian[1].trim(),
-      angka: String(bagian[2]).padStart(4,'0')
+      pasaran: p[0].trim(),
+      tanggal: p[1].trim(),
+      angka: String(p[2]).padStart(4,'0')
     };
-  }).sort((a,b)=>a.tanggal.localeCompare(b.tanggal)).reverse();
+  }).sort((a,b) => a.tanggal.localeCompare(b.tanggal)).reverse();
 }
+
 function tampilPasaran(){
   const kode = document.getElementById('pilihPasaran').value;
-  const dp = semuaData.filter(d=>d.pasaran === kode);
-  const h = susunHasil(dp);
-
+  const data = semuaData.filter(x => x.pasaran === kode);
+  const h = proses(data);
+  
   if(!h){
-    document.getElementById('kotakTeks').textContent = "⚠️ Data kurang, butuh minimal 3 baris";
+    document.getElementById('kotakTeks').textContent = "⚠️ Data kurang, minimal 3 baris";
     return;
   }
-
-  let teks = `${kode}\n`;
-  teks += `Hasil Terakhir: ${h.terbaru.asli}\n\n`;
-
-  teks += `-- 90 2DD --\n${h.pilihD2.join('*')}\n\n`;
-  teks += `-- 90 2DT --\n${h.pilihT2.join('*')}\n\n`;
-  teks += `-- 90 2DB --\n${h.pilihB2.join('*')}\n\n`;
-
-  teks += `-- 3D DEPAN ${h.depan.length} LN --\n`;
-  teks += `Rumus: A(2DD[0]) + 2DT = A CD\n`;
-  teks += h.depan.join('*') + `\n\n`;
-
-  teks += `-- 3D BELAKANG ${h.belakang.length} LN --\n`;
-  teks += `Rumus: C(2DT[0]) + 2DB = C EF\n`;
-  teks += h.belakang.join('*') + `\n`;
-
-  document.getElementById('kotakTeks').textContent = teks;
+  
+  let out = `${kode}\nTerakhir: ${h.terbaru.asli}\n\n`;
+  out += `-- 90 2DD --\n${h.dd90.join('*')}\n\n`;
+  out += `-- 90 2DT --\n${h.dt90.join('*')}\n\n`;
+  out += `-- 90 2DB --\n${h.db90.join('*')}\n\n`;
+  out += `-- 3D DEPAN ${h.depan.length} LN --\n`;
+  out += `Rumus: A(2DD[0]) + 2DT = A CD\n`;
+  out += h.depan.join('*') + `\n\n`;
+  out += `-- 3D BELAKANG ${h.belakang.length} LN --\n`;
+  out += `Rumus: C(2DT[0]) + 2DB = C EF\n`;
+  out += h.belakang.join('*');
+  
+  document.getElementById('kotakTeks').textContent = out;
 }
+
 async function mulai(){
   try{
-    document.getElementById('status').style.display='block';
-    document.getElementById('konten').style.display='none';
-    document.getElementById('status').innerHTML='⏳ Memuat data...';
-    semuaData = parseDataUndian(await ambilTeks(DATA_UNDIAN_URL));
-    document.getElementById('terakhirMuat').textContent='Terakhir: '+new Date().toLocaleString('id-ID');
-    document.getElementById('status').style.display='none';
-    document.getElementById('konten').style.display='block';
+    document.getElementById('status').style.display = 'block';
+    document.getElementById('konten').style.display = 'none';
+    document.getElementById('status').innerHTML = '⏳ Memuat data...';
+    semuaData = parseTeks(await muatTeks(DATA_UNDIAN_URL));
+    document.getElementById('terakhirMuat').textContent = 'Terakhir: ' + new Date().toLocaleString('id-ID');
+    document.getElementById('status').style.display = 'none';
+    document.getElementById('konten').style.display = 'block';
     tampilPasaran();
   }catch(err){
-    document.getElementById('status').innerHTML=`❌ ${err.message}`;
+    document.getElementById('status').innerHTML = `❌ ${err.message}`;
   }
 }
 document.addEventListener('DOMContentLoaded', mulai);
