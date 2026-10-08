@@ -3,13 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>34D — 200 Atas · 300 Tengah · 300 Bawah</title>
+<title>34D — Hanya Dari 90 2DD/2DT/2DB</title>
 <style>
-:root{--hitam:#050505; --emas:#d4af37; --emas2:#f0c808; --gelap:#1a1a1a; --gelap2:#252525; --teks:#eae0c8; --hijau:#4f4; --merah:#f66}
+:root{--hitam:#050505; --emas:#d4af37; --emas2:#f0c808; --gelap:#1a1a1a; --gelap2:#252525; --teks:#eae0c8}
 *{margin:0; padding:0; box-sizing:border-box; font-family:system-ui,sans-serif}
 body{background:var(--hitam); color:var(--teks); min-height:100vh; padding:15px}
 .wrap{max-width:950px; margin:0 auto}
-h1{color:var(--emas); text-align:center; margin:12px 0; font-size:1.4rem}
+h1{color:var(--emas); text-align:center; margin:12px 0; font-size:1.35rem}
 .card{background:var(--gelap); border:1px solid var(--emas); border-radius:10px; padding:15px; margin:12px 0}
 pre{background:#000; padding:15px; border-radius:8px; font-size:0.9rem; line-height:1.8; color:#fff; white-space:pre-wrap; word-break:break-all; max-height:900px; overflow-y:auto; margin:0}
 button{background:linear-gradient(135deg,var(--emas),var(--emas2)); color:#000; border:none; padding:9px 14px; border-radius:6px; font-weight:bold; cursor:pointer; margin:4px}
@@ -19,11 +19,12 @@ select:focus{border-color:var(--emas2); box-shadow:0 0 5px var(--emas)}
 .loading{text-align:center; padding:25px; color:var(--emas)}
 .tombol-baris{text-align:center; margin:10px; display:flex; justify-content:center; align-items:center; gap:10px; flex-wrap:wrap}
 .info-kecil{font-size:0.8rem; opacity:0.7; margin-top:4px}
+.peringatan{color:var(--merah); font-weight:bold; margin-top:8px}
 </style>
 </head>
 <body>
 <div class="wrap">
-<h1>🔮 34D — 200 ATAS · 300 TENGAH · 300 BAWAH</h1>
+<h1>🔮 34D — HANYA DARI 90 2DD·2DT·2DB</h1>
 <div class="tombol-baris">
   <label>Pasaran:</label>
   <select id="pilihPasaran" onchange="tampilPasaran()">
@@ -105,13 +106,16 @@ function acakDaftar(arr){
   return salin;
 }
 
-// === 34D + BAGI 3 BAGIAN ===
+// === 34D — HANYA DARI 90 2DD + 90 2DT + 90 2DB, TIDAK DITAMBAH DARI LUAR ===
 function buat34D(pilihD2, pilihT2, pilihB2){
+  // Pastikan hanya ambil digit AKHIR dari 2DT dan 2DB
   const digitAkhirT2 = pilihT2.map(x => x.slice(-1));
   const digitAkhirB2 = pilihB2.map(x => x.slice(-1));
   
   const daftar34D = [];
   const sudah = new Set();
+  
+  // KOMBINASI MURNI dari 3 daftar saja — TIDAK menambah angka baru
   for(const d2 of pilihD2){
     for(const t of digitAkhirT2){
       for(const b of digitAkhirB2){
@@ -123,31 +127,39 @@ function buat34D(pilihD2, pilihT2, pilihB2){
       }
     }
   }
-  // Acak dulu sebelum dibagi
+  
+  // Acak urutan
   const acak = acakDaftar(daftar34D);
   const total = acak.length;
+  const dipakai = new Set();
   
-  // Bagi posisi
-  const bagianAtas = acak.slice(0, ATAS);
-  const sisa = acak.slice(ATAS);
-  const bagianTengah = sisa.slice(Math.floor(sisa.length/2) - Math.floor(TENGAH/2), Math.floor(sisa.length/2) + Math.ceil(TENGAH/2));
-  const bagianBawah = acak.slice(-BAWAH);
+  // Fungsi ambil bagian — HANYA dari daftar yang ada, TIDAK isi kekurangan dari luar
+  function ambilBagian(jumlah){
+    const hasil = [];
+    for(const nomor of acak){
+      if(!dipakai.has(nomor)){
+        hasil.push(nomor);
+        dipakai.add(nomor);
+        if(hasil.length === jumlah) break;
+      }
+    }
+    return hasil; // Kembalikan apa adanya, tidak diisi tambahan
+  }
   
-  // Isi kekurangan jika total kurang
-  const isiKekurangan = (arr, butuh) => {
-    while(arr.length < butuh && arr.length < total) arr.push(acak[arr.length % total]);
-    return arr.slice(0, butuh);
-  };
+  const bagianAtas = ambilBagian(ATAS);
+  const bagianTengah = ambilBagian(TENGAH);
+  const bagianBawah = ambilBagian(BAWAH);
   
   return {
-    atas: acakDaftar(isiKekurangan(bagianAtas, ATAS)),
-    tengah: acakDaftar(isiKekurangan(bagianTengah, TENGAH)),
-    bawah: acakDaftar(isiKekurangan(bagianBawah, BAWAH)),
-    totalAsli: total
+    atas: acakDaftar(bagianAtas),
+    tengah: acakDaftar(bagianTengah),
+    bawah: acakDaftar(bagianBawah),
+    totalAsli: total,
+    cukup: total >= ATAS + TENGAH + BAWAH
   };
 }
 
-// === 729 4D/3D tetap ===
+// === 729 4D/3D — tetap dari 9 terpilih dari masing-masing daftar ===
 function buat729Acak(arrD2, arrT2, arrB2){
   const ambil9 = list => acakDaftar([...new Set(list)]).slice(0,9);
   const d9 = ambil9(arrD2);
@@ -155,12 +167,16 @@ function buat729Acak(arrD2, arrT2, arrB2){
   const b9 = ambil9(arrB2);
   
   const daftar4D = [], daftar3D = [];
+  const sudah = new Set();
   for(const d2 of d9){
     for(const t2 of t9){
       for(const b2 of b9){
         const a4 = d2 + t2.slice(-1) + b2.slice(-1);
-        daftar4D.push(a4);
-        daftar3D.push(a4.slice(1));
+        if(!sudah.has(a4)){
+          sudah.add(a4);
+          daftar4D.push(a4);
+          daftar3D.push(a4.slice(1));
+        }
       }
     }
   }
@@ -179,6 +195,7 @@ function susunHasil(dataPasaran){
   
   const terbaru = urai4Digit(dataPasaran[0].angka);
   
+  // Di sini diambil tepat 90 dari masing-masing
   const pilihD2 = urutPalingJarang(urutanD2, terbaru.d2, MAKSIMAL_90);
   const pilihT2 = urutPalingJarang(urutanT2, terbaru.t2, MAKSIMAL_90);
   const pilihB2 = urutPalingJarang(urutanB2, terbaru.b2, MAKSIMAL_90);
@@ -243,9 +260,13 @@ function tampilPasaran(){
     return;
   }
   
-  let teks = `=== ${kode} — 34D 200A·300T·300B ===\n`;
+  let teks = `=== ${kode} — 34D HANYA DARI 90 2DD/2DT/2DB ===\n`;
   teks += `Hasil Terakhir: ${hasil.terbaru.asli}\n`;
-  teks += `Total kombinasi asli: ${hasil.bagi34D.totalAsli}\n\n`;
+  teks += `Total kombinasi murni: ${hasil.bagi34D.totalAsli}`;
+  if(!hasil.bagi34D.cukup){
+    teks += ` ⚠️ Kurang dari 800 — TIDAK ditambah dari luar`;
+  }
+  teks += `\nSumber: 90 2DD × 90 2DT(akhir) × 90 2DB(akhir)\n\n`;
   
   teks += `-- 90 2DD --\n`;
   teks += `${hasil.pilihD2.join('*')}\n`;
