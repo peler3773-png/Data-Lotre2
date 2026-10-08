@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>34D + 729 3D | Tanpa 4D</title>
+<title>34D → 800 3D | Atas·Tengah·Bawah</title>
 <style>
 :root{--hitam:#050505; --emas:#d4af37; --emas2:#f0c808; --gelap:#1a1a1a; --gelap2:#252525; --teks:#eae0c8}
 *{margin:0; padding:0; box-sizing:border-box; font-family:system-ui,sans-serif}
@@ -23,7 +23,7 @@ select:focus{border-color:var(--emas2); box-shadow:0 0 5px var(--emas)}
 </head>
 <body>
 <div class="wrap">
-<h1>🔮 34D · 729 3D</h1>
+<h1>🔮 34D → 800 3D | ATAS·TENGAH·BAWAH</h1>
 <div class="tombol-baris">
   <label>Pasaran:</label>
   <select id="pilihPasaran" onchange="tampilPasaran()">
@@ -55,7 +55,6 @@ const MAKSIMAL_90 = 90;
 const MAKSIMAL_JML = 2;
 const MAKSIMAL_SHIO = 2;
 const ATAS = 200, TENGAH = 300, BAWAH = 300;
-const TARGET_729 = 729;
 let dataShio = {};
 let semuaData = [];
 
@@ -106,12 +105,15 @@ function acakDaftar(arr){
   return salin;
 }
 
-// === 34D — murni dari 90 2DD/2DT/2DB ===
-function buat34D(pilihD2, pilihT2, pilihB2){
+// === 34D dibagi 3 bagian + 3D diambil DARI 34D tersebut ===
+function buat34Ddan3D(pilihD2, pilihT2, pilihB2){
   const digitAkhirT2 = pilihT2.map(x => x.slice(-1));
   const digitAkhirB2 = pilihB2.map(x => x.slice(-1));
+  
   const daftar34D = [];
   const sudah = new Set();
+  
+  // Gabungkan semua murni dari 90 2DD/2DT/2DB
   for(const d2 of pilihD2){
     for(const t of digitAkhirT2){
       for(const b of digitAkhirB2){
@@ -123,8 +125,10 @@ function buat34D(pilihD2, pilihT2, pilihB2){
       }
     }
   }
+  
   const acak = acakDaftar(daftar34D);
   const dipakai = new Set();
+  
   function ambilBagian(jumlah){
     const hasil = [];
     for(const nomor of acak){
@@ -136,63 +140,24 @@ function buat34D(pilihD2, pilihT2, pilihB2){
     }
     return hasil;
   }
+  
+  // Ambil bagian 34D
+  const bagianAtas = ambilBagian(ATAS);
+  const bagianTengah = ambilBagian(TENGAH);
+  const bagianBawah = ambilBagian(BAWAH);
+  
+  // Ubah jadi 3D: ambil 3 digit BELAKANG dari masing-masing 34D
+  const ubahKe3D = daftar => daftar.map(angka4 => angka4.slice(1));
+  
   return {
-    atas: ambilBagian(ATAS),
-    tengah: ambilBagian(TENGAH),
-    bawah: ambilBagian(BAWAH),
+    atas: bagianAtas,
+    tengah: bagianTengah,
+    bawah: bagianBawah,
+    atas3D: ubahKe3D(bagianAtas),
+    tengah3D: ubahKe3D(bagianTengah),
+    bawah3D: ubahKe3D(bagianBawah),
     totalAsli: daftar34D.length
   };
-}
-
-// === 729 3D — pasti 729 unik, dari sumber asli saja ===
-function buat729_3D(pilihD2, pilihT2, pilihB2){
-  const ambil9Unik = daftar => acakDaftar([...new Set(daftar)]).slice(0,9);
-  const d9 = ambil9Unik(pilihD2);
-  const t9 = ambil9Unik(pilihT2);
-  const b9 = ambil9Unik(pilihB2);
-
-  const daftar3D = [];
-  const sudah = new Set();
-
-  // 9×9×9 = 729 kombinasi dasar
-  for(const d2 of d9){
-    for(const t2 of t9){
-      for(const b2 of b9){
-        const a3 = (d2 + t2.slice(-1) + b2.slice(-1)).slice(1);
-        if(!sudah.has(a3)){
-          sudah.add(a3);
-          daftar3D.push(a3);
-        }
-      }
-    }
-  }
-
-  // Lengkapi sampai tepat 729, hanya dari digit yang ada di daftar
-  if(daftar3D.length < TARGET_729){
-    const D1 = [...new Set(pilihD2.map(x=>x[0]))];
-    const D2 = [...new Set(pilihD2.map(x=>x[1]))];
-    const T = [...new Set(pilihT2.map(x=>x.slice(-1)))];
-    const B = [...new Set(pilihB2.map(x=>x.slice(-1)))];
-    for(const d1 of D1){
-      for(const d2 of D2){
-        for(const t of T){
-          for(const b of B){
-            const a3 = d2 + t + b;
-            if(!sudah.has(a3)){
-              sudah.add(a3);
-              daftar3D.push(a3);
-              if(daftar3D.length === TARGET_729) break;
-            }
-          }
-          if(daftar3D.length === TARGET_729) break;
-        }
-        if(daftar3D.length === TARGET_729) break;
-      }
-      if(daftar3D.length === TARGET_729) break;
-    }
-  }
-
-  return acakDaftar(daftar3D.slice(0, TARGET_729));
 }
 
 function susunHasil(dataPasaran){
@@ -208,35 +173,34 @@ function susunHasil(dataPasaran){
   const pilihD2 = urutPalingJarang(urutanD2, terbaru.d2, MAKSIMAL_90);
   const pilihT2 = urutPalingJarang(urutanT2, terbaru.t2, MAKSIMAL_90);
   const pilihB2 = urutPalingJarang(urutanB2, terbaru.b2, MAKSIMAL_90);
-
-  const bagi34D = buat34D(pilihD2, pilihT2, pilihB2);
-  const daftar3D = buat729_3D(pilihD2, pilihT2, pilihB2);
-
+  
+  const bagi = buat34Ddan3D(pilihD2, pilihT2, pilihB2);
+  
   const hitungJmlD2 = {};
   pilihD2.forEach(a=>{ const j=jumlahSatuDigit(a); hitungJmlD2[j]=(hitungJmlD2[j]||0)+1; });
   const unikJmlD2 = Object.entries(hitungJmlD2).sort((a,b)=>a[1]-b[1]).map(x=>Number(x[0])).slice(0, MAKSIMAL_JML);
-
+  
   const hitungJmlT2 = {};
   pilihT2.forEach(a=>{ const j=jumlahSatuDigit(a); hitungJmlT2[j]=(hitungJmlT2[j]||0)+1; });
   const unikJmlT2 = Object.entries(hitungJmlT2).sort((a,b)=>a[1]-b[1]).map(x=>Number(x[0])).slice(0, MAKSIMAL_JML);
-
+  
   const hitungJmlB2 = {};
   pilihB2.forEach(a=>{ const j=jumlahSatuDigit(a); hitungJmlB2[j]=(hitungJmlB2[j]||0)+1; });
   const unikJmlB2 = Object.entries(hitungJmlB2).sort((a,b)=>a[1]-b[1]).map(x=>Number(x[0])).slice(0, MAKSIMAL_JML);
-
+  
   const hitungShioD2 = {};
   pilihD2.map(a=>cariShioInfo(a)).filter(Boolean).forEach(s=>{ hitungShioD2[s]=(hitungShioD2[s]||0)+1; });
   const unikShioD2 = Object.entries(hitungShioD2).sort((a,b)=>a[1]-b[1]).map(x=>Number(x[0])).slice(0, MAKSIMAL_SHIO);
-
+  
   const hitungShioT2 = {};
   pilihT2.map(a=>cariShioInfo(a)).filter(Boolean).forEach(s=>{ hitungShioT2[s]=(hitungShioT2[s]||0)+1; });
   const unikShioT2 = Object.entries(hitungShioT2).sort((a,b)=>a[1]-b[1]).map(x=>Number(x[0])).slice(0, MAKSIMAL_SHIO);
-
+  
   const hitungShioB2 = {};
   pilihB2.map(a=>cariShioInfo(a)).filter(Boolean).forEach(s=>{ hitungShioB2[s]=(hitungShioB2[s]||0)+1; });
   const unikShioB2 = Object.entries(hitungShioB2).sort((a,b)=>a[1]-b[1]).map(x=>Number(x[0])).slice(0, MAKSIMAL_SHIO);
-
-  return {terbaru, pilihD2, pilihT2, pilihB2, bagi34D, daftar3D, unikJmlD2, unikShioD2, unikJmlT2, unikShioT2, unikJmlB2, unikShioB2};
+  
+  return {terbaru, pilihD2, pilihT2, pilihB2, bagi, unikJmlD2, unikShioD2, unikJmlT2, unikShioT2, unikJmlB2, unikShioB2};
 }
 
 async function ambilTeks(url){
@@ -263,26 +227,29 @@ function tampilPasaran(){
   const kode = document.getElementById('pilihPasaran').value;
   const dp = semuaData.filter(d=>d.pasaran === kode);
   const hasil = susunHasil(dp);
-
+  
   if(!hasil){
     document.getElementById('kotakTeks').textContent = "⚠️ Data kurang, butuh minimal 3 baris";
     return;
   }
-
-  let teks = `=== ${kode} — 34D · 729 3D ===\n`;
+  
+  let teks = `=== ${kode} — 34D → 800 3D ===\n`;
   teks += `Hasil Terakhir: ${hasil.terbaru.asli}\n`;
-  teks += `Jumlah 3D: ${hasil.daftar3D.length} ✅\n\n`;
-
+  teks += `Total 34D asli: ${hasil.bagi.totalAsli} | 3D: 200+300+300=800 ✅\n\n`;
+  
   teks += `-- 90 2DD --\n${hasil.pilihD2.join('*')}\nJML-LMH-2DD:   ${hasil.unikJmlD2.join('*')}\nSHIO-LMH-2DD:  ${hasil.unikShioD2.join(',')}\n\n`;
   teks += `-- 90 2DT --\n${hasil.pilihT2.join('*')}\nJML-LMH-2DT:   ${hasil.unikJmlT2.join('*')}\nSHIO-LMH-2DT:  ${hasil.unikShioT2.join(',')}\n\n`;
   teks += `-- 90 2DB --\n${hasil.pilihB2.join('*')}\nJML-LMH-2DB:   ${hasil.unikJmlB2.join('*')}\nSHIO-LMH-2DB:  ${hasil.unikShioB2.join(',')}\n\n`;
-
-  teks += `-- 34D 200 TERATAS --\n${hasil.bagi34D.atas.join('*')}\n\n`;
-  teks += `-- 34D 300 TENGAH --\n${hasil.bagi34D.tengah.join('*')}\n\n`;
-  teks += `-- 34D 300 TERBAWAH --\n${hasil.bagi34D.bawah.join('*')}\n\n`;
-
-  teks += `-- 729 3D --\n${hasil.daftar3D.join('*')}\n`;
-
+  
+  teks += `-- 34D 200 TERATAS --\n${hasil.bagi.atas.join('*')}\n`;
+  teks += `-- 3D DARI 200 TERATAS --\n${hasil.bagi.atas3D.join('*')}\n\n`;
+  
+  teks += `-- 34D 300 TENGAH --\n${hasil.bagi.tengah.join('*')}\n`;
+  teks += `-- 3D DARI 300 TENGAH --\n${hasil.bagi.tengah3D.join('*')}\n\n`;
+  
+  teks += `-- 34D 300 TERBAWAH --\n${hasil.bagi.bawah.join('*')}\n`;
+  teks += `-- 3D DARI 300 TERBAWAH --\n${hasil.bagi.bawah3D.join('*')}\n`;
+  
   document.getElementById('kotakTeks').textContent = teks;
 }
 async function mulai(){
