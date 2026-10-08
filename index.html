@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>3×800 Tanpa Duplikat | 2DD-2DT-2DB</title>
+<title>800 4D + 800 3D | Rumus A+C+2DB</title>
 <style>
 :root{--hitam:#050505; --emas:#d4af37; --emas2:#f0c808; --gelap:#1a1a1a; --gelap2:#252525; --teks:#eae0c8}
 *{margin:0; padding:0; box-sizing:border-box; font-family:system-ui,sans-serif}
@@ -11,7 +11,7 @@ body{background:var(--hitam); color:var(--teks); min-height:100vh; padding:15px}
 .wrap{max-width:950px; margin:0 auto}
 h1{color:var(--emas); text-align:center; margin:12px 0; font-size:1.35rem}
 .card{background:var(--gelap); border:1px solid var(--emas); border-radius:10px; padding:15px; margin:12px 0}
-pre{background:#000; padding:15px; border-radius:8px; font-size:0.85rem; line-height:1.8; color:#fff; white-space:pre-wrap; word-break:break-all; max-height:900px; overflow-y:auto; margin:0}
+pre{background:#000; padding:15px; border-radius:8px; font-size:0.9rem; line-height:1.8; color:#fff; white-space:pre-wrap; word-break:break-all; max-height:900px; overflow-y:auto; margin:0}
 button{background:linear-gradient(135deg,var(--emas),var(--emas2)); color:#000; border:none; padding:9px 14px; border-radius:6px; font-weight:bold; cursor:pointer; margin:4px}
 button:hover{transform:scale(1.03)}
 select{background:var(--gelap2); color:var(--teks); border:1px solid var(--emas); padding:8px 12px; border-radius:6px; font-weight:bold; cursor:pointer; outline:none; margin:4px}
@@ -23,7 +23,7 @@ select:focus{border-color:var(--emas2); box-shadow:0 0 5px var(--emas)}
 </head>
 <body>
 <div class="wrap">
-<h1>🔮 3×800 TANPA DUPLIKAT 3D</h1>
+<h1>🔮 800 4D · 800 3D</h1>
 <div class="tombol-baris">
   <label>Pasaran:</label>
   <select id="pilihPasaran" onchange="tampilPasaran()">
@@ -54,7 +54,7 @@ const DATA_UNDIAN_URL = "https://raw.githubusercontent.com/peler3773-png/Data-Lo
 const MAKSIMAL_90 = 90;
 const MAKSIMAL_JML = 2;
 const MAKSIMAL_SHIO = 2;
-const TARGET_800 = 800;
+const TARGET = 800;
 let dataShio = {};
 let semuaData = [];
 
@@ -107,8 +107,8 @@ function acakDaftar(arr){
 
 // === RUMUS: A + C + 2DB = ACEF ===
 // 2DD=12→A=1 | 2DT=24→C=2 | 2DB=46→46 → 1+2+46=1246
-function susunSesuaiRumus(pilihD2, pilihT2, pilihB2){
-  const semua34D = [];
+function buat800(pilihD2, pilihT2, pilihB2){
+  const semua4D = [];
   const sudah = new Set();
 
   for(const d2 of pilihD2){
@@ -119,40 +119,19 @@ function susunSesuaiRumus(pilihD2, pilihT2, pilihB2){
         const gabung = A + C + b2;
         if(!sudah.has(gabung)){
           sudah.add(gabung);
-          semua34D.push(gabung);
+          semua4D.push(gabung);
         }
       }
     }
   }
 
-  const acak = acakDaftar(semua34D);
-
-  // === PENTING: Pastikan 3D TIDAK ADA YANG SAMA antar bagian ===
-  const dipakai3D = new Set();
-  const teratas = [], tengah = [], terbawah = [];
-
-  for(const nomor of acak){
-    const k3d = nomor.slice(1); // ambil 3 digit belakang
-    if(teratas.length < TARGET_800 && !dipakai3D.has(k3d)){
-      teratas.push(nomor);
-      dipakai3D.add(k3d);
-    } else if(tengah.length < TARGET_800 && !dipakai3D.has(k3d)){
-      tengah.push(nomor);
-      dipakai3D.add(k3d);
-    } else if(terbawah.length < TARGET_800 && !dipakai3D.has(k3d)){
-      terbawah.push(nomor);
-      dipakai3D.add(k3d);
-    }
-    if(teratas.length === TARGET_800 && tengah.length === TARGET_800 && terbawah.length === TARGET_800) break;
-  }
-
+  const acak = acakDaftar(semua4D).slice(0, TARGET);
   const ke3D = arr => arr.map(n => n.slice(1));
 
   return {
-    teratas, teratas3D: ke3D(teratas),
-    tengah, tengah3D: ke3D(tengah),
-    terbawah, terbawah3D: ke3D(terbawah),
-    totalSemua: semua34D.length
+    daftar4D: acak,
+    daftar3D: ke3D(acak),
+    totalAsli: semua4D.length
   };
 }
 
@@ -170,7 +149,7 @@ function susunHasil(dataPasaran){
   const pilihT2 = urutPalingJarang(urutanT2, terbaru.t2, MAKSIMAL_90);
   const pilihB2 = urutPalingJarang(urutanB2, terbaru.b2, MAKSIMAL_90);
 
-  const bagi = susunSesuaiRumus(pilihD2, pilihT2, pilihB2);
+  const hasil = buat800(pilihD2, pilihT2, pilihB2);
 
   const hitungJmlD2 = {};
   pilihD2.forEach(a=>{ const j=jumlahSatuDigit(a); hitungJmlD2[j]=(hitungJmlD2[j]||0)+1; });
@@ -196,7 +175,7 @@ function susunHasil(dataPasaran){
   pilihB2.map(a=>cariShioInfo(a)).filter(Boolean).forEach(s=>{ hitungShioB2[s]=(hitungShioB2[s]||0)+1; });
   const unikShioB2 = Object.entries(hitungShioB2).sort((a,b)=>a[1]-b[1]).map(x=>Number(x[0])).slice(0, MAKSIMAL_SHIO);
 
-  return {terbaru, pilihD2, pilihT2, pilihB2, bagi, unikJmlD2, unikShioD2, unikJmlT2, unikShioT2, unikJmlB2, unikShioB2};
+  return {terbaru, pilihD2, pilihT2, pilihB2, hasil, unikJmlD2, unikShioD2, unikJmlT2, unikShioT2, unikJmlB2, unikShioB2};
 }
 
 async function ambilTeks(url){
@@ -222,30 +201,24 @@ function parseDataUndian(teks){
 function tampilPasaran(){
   const kode = document.getElementById('pilihPasaran').value;
   const dp = semuaData.filter(d=>d.pasaran === kode);
-  const hasil = susunHasil(dp);
+  const h = susunHasil(dp);
 
-  if(!hasil){
+  if(!h){
     document.getElementById('kotakTeks').textContent = "⚠️ Data kurang, butuh minimal 3 baris";
     return;
   }
 
-  let teks = `=== ${kode} — 3×800 3D TANPA DUPLIKAT ===\n`;
+  let teks = `=== ${kode} — 800 4D · 800 3D ===\n`;
   teks += `Rumus: A(2DD) + C(2DT) + 2DB = ACEF | 3D=CEF\n`;
-  teks += `Hasil Terakhir: ${hasil.terbaru.asli}\n`;
-  teks += `3D Teratas ≠ Tengah ≠ Terbawah — Semua BERBEDA ✅\n\n`;
+  teks += `Hasil Terakhir: ${h.terbaru.asli}\n`;
+  teks += `Total kombinasi murni: ${h.hasil.totalAsli}\n\n`;
 
-  teks += `-- 90 2DD --\n${hasil.pilihD2.join('*')}\nJML-LMH-2DD:   ${hasil.unikJmlD2.join('*')}\nSHIO-LMH-2DD:  ${hasil.unikShioD2.join(',')}\n\n`;
-  teks += `-- 90 2DT --\n${hasil.pilihT2.join('*')}\nJML-LMH-2DT:   ${hasil.unikJmlT2.join('*')}\nSHIO-LMH-2DT:  ${hasil.unikShioT2.join(',')}\n\n`;
-  teks += `-- 90 2DB --\n${hasil.pilihB2.join('*')}\nJML-LMH-2DB:   ${hasil.unikJmlB2.join('*')}\nSHIO-LMH-2DB:  ${hasil.unikShioB2.join(',')}\n\n`;
+  teks += `-- 90 2DD --\n${h.pilihD2.join('*')}\nJML-LMH-2DD:   ${h.unikJmlD2.join('*')}\nSHIO-LMH-2DD:  ${h.unikShioD2.join(',')}\n\n`;
+  teks += `-- 90 2DT --\n${h.pilihT2.join('*')}\nJML-LMH-2DT:   ${h.unikJmlT2.join('*')}\nSHIO-LMH-2DT:  ${h.unikShioT2.join(',')}\n\n`;
+  teks += `-- 90 2DB --\n${h.pilihB2.join('*')}\nJML-LMH-2DB:   ${h.unikJmlB2.join('*')}\nSHIO-LMH-2DB:  ${h.unikShioB2.join(',')}\n\n`;
 
-  teks += `-- TERATAS 800 34D --\n${hasil.bagi.teratas.join('*')}\n`;
-  teks += `-- TERATAS 800 3D --\n${hasil.bagi.teratas3D.join('*')}\n\n`;
-
-  teks += `-- TENGAH 800 34D --\n${hasil.bagi.tengah.join('*')}\n`;
-  teks += `-- TENGAH 800 3D --\n${hasil.bagi.tengah3D.join('*')}\n\n`;
-
-  teks += `-- TERBAWAH 800 34D --\n${hasil.bagi.terbawah.join('*')}\n`;
-  teks += `-- TERBAWAH 800 3D --\n${hasil.bagi.terbawah3D.join('*')}\n`;
+  teks += `-- 800 4D --\n${h.hasil.daftar4D.join('*')}\n\n`;
+  teks += `-- 800 3D --\n${h.hasil.daftar3D.join('*')}\n`;
 
   document.getElementById('kotakTeks').textContent = teks;
 }
