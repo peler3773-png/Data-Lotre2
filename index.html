@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>900 3D | Rumus CEF</title>
+<title>3D DEPAN & 3D BELAKANG</title>
 <style>
 :root{--hitam:#050505; --emas:#d4af37; --emas2:#f0c808; --gelap:#1a1a1a; --gelap2:#252525; --teks:#eae0c8}
 *{margin:0; padding:0; box-sizing:border-box; font-family:system-ui,sans-serif}
@@ -11,7 +11,7 @@ body{background:var(--hitam); color:var(--teks); min-height:100vh; padding:15px}
 .wrap{max-width:950px; margin:0 auto}
 h1{color:var(--emas); text-align:center; margin:12px 0; font-size:1.35rem}
 .card{background:var(--gelap); border:1px solid var(--emas); border-radius:10px; padding:15px; margin:12px 0}
-pre{background:#000; padding:15px; border-radius:8px; font-size:0.9rem; line-height:1.8; color:#fff; white-space:pre-wrap; word-break:break-all; max-height:900px; overflow-y:auto; margin:0}
+pre{background:#000; padding:15px; border-radius:8px; font-size:0.9rem; line-height:1.8; color:#fff; white-space:pre-wrap; word-break:break-all; max-height:700px; overflow-y:auto; margin:0}
 button{background:linear-gradient(135deg,var(--emas),var(--emas2)); color:#000; border:none; padding:9px 14px; border-radius:6px; font-weight:bold; cursor:pointer; margin:4px}
 button:hover{transform:scale(1.03)}
 select{background:var(--gelap2); color:var(--teks); border:1px solid var(--emas); padding:8px 12px; border-radius:6px; font-weight:bold; cursor:pointer; outline:none; margin:4px}
@@ -23,7 +23,7 @@ select:focus{border-color:var(--emas2); box-shadow:0 0 5px var(--emas)}
 </head>
 <body>
 <div class="wrap">
-<h1>🔮 900 3D — CEF</h1>
+<h1>🔮 3D DEPAN · 3D BELAKANG</h1>
 <div class="tombol-baris">
   <label>Pasaran:</label>
   <select id="pilihPasaran" onchange="tampilPasaran()">
@@ -43,7 +43,7 @@ select:focus{border-color:var(--emas2); box-shadow:0 0 5px var(--emas)}
 <div id="status" class="loading">⏳ Memuat data & menyusun angka...</div>
 <div id="konten" style="display:none">
   <div class="card">
-    <h3>📋 3D 900 LN</h3>
+    <h3>📋 Hasil</h3>
     <pre id="kotakTeks"></pre>
   </div>
 </div>
@@ -52,8 +52,7 @@ select:focus{border-color:var(--emas2); box-shadow:0 0 5px var(--emas)}
 const PENGATURAN_URL = "https://raw.githubusercontent.com/peler3773-png/Data-Lotre/main/pengaturan.json";
 const DATA_UNDIAN_URL = "https://raw.githubusercontent.com/peler3773-png/Data-Lotre/main/data_undian.txt";
 const MAKSIMAL_90 = 90;
-const TARGET_3D = 900;
-let dataShio = {};
+const TARGET = 900;
 let semuaData = [];
 
 function urai4Digit(angka4){
@@ -89,28 +88,40 @@ function acakDaftar(arr){
   return salin;
 }
 
-// === RUMUS: CEF = 3D ===
-// A(2DD[0]) + C(2DT[0]) + 2DB → 4D = ACEF → ambil CEF = 3D
-function buat900_3D(pilihD2, pilihT2, pilihB2){
-  const semua3D = [];
+// === 3D DEPAN: A + 2DT ===
+// 2DD=12→A=1 | 2DT=24→utuh=24 → 1+24=124
+function buat3dDepan(pilihD2, pilihT2){
+  const daftar = [];
   const sudah = new Set();
-
   for(const d2 of pilihD2){
-    const A = d2[0]; // digit pertama 2DD
+    const A = d2[0];
     for(const t2 of pilihT2){
-      const C = t2[0]; // digit pertama 2DT
-      for(const b2 of pilihB2){
-        // CEF = digit pertama 2DT + utuh 2DB
-        const CEF = C + b2;
-        if(!sudah.has(CEF)){
-          sudah.add(CEF);
-          semua3D.push(CEF);
-        }
+      const gabung = A + t2;
+      if(!sudah.has(gabung)){
+        sudah.add(gabung);
+        daftar.push(gabung);
       }
     }
   }
+  return acakDaftar(daftar).slice(0, TARGET);
+}
 
-  return acakDaftar(semua3D).slice(0, TARGET_3D);
+// === 3D BELAKANG: C + 2DB ===
+// 2DT=24→C=2 | 2DB=46→utuh=46 → 2+46=246
+function buat3dBelakang(pilihT2, pilihB2){
+  const daftar = [];
+  const sudah = new Set();
+  for(const t2 of pilihT2){
+    const C = t2[0];
+    for(const b2 of pilihB2){
+      const gabung = C + b2;
+      if(!sudah.has(gabung)){
+        sudah.add(gabung);
+        daftar.push(gabung);
+      }
+    }
+  }
+  return acakDaftar(daftar).slice(0, TARGET);
 }
 
 function susunHasil(dataPasaran){
@@ -127,20 +138,16 @@ function susunHasil(dataPasaran){
   const pilihT2 = urutPalingJarang(urutanT2, terbaru.t2, MAKSIMAL_90);
   const pilihB2 = urutPalingJarang(urutanB2, terbaru.b2, MAKSIMAL_90);
 
-  const daftar3D = buat900_3D(pilihD2, pilihT2, pilihB2);
+  const depan = buat3dDepan(pilihD2, pilihT2);
+  const belakang = buat3dBelakang(pilihT2, pilihB2);
 
-  return {terbaru, pilihD2, pilihT2, pilihB2, daftar3D};
+  return {terbaru, pilihD2, pilihT2, pilihB2, depan, belakang};
 }
 
 async function ambilTeks(url){
   const r = await fetch(url,{cache:'no-store'});
   if(!r.ok) throw new Error("Gagal ambil: "+url);
   return r.text();
-}
-async function ambilJSON(url){
-  const r = await fetch(url,{cache:'no-store'});
-  if(!r.ok) throw new Error("Gagal ambil JSON: "+url);
-  return r.json();
 }
 function parseDataUndian(teks){
   return teks.trim().split('\n').filter(b=>b.trim()).map(b=>{
@@ -162,15 +169,20 @@ function tampilPasaran(){
     return;
   }
 
-  let teks = `${kode} — 3D 900 LN\n`;
-  teks += `Rumus: CEF = C(2DT[0]) + 2DB\n`;
+  let teks = `${kode}\n`;
   teks += `Hasil Terakhir: ${h.terbaru.asli}\n\n`;
 
   teks += `-- 90 2DD --\n${h.pilihD2.join('*')}\n\n`;
   teks += `-- 90 2DT --\n${h.pilihT2.join('*')}\n\n`;
   teks += `-- 90 2DB --\n${h.pilihB2.join('*')}\n\n`;
 
-  teks += `-- 3D 900 --\n${h.daftar3D.join('*')}\n`;
+  teks += `-- 3D DEPAN 900 --\n`;
+  teks += `Rumus: A(2DD[0]) + 2DT = A CD\n`;
+  teks += h.depan.join('*') + `\n\n`;
+
+  teks += `-- 3D BELAKANG 900 --\n`;
+  teks += `Rumus: C(2DT[0]) + 2DB = C EF\n`;
+  teks += h.belakang.join('*') + `\n`;
 
   document.getElementById('kotakTeks').textContent = teks;
 }
@@ -179,8 +191,6 @@ async function mulai(){
     document.getElementById('status').style.display='block';
     document.getElementById('konten').style.display='none';
     document.getElementById('status').innerHTML='⏳ Memuat data...';
-    const pengaturan = await ambilJSON(PENGATURAN_URL);
-    dataShio = pengaturan.data_shio;
     semuaData = parseDataUndian(await ambilTeks(DATA_UNDIAN_URL));
     document.getElementById('terakhirMuat').textContent='Terakhir: '+new Date().toLocaleString('id-ID');
     document.getElementById('status').style.display='none';
