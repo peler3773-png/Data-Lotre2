@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>3D DEPAN & 3D BELAKANG</title>
+<title>3D DEPAN & 3D BELAKANG — Jumlah Asli</title>
 <style>
 :root{--hitam:#050505; --emas:#d4af37; --emas2:#f0c808; --gelap:#1a1a1a; --gelap2:#252525; --teks:#eae0c8}
 *{margin:0; padding:0; box-sizing:border-box; font-family:system-ui,sans-serif}
@@ -23,7 +23,7 @@ select:focus{border-color:var(--emas2); box-shadow:0 0 5px var(--emas)}
 </head>
 <body>
 <div class="wrap">
-<h1>🔮 3D DEPAN · 3D BELAKANG</h1>
+<h1>🔮 3D DEPAN · 3D BELAKANG — Jumlah Asli</h1>
 <div class="tombol-baris">
   <label>Pasaran:</label>
   <select id="pilihPasaran" onchange="tampilPasaran()">
@@ -52,7 +52,6 @@ select:focus{border-color:var(--emas2); box-shadow:0 0 5px var(--emas)}
 const PENGATURAN_URL = "https://raw.githubusercontent.com/peler3773-png/Data-Lotre/main/pengaturan.json";
 const DATA_UNDIAN_URL = "https://raw.githubusercontent.com/peler3773-png/Data-Lotre/main/data_undian.txt";
 const MAKSIMAL_90 = 90;
-const TARGET = 900;
 let semuaData = [];
 
 function urai4Digit(angka4){
@@ -88,8 +87,7 @@ function acakDaftar(arr){
   return salin;
 }
 
-// === 3D DEPAN: A + 2DT ===
-// 2DD=12→A=1 | 2DT=24→utuh=24 → 1+24=124
+// === 3D DEPAN: A + 2DT — Ambil SEMUA yang terbentuk ===
 function buat3dDepan(pilihD2, pilihT2){
   const daftar = [];
   const sudah = new Set();
@@ -103,11 +101,10 @@ function buat3dDepan(pilihD2, pilihT2){
       }
     }
   }
-  return acakDaftar(daftar).slice(0, TARGET);
+  return acakDaftar(daftar); // kembalikan SEMUA, tidak dipotong
 }
 
-// === 3D BELAKANG: C + 2DB ===
-// 2DT=24→C=2 | 2DB=46→utuh=46 → 2+46=246
+// === 3D BELAKANG: C + 2DB — Ambil SEMUA yang terbentuk ===
 function buat3dBelakang(pilihT2, pilihB2){
   const daftar = [];
   const sudah = new Set();
@@ -121,7 +118,7 @@ function buat3dBelakang(pilihT2, pilihB2){
       }
     }
   }
-  return acakDaftar(daftar).slice(0, TARGET);
+  return acakDaftar(daftar); // kembalikan SEMUA, tidak dipotong
 }
 
 function susunHasil(dataPasaran){
@@ -176,11 +173,11 @@ function tampilPasaran(){
   teks += `-- 90 2DT --\n${h.pilihT2.join('*')}\n\n`;
   teks += `-- 90 2DB --\n${h.pilihB2.join('*')}\n\n`;
 
-  teks += `-- 3D DEPAN 900 --\n`;
+  teks += `-- 3D DEPAN ${h.depan.length} LN --\n`;
   teks += `Rumus: A(2DD[0]) + 2DT = A CD\n`;
   teks += h.depan.join('*') + `\n\n`;
 
-  teks += `-- 3D BELAKANG 900 --\n`;
+  teks += `-- 3D BELAKANG ${h.belakang.length} LN --\n`;
   teks += `Rumus: C(2DT[0]) + 2DB = C EF\n`;
   teks += h.belakang.join('*') + `\n`;
 
