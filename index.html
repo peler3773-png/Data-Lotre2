@@ -5,189 +5,72 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Oto Pilot Kombinasi</title>
 <style>
-:root{--hitam:#000000; --emas:#d4af37; --emas2:#f0c808; --gelap:#121212; --gelap2:#1e1e1e; --gelap3:#2a2a2a; --teks:#f5e7c8}
+:root{--hitam:#000000; --emas:#d4af37; --emas2:#f0c808; --kuning:#ffd700; --gelap:#121212; --gelap2:#1e1e1e; --gelap3:#2a2a2a; --teks:#f5e7c8}
 *{margin:0; padding:0; box-sizing:border-box; font-family:system-ui,sans-serif}
 body{background:var(--hitam); color:var(--teks); min-height:100vh; padding:15px}
 .wrap{max-width:960px; margin:0 auto}
 h1{color:var(--emas); text-align:center; margin:12px 0; font-size:1.35rem}
-h2{color:var(--emas2); margin:20px 0 10px; font-size:1.1rem; border-bottom:1px solid var(--emas); padding-bottom:6px}
 .card{background:var(--gelap); border:2px solid var(--emas); border-radius:10px; padding:15px; margin:12px 0}
-
-/* === 2DD + 2DT + 2DB → 3 KOTAK SAMA LEBAR === */
-.grid-2d{
-  display:grid;
-  grid-template-columns:repeat(3, 1fr);
-  gap:15px;
-  margin:10px 0;
-}
-@media(max-width:768px){
-  .grid-2d{grid-template-columns:1fr}
-}
-
-/* === 3DD + 3DB → 2 KOTAK LEBAR === */
-.grid-3d{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:15px;
-  margin:10px 0;
-}
-@media(max-width:768px){
-  .grid-3d{grid-template-columns:1fr}
-}
-
+.grid-2d{display:grid; grid-template-columns:repeat(3, 1fr); gap:15px; margin:10px 0}
+.grid-3d{display:grid; grid-template-columns:repeat(2, 1fr); gap:15px; margin:10px 0}
+@media(max-width:768px){.grid-2d,.grid-3d{grid-template-columns:1fr}}
 .card-2d{background:var(--gelap3); border:2px solid var(--emas); border-radius:10px; padding:12px; min-width:0}
 .card-3d{background:var(--gelap3); border:2px solid var(--emas); border-radius:10px; padding:12px; min-width:0}
 .card-judul{text-align:center; color:var(--emas2); font-weight:bold; margin-bottom:10px}
-
-/* === 2DD/2DT/2DB — TURUN KE BAWAH OTOMATIS === */
 .card-kotak{
-  background:#000;
-  border:1px solid var(--emas);
-  border-radius:6px;
-  padding:12px;
-  min-height:180px;
-  max-height:220px;
-  overflow-y:auto;
-  overflow-x:hidden;
-  margin-bottom:10px;
-  font-family:monospace;
-  font-size:0.9rem;
-  line-height:1.8;
-  color:#fff;
-  white-space:normal;
-  word-break:break-all;
+  background:#000; border:1px solid var(--emas); border-radius:6px; padding:12px;
+  min-height:120px; max-height:180px; overflow-y:auto; overflow-x:hidden; margin-bottom:10px;
+  font-family:monospace; font-size:0.85rem; line-height:1.8; word-break:break-all; color:#fff;
 }
-
-/* === 3DD/3DB/4D — JUGA TURUN KE BAWAH === */
 .form-control{
-  width:100%;
-  padding:8px;
-  border:1px solid var(--emas);
-  border-radius:4px;
-  box-sizing:border-box;
-  resize:vertical;
-  background:#000;
-  color:#fff;
-  min-height:180px;
-  max-height:220px;
-  overflow-y:auto;
-  overflow-x:hidden;
-  white-space:normal;
-  word-break:break-all;
+  width:100%; padding:8px; border:1px solid var(--emas); border-radius:4px;
+  background:#000; color:#fff; min-height:180px; max-height:220px; overflow-y:auto;
 }
-
-.baris-salin{cursor:pointer; transition:background 0.2s; padding:2px 4px; border-radius:3px; display:block}
+.baris-salin{cursor:pointer; transition:background 0.2s; padding:2px 4px; border-radius:3px; display:inline-block; margin:1px}
 .baris-salin:hover{background:rgba(212,175,55,0.2)}
-.baris-salin.tersalin, .tombol-salin.tersalin{background:rgba(74,222,128,0.4); transition:background 0s}
+.baris-salin.tersalin, .tombol-salin.tersalin{background:rgba(74,222,128,0.4)}
+.belum-keluar-item{color:#ff4444; font-weight:bold}
+.satu-keluar-item{color:#ffffff; font-weight:bold}
+.sering-keluar-item{color:#ffd700; font-weight:bold}
+.pemisah{color:#666; user-select:none; pointer-events:none}
+.kosong{color:#888; font-style:italic; display:block; margin-top:8px}
+
 button{background:linear-gradient(135deg,var(--emas),var(--emas2)); color:#000; border:none; padding:9px 14px; border-radius:6px; font-weight:bold; cursor:pointer; margin:4px}
 button:hover{transform:scale(1.03)}
 select, input, textarea{background:var(--gelap2); color:var(--teks); border:1px solid var(--emas); padding:8px 12px; border-radius:6px; font-weight:bold; outline:none; margin:4px; font-family:monospace; font-size:0.9rem}
 select:focus, input:focus, textarea:focus{border-color:var(--emas2); box-shadow:0 0 5px var(--emas)}
 .loading{text-align:center; padding:25px; color:var(--emas)}
-
-/* === BARIS ATAS — RAPI SEJAJAR === */
-.baris-atas{
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  gap:12px;
-  flex-wrap:wrap;
-  background:var(--gelap);
-  border:2px solid var(--emas);
-  border-radius:10px;
-  padding:12px 15px;
-  margin:12px 0;
-}
-.baris-tombol{
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  gap:10px;
-  flex-wrap:wrap;
-  margin:8px 0;
-}
+.baris-atas{display:flex; align-items:center; justify-content:center; gap:12px; flex-wrap:wrap; background:var(--gelap); border:2px solid var(--emas); border-radius:10px; padding:12px 15px; margin:12px 0}
+.baris-tombol{display:flex; align-items:center; justify-content:center; gap:10px; flex-wrap:wrap; margin:8px 0}
 .info-kecil{font-size:0.8rem; opacity:0.7; margin-left:4px}
-.cepat{color:#4ade80; font-size:0.8rem; margin-left:6px}
 .tombol-segar{background:linear-gradient(135deg,#60a5fa,#3b82f6)}
-.tombol-segar:hover{transform:scale(1.05)}
 .btn-salin-hijau{background:linear-gradient(135deg,#28a745,#4ade80); color:#fff; display:block; width:100%; margin:0 auto; max-width:160px}
-.btn-salin-hijau:hover{color:#fff}
 .btn-success{background:linear-gradient(135deg,#28a745,#4ade80); color:#fff}
 .btn-danger{background:linear-gradient(135deg,#dc3545,#f87171); color:#fff}
-.m-t-sm{margin-top:15px}
 .text-success{color:#4ade80; font-size:1rem; font-weight:bold; display:block; margin:6px 0}
 .libur-indikator{color:#f87171; font-size:0.75rem; margin-top:2px}
-
-/* === RINGKASAN PASAR — DITAMBAH 2 DATA === */
-.ringkas{
-  background:var(--hitam);
-  border:2px solid var(--emas);
-  border-radius:12px;
-  padding:16px 20px;
-  margin:15px 0;
-  box-shadow:0 0 12px rgba(212,175,55,0.25);
-}
-.ringkas-judul{
-  color:var(--emas2);
-  font-size:1.15rem;
-  font-weight:bold;
-  margin-bottom:14px;
-  display:flex;
-  align-items:center;
-  gap:8px;
-}
-.ringkas-judul::before{
-  content:"";
-  display:inline-block;
-  width:24px;
-  height:16px;
-  background:linear-gradient(90deg,green 0%,green 33%,white 33%,white 66%,red 66%,red 100%);
-  border-radius:2px;
-}
-.ringkas-baris{
-  display:grid;
-  grid-template-columns:repeat(8, 1fr);
-  gap:10px;
-}
-.ringkas-kolom{
-  display:flex;
-  flex-direction:column;
-  gap:4px;
-}
-.ringkas-label{
-  font-size:0.7rem;
-  color:#999;
-  text-transform:uppercase;
-  letter-spacing:0.5px;
-}
-.ringkas-nilai{
-  background:var(--gelap2);
-  border:1px solid var(--emas);
-  border-radius:6px;
-  padding:8px 4px;
-  text-align:center;
-  font-weight:bold;
-  color:var(--emas2);
-  font-size:0.9rem;
-}
-@media(max-width:768px){
-  .ringkas-baris{grid-template-columns:repeat(2, 1fr); gap:8px}
-}
+.ringkas{background:var(--hitam); border:2px solid var(--emas); border-radius:12px; padding:16px 20px; margin:15px 0; box-shadow:0 0 12px rgba(212,175,55,0.25)}
+.ringkas-judul{color:var(--emas2); font-size:1.15rem; font-weight:bold; margin-bottom:14px; display:flex; align-items:center; gap:8px}
+.ringkas-baris{display:grid; grid-template-columns:repeat(8, 1fr); gap:10px}
+.ringkas-kolom{display:flex; flex-direction:column; gap:4px}
+.ringkas-label{font-size:0.7rem; color:#999; text-transform:uppercase}
+.ringkas-nilai{background:var(--gelap2); border:1px solid var(--emas); border-radius:6px; padding:8px 4px; text-align:center; font-weight:bold; color:var(--emas2); font-size:0.9rem}
+@media(max-width:768px){.ringkas-baris{grid-template-columns:repeat(2, 1fr)}}
+.belum-keluar .card-kotak{border-color:#4ade80; background:#0a1a0a}
+.belum-judul{color:#4ade80 !important}
+.sering-keluar .card-kotak{border-color:#ffd700; background:#1a1a00}
+.sering-judul{color:#ffd700 !important}
 </style>
 </head>
 <body>
 <div class="wrap">
 <h1>🔮 Oto Pilot Kombinasi</h1>
-
-<!-- === BARIS ATAS — RAPI TANPA TOMBOL HAPUS === -->
 <div class="baris-atas">
   <label>Jumlah 2D:</label>
   <input type="number" id="inputTarget" value="90" min="1" max="99" style="width:70px">
   <button onclick="terapkanAngka()">✅ Terapkan</button>
   <span class="info-kecil">Sekarang: <b id="nilaiSaatIni">90</b></span>
-  <span id="dariBuffer" class="cepat"></span>
 </div>
-
 <div class="baris-tombol">
   <label>Pasaran:</label>
   <select id="pilihPasaran" onchange="tampilPasaran()">
@@ -258,348 +141,243 @@ select:focus, input:focus, textarea:focus{border-color:var(--emas2); box-shadow:
 <option value="SCM">SOUTH CAROLINA MID (MINGGU LIBUR)</option>
   </select>
   <button onclick="mulai()">🔄 Muat Ulang Data</button>
-  <button class="tombol-segar" onclick="segarHalaman()">🔃 Reload Halaman</button>
+  <button class="tombol-segar" onclick="segarHalaman()">🔃 Reload</button>
   <span id="terakhirMuat" class="info-kecil">Terakhir: —</span>
 </div>
-
 <div id="status" class="loading">⏳ Memuat data & menyusun angka...</div>
 <div id="konten" style="display:none">
-  <!-- === RINGKASAN PASAR — DITAMBAH 2 DATA === -->
   <div class="ringkas">
-    <div class="ringkas-judul">📊 RINGKASAN PASAR TERPILIH</div>
+    <div class="ringkas-judul">📊 RINGKASAN</div>
     <div class="ringkas-baris">
-      <div class="ringkas-kolom">
-        <span class="ringkas-label">HARI</span>
-        <span class="ringkas-nilai" id="r-hari">—</span>
-      </div>
-      <div class="ringkas-kolom">
-        <span class="ringkas-label">TANGGAL</span>
-        <span class="ringkas-nilai" id="r-tgl">—</span>
-      </div>
-      <div class="ringkas-kolom">
-        <span class="ringkas-label">SHIO</span>
-        <span class="ringkas-nilai" id="r-shio">—</span>
-      </div>
-      <div class="ringkas-kolom">
-        <span class="ringkas-label">DATA 1</span>
-        <span class="ringkas-nilai" id="r-data1">—</span>
-      </div>
-      <div class="ringkas-kolom">
-        <span class="ringkas-label">DATA 2</span>
-        <span class="ringkas-nilai" id="r-data2">—</span>
-      </div>
-      <div class="ringkas-kolom">
-        <span class="ringkas-label">2DD</span>
-        <span class="ringkas-nilai" id="r-d2d">—</span>
-      </div>
-      <div class="ringkas-kolom">
-        <span class="ringkas-label">2DT</span>
-        <span class="ringkas-nilai" id="r-d2t">—</span>
-      </div>
-      <div class="ringkas-kolom">
-        <span class="ringkas-label">2DB</span>
-        <span class="ringkas-nilai" id="r-d2b">—</span>
-      </div>
+      <div class="ringkas-kolom"><span class="ringkas-label">HARI</span><span class="ringkas-nilai" id="r-hari">—</span></div>
+      <div class="ringkas-kolom"><span class="ringkas-label">TANGGAL</span><span class="ringkas-nilai" id="r-tgl">—</span></div>
+      <div class="ringkas-kolom"><span class="ringkas-label">SHIO</span><span class="ringkas-nilai" id="r-shio">—</span></div>
+      <div class="ringkas-kolom"><span class="ringkas-label">DATA 1</span><span class="ringkas-nilai" id="r-data1">—</span></div>
+      <div class="ringkas-kolom"><span class="ringkas-label">DATA 2</span><span class="ringkas-nilai" id="r-data2">—</span></div>
+      <div class="ringkas-kolom"><span class="ringkas-label">2DD</span><span class="ringkas-nilai" id="r-d2d">—</span></div>
+      <div class="ringkas-kolom"><span class="ringkas-label">2DT</span><span class="ringkas-nilai" id="r-d2t">—</span></div>
+      <div class="ringkas-kolom"><span class="ringkas-label">2DB</span><span class="ringkas-nilai" id="r-d2b">—</span></div>
     </div>
-    <div class="info-kecil" style="margin-top:10px">
-      Jam Tutup: <b id="jamTutup">—</b>
-      <span id="infoLibur" class="libur-indikator"></span>
-    </div>
+    <div class="info-kecil" style="margin-top:10px">Jam Tutup: <b id="jamTutup">—</b> <span id="infoLibur" class="libur-indikator"></span></div>
   </div>
 
-  <!-- === BLOK DATA 2D === -->
   <div class="card">
-    <div class="card-judul">📋 Data 2D <span style="font-size:0.8rem; color:#999">(klik baris untuk menyalin)</span></div>
+    <div class="card-judul">📋 Data 2D</div>
     <div class="grid-2d">
-      <div class="card-2d">
-        <div class="card-judul">2DD</div>
-        <div class="card-kotak" id="kotak2DD"></div>
-        <button type="button" class="btn-salin-hijau tombol-salin" onclick="salinElemen(this, 'kotak2DD')">📋 Salin 2DD</button>
-      </div>
-      <div class="card-2d">
-        <div class="card-judul">2DT</div>
-        <div class="card-kotak" id="kotak2DT"></div>
-        <button type="button" class="btn-salin-hijau tombol-salin" onclick="salinElemen(this, 'kotak2DT')">📋 Salin 2DT</button>
-      </div>
-      <div class="card-2d">
-        <div class="card-judul">2DB</div>
-        <div class="card-kotak" id="kotak2DB"></div>
-        <button type="button" class="btn-salin-hijau tombol-salin" onclick="salinElemen(this, 'kotak2DB')">📋 Salin 2DB</button>
-      </div>
+      <div class="card-2d"><div class="card-judul">2DD</div><div class="card-kotak" id="kotak2DD"></div>
+        <button class="btn-salin-hijau" onclick="salinElemen(this, 'kotak2DD')">📋 Salin 2DD</button></div>
+      <div class="card-2d"><div class="card-judul">2DT</div><div class="card-kotak" id="kotak2DT"></div>
+        <button class="btn-salin-hijau" onclick="salinElemen(this, 'kotak2DT')">📋 Salin 2DT</button></div>
+      <div class="card-2d"><div class="card-judul">2DB</div><div class="card-kotak" id="kotak2DB"></div>
+        <button class="btn-salin-hijau" onclick="salinElemen(this, 'kotak2DB')">📋 Salin 2DB</button></div>
     </div>
   </div>
 
-  <!-- === BLOK 3DD & 3DB === -->
+  <div class="card belum-keluar">
+    <div class="card-judul belum-judul">🟢 Angka Belum Pernah Keluar</div>
+    <div style="font-size:0.75rem; color:#aaa; text-align:center; margin-bottom:8px">
+      <span style="color:#ff4444; font-weight:bold">■ Merah = Belum Pernah Keluar</span> &nbsp;
+      <span style="color:#fff; font-weight:bold">■ Putih = Keluar 1 Kali</span>
+    </div>
+    <div class="grid-2d">
+      <div class="card-2d belum-keluar"><div class="card-judul belum-judul">Belum di 2DD</div>
+        <div class="card-kotak" id="kotakBelumDD"></div>
+        <button class="btn-salin-hijau" onclick="salinElemen(this, 'kotakBelumDD')">📋 Salin</button></div>
+      <div class="card-2d belum-keluar"><div class="card-judul belum-judul">Belum di 2DT</div>
+        <div class="card-kotak" id="kotakBelumDT"></div>
+        <button class="btn-salin-hijau" onclick="salinElemen(this, 'kotakBelumDT')">📋 Salin</button></div>
+      <div class="card-2d belum-keluar"><div class="card-judul belum-judul">Belum di 2DB</div>
+        <div class="card-kotak" id="kotakBelumDB"></div>
+        <button class="btn-salin-hijau" onclick="salinElemen(this, 'kotakBelumDB')">📋 Salin</button></div>
+    </div>
+  </div>
+
+  <div class="card sering-keluar">
+    <div class="card-judul sering-judul">🟡 10 Angka Paling Sering Keluar</div>
+    <div style="font-size:0.75rem; color:#aaa; text-align:center; margin-bottom:8px">
+      <span style="color:#ffd700; font-weight:bold">■ Kuning = Paling Sering Keluar</span>
+    </div>
+    <div class="grid-2d">
+      <div class="card-2d sering-keluar"><div class="card-judul sering-judul">Terbanyak 2DD</div>
+        <div class="card-kotak" id="kotakSeringDD"></div>
+        <button class="btn-salin-hijau" onclick="salinElemen(this, 'kotakSeringDD')">📋 Salin</button></div>
+      <div class="card-2d sering-keluar"><div class="card-judul sering-judul">Terbanyak 2DT</div>
+        <div class="card-kotak" id="kotakSeringDT"></div>
+        <button class="btn-salin-hijau" onclick="salinElemen(this, 'kotakSeringDT')">📋 Salin</button></div>
+      <div class="card-2d sering-keluar"><div class="card-judul sering-judul">Terbanyak 2DB</div>
+        <div class="card-kotak" id="kotakSeringDB"></div>
+        <button class="btn-salin-hijau" onclick="salinElemen(this, 'kotakSeringDB')">📋 Salin</button></div>
+    </div>
+  </div>
+
   <div class="card">
     <div class="card-judul">🧩 Hasil: 3DD & 3DB</div>
     <div class="grid-3d">
-      <div class="card-3d">
-        <div class="card-judul">3DD<br><small>2DD + 2DT Otomatis</small></div>
-        <textarea class="form-control" id="databet2" readonly placeholder="Otomatis terisi saat pilih pasaran"></textarea>
-        <button type="button" class="btn-salin-hijau tombol-salin" onclick="salinElemen(this, 'databet2')">📋 Salin 3DD</button>
-      </div>
-      <div class="card-3d">
-        <div class="card-judul">3DB<br><small>2DT + 2DB Otomatis</small></div>
-        <textarea class="form-control" id="databet3" readonly placeholder="Otomatis terisi saat pilih pasaran"></textarea>
-        <button type="button" class="btn-salin-hijau tombol-salin" onclick="salinElemen(this, 'databet3')">📋 Salin 3DB</button>
-      </div>
+      <div class="card-3d"><div class="card-judul">3DD</div>
+        <textarea class="form-control" id="databet2" readonly></textarea>
+        <button class="btn-salin-hijau" onclick="salinElemen(this, 'databet2')">📋 Salin 3DD</button></div>
+      <div class="card-3d"><div class="card-judul">3DB</div>
+        <textarea class="form-control" id="databet3" readonly></textarea>
+        <button class="btn-salin-hijau" onclick="salinElemen(this, 'databet3')">📋 Salin 3DB</button></div>
     </div>
   </div>
 
-  <!-- === BLOK 4D LN === -->
   <div class="card">
-    <div class="card-judul">🔗 Gabung 3DD + 3DB → 4D LN</div>
+    <div class="card-judul">🔗 Gabung → 4D LN</div>
     <div style="text-align:center; margin-bottom:10px">
-      <button type="button" class="btn-success" onclick="prosesGenerate()">✅ Generate 4D LN</button>
-      <button type="button" class="btn-danger" onclick="hapus()">🗑️ Reset</button>
+      <button class="btn-success" onclick="prosesGenerate()">✅ Generate 4D LN</button>
+      <button class="btn-danger" onclick="hapus()">🗑️ Reset</button>
     </div>
     <p class="text-success" style="text-align:center">Hasil : <strong id="jumlahLN">0 LN</strong></p>
-    <textarea class="form-control" id="output" rows="6" readonly placeholder="Klik Generate untuk melihat hasil..."></textarea>
-    <button type="button" class="btn-salin-hijau tombol-salin" onclick="salinElemen(this, 'output')">📋 Salin Hasil 4D</button>
+    <textarea class="form-control" id="output" rows="6" readonly></textarea>
+    <button class="btn-salin-hijau" onclick="salinElemen(this, 'output')">📋 Salin 4D</button>
   </div>
 </div>
 </div>
-
 <script>
-// === DATA REFERENSI ===
-const NAMA_PANJANG = {
-  "GM5": "GERMANY PLUS 5", "IDM": "INDIANA MID", "KYM": "KENTUCKY MID",
-  "TMD": "TENNESSEE MID", "FLM": "FLORIDA MID", "RIM": "RHODE ISLAND MID",
-  "TXD": "TEXAS DAY", "INM": "ILLINOIS MID", "MSM": "MISSOURI MID",
-  "MCSM": "MASSACHUSETTS MID", "DCM": "WASHINGTON DC MID", "DWD": "DELAWARE DAY",
-  "VD": "VIRGINIA DAY", "NYM": "NEW YORK MID", "WCS": "WISCONSIN DAY",
-  "NCD": "NORTH CAROLINA DAY", "MQ03": "MOROCCO QUATRO 03:00", "OG1": "OREGON JAM 03:00",
-  "WV": "WEST VIRGINIA", "GGE": "GEORGIA EVENING", "OG2": "OREGON JAM 06:00",
-  "TXE": "TEXAS EVENING", "TE": "TENNESSEE EVENING", "MGE": "MICHIGAN EVENING",
-  "OHE": "OHIO EVENING", "DCE": "WASHINGTON DC EVENING", "DWN": "DELAWARE NIGHT",
-  "MLE": "MARYLAND EVENING", "MCSE": "MASSACHUSETTS EVENING", "CLF": "CALIFORNIA",
-  "FLE": "FLORIDA EVENING", "MSE": "MISSOURI EVENING", "OG3": "OREGON JAM 09:00",
-  "INE": "ILLINOIS EVENING", "NYE": "NEW YORK EVENING", "IDE": "INDIANA EVENING",
-  "NJE": "NEW JERSEY EVENING", "VN": "VIRGINIA NIGHT", "KYE": "KENTUCKY EVENING",
-  "TXN": "TEXAS NIGHT", "NCE": "NORTH CAROLINA EVENING", "GGN": "GEORGIA NIGHT",
-  "OG4": "OREGON JAM 12:00", "BE": "BULLSEYE", "TTM1": "TOTO MACAU JAM 13:10",
-  "SD": "SYDNEY", "SDLT": "SYDNEY LOTTO", "TTM2": "TOTO MACAU JAM 16:00",
-  "SGP": "SINGAPORE", "MQ18": "MOROCCO QUATRO 18:00", "TTM3": "TOTO MACAU JAM 19:00",
-  "PS": "PHILIPPINES", "MQ21": "MOROCCO QUATRO 21:00", "TM": "TENNESSEE MORNING",
-  "TXM": "TEXAS MORNING", "TTM4": "TOTO MACAU JAM 22:10", "HK": "HONGKONG",
-  "HKLT": "HONGKONG LOTTO", "MLM": "MARYLAND MID", "GGM": "GEORGIA MID",
-  "OHM": "OHIO MID", "MGM": "MICHIGAN MID", "MQ00": "MOROCCO QUATRO 00:00",
-  "NJM": "NEW JERSEY MID", "SCM": "SOUTH CAROLINA MID"
-};
-const JADWAL_TUTUP = {
-  "GM5":"00:00","IDM":"00:05","KYM":"00:05","TMD":"00:05","FLM":"00:15","RIM":"00:15","TXD":"00:15","INM":"00:25",
-  "MSM":"00:30","MCSM":"00:35","DCM":"00:40","DWD":"00:40","VD":"00:40","NYM":"01:10","WCS":"01:14","NCD":"01:45",
-  "MQ03":"02:45","OG1":"02:45","WV":"05:40","GGE":"05:45","OG2":"05:45","TXE":"05:45","TE":"06:05","MGE":"06:15",
-  "OHE":"06:15","DCE":"06:40","DWN":"06:40","MLE":"06:40","MCSE":"07:37","CLF":"08:15","FLE":"08:30","MSE":"08:40",
-  "OG3":"08:45","INE":"09:05","NYE":"09:10","IDE":"09:35","NJE":"09:40","VN":"09:40","KYE":"09:45","TXN":"09:55",
-  "NCE":"10:05","GGN":"10:20","OG4":"11:45","BE":"12:55","TTM1":"13:00","SD":"13:30","SDLT":"13:30","TTM2":"16:00",
-  "SGP":"17:30","MQ18":"17:45","TTM3":"19:00","PS":"19:50","MQ21":"20:45","TM":"21:05","TXM":"21:45","TTM4":"22:00",
-  "HK":"22:30","HKLT":"22:45","MLM":"23:10","GGM":"23:15","OHM":"23:15","MGM":"23:45","MQ00":"23:45","NJM":"23:45","SCM":"23:59"
-};
-const JADWAL_LIBUR = {
-  "PS": ["Minggu"], "SGP": ["Selasa", "Jumat"], "TXM": ["Minggu"],
-  "TM": ["Minggu"], "TMD": ["Senin"], "TXD": ["Senin"],
-  "TXE": ["Senin"], "TXN": ["Senin"], "WV": ["Senin"], "SCM": ["Minggu"]
-};
 const DATA_UNDIAN_URL = "https://raw.githubusercontent.com/peler3773-png/Data-Lotre/main/data_undian.txt";
 const PENYIMPANAN_KUNCI = "hasil_3d_permanen";
 let TARGET_2D = 90;
 let semuaData = [];
-let hasilSaatIni = null;
 
-// === DAFTAR SHIO ===
-const SHIO = [
-  {awal:0, nama:'Tikus'}, {awal:1, nama:'Kerbau'}, {awal:2, nama:'Harimau'}, {awal:3, nama:'Kelinci'},
-  {awal:4, nama:'Naga'}, {awal:5, nama:'Ular'}, {awal:6, nama:'Kuda'}, {awal:7, nama:'Kambing'},
-  {awal:8, nama:'Monyet'}, {awal:9, nama:'Ayam'}, {awal:10, nama:'Anjing'}, {awal:11, nama:'Babi'}
-];
-function dapatkanShio(angka4){
-  const nomor = parseInt(angka4, 10);
-  const idx = nomor % 12;
-  return SHIO[idx].nama;
-}
-function dapatkanHari(tanggalStr){
-  const tgl = new Date(tanggalStr + 'T00:00:00');
-  const hari = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
-  return hari[tgl.getDay()];
-}
-function cekLibur(kodePasaran, hariNama){
-  const daftar = JADWAL_LIBUR[kodePasaran];
-  if(!daftar) return '';
-  return daftar.includes(hariNama) ? '⚠️ HARI LIBUR' : '';
-}
-function segarHalaman(){ location.reload(true); }
+const JADWAL_TUTUP = {"OG3":"08:45","SD":"13:30","SGP":"17:30","HK":"22:30","TTM1":"13:00","TTM2":"16:00","TTM3":"19:00","TTM4":"22:00"};
+const JADWAL_LIBUR = {"SGP":["Selasa","Jumat"],"PS":["Minggu"]};
+const SHIO = [{awal:0,nama:'Tikus'},{awal:1,nama:'Kerbau'},{awal:2,nama:'Harimau'},{awal:3,nama:'Kelinci'},{awal:4,nama:'Naga'},{awal:5,nama:'Ular'},{awal:6,nama:'Kuda'},{awal:7,nama:'Kambing'},{awal:8,nama:'Monyet'},{awal:9,nama:'Ayam'},{awal:10,nama:'Anjing'},{awal:11,nama:'Babi'}];
 
-// === SALIN SENYAP ===
-async function salinTeks(teks, el){
-  if(!teks) return;
-  try{
-    await navigator.clipboard.writeText(teks);
-    if(el){ el.classList.add('tersalin'); setTimeout(()=>el.classList.remove('tersalin'), 700); }
-  }catch(e){
-    const ta = document.createElement('textarea');
-    ta.value = teks;
-    document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
-    if(el){ el.classList.add('tersalin'); setTimeout(()=>el.classList.remove('tersalin'), 700); }
-  }
+function dapatkanShio(a){const p=parseInt(a,10);return SHIO[p%12].nama}
+function dapatkanHari(t){const d=new Date(t+'T00:00:00');return ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'][d.getDay()]}
+function cekLibur(k,h){const d=JADWAL_LIBUR[k];return d&&d.includes(h)?'⚠️ HARI LIBUR':''}
+function segarHalaman(){location.reload(true)}
+
+async function salinTeks(teks,el){
+  if(!teks)return;
+  try{await navigator.clipboard.writeText(teks)}catch(e){const ta=document.createElement('textarea');ta.value=teks;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta)}
+  if(el){el.classList.add('tersalin');setTimeout(()=>el.classList.remove('tersalin'),700)}
 }
-function salinElemen(btn, idEl){
-  const el = document.getElementById(idEl);
-  if(!el) return;
-  let teks = el.textContent || el.value || '';
-  salinTeks(teks.trim(), btn);
+function salinElemen(btn,idEl){
+  const el=document.getElementById(idEl);if(!el)return;
+  if(el.tagName==='TEXTAREA'){salinTeks(el.value.trim(),btn);return}
+  const d=[];el.querySelectorAll('.baris-salin').forEach(x=>d.push(x.textContent.trim()));
+  salinTeks(d.join(' * '),btn);
 }
 
-let buffer = {};
-function muatDariPenyimpanan(){ try{ const s = localStorage.getItem(PENYIMPANAN_KUNCI); if(s) buffer = JSON.parse(s); }catch(e){ buffer = {}; } }
-function simpanKePenyimpanan(){ try{ localStorage.setItem(PENYIMPANAN_KUNCI, JSON.stringify(buffer)); }catch(e){} }
-// TOMBOL BERSIHKAN DIHAPUS → fungsi tidak dipakai lagi
+function urai4Digit(a){const s=String(a).padStart(4,'0');return {asli:s,d2:s.slice(0,2),t2:s.slice(1,3),b2:s.slice(2,4)}}
+function ambilSesuai(daftar,hindari){
+  const hit={};daftar.forEach(x=>{hit[x]=(hit[x]||0)+1});
+  const res=[],sudah=new Set();
+  Object.entries(hit).filter(([n])=>n!==hindari).sort((a,b)=>a[1]-b[1]).forEach(([n])=>{if(res.length>=TARGET_2D)return;if(!sudah.has(n)){res.push(n);sudah.add(n)}});
+  for(let i=0;i<=99;i++){if(res.length>=TARGET_2D)break;const n=String(i).padStart(2,'0');if(n===hindari||sudah.has(n))continue;res.push(n);sudah.add(n)}
+  while(res.length>TARGET_2D)res.pop();
+  return res;
+}
+function hitungKemunculan(daftar){
+  const h={},b=[],s=[];daftar.forEach(n=>{h[n]=(h[n]||0)+1});
+  for(let i=0;i<=99;i++){const n=String(i).padStart(2,'0');const j=h[n]||0;if(j===0)b.push(n);else if(j===1)s.push(n)}
+  return {belum:b,sekali:s, hitung:h};
+}
+function ambilTerbanyak(hitung, jumlah=10){
+  return Object.entries(hitung)
+    .sort((a,b)=>b[1]-a[1])
+    .slice(0, jumlah)
+    .map(x=>x[0]);
+}
+function susunWarnaItem(arrBelum,arrSekali){
+  const semua=[];
+  if(arrBelum.length)arrBelum.forEach(n=>semua.push({teks:n,kelas:'belum-keluar-item'}));
+  if(arrSekali.length)arrSekali.forEach(n=>semua.push({teks:n,kelas:'satu-keluar-item'}));
+  if(!semua.length)return '<span class="kosong">✅ Semua angka sudah muncul</span>';
+  return semua.map(x=>`<span class="baris-salin ${x.kelas}" onclick="salinTeks('${x.teks}',this)">${x.teks}</span>`).join('<span class="pemisah"> * </span>');
+}
+function susunWarnaSering(arrSering){
+  if(!arrSering.length)return '<span class="kosong">Belum ada data</span>';
+  return arrSering.map(n=>`<span class="baris-salin sering-keluar-item" onclick="salinTeks('${n}',this)">${n}</span>`).join('<span class="pemisah"> * </span>');
+}
+function urutkan(a){return [...a].sort((x,y)=>x.localeCompare(y))}
+function buat3DD(d,t){const s=new Set();d.forEach(d1=>{t.forEach(t1=>{if(d1[1]===t1[0])s.add(d1[0]+t1)})});return urutkan([...s])}
+function buat3DB(t,b){const s=new Set();t.forEach(t1=>{b.forEach(b1=>{if(t1[1]===b1[0])s.add(t1[0]+b1)})});return urutkan([...s])}
 
-function urai4Digit(angka4){
-  const s = String(angka4).padStart(4,'0');
-  return {asli:s, d2:s.slice(0,2), t2:s.slice(1,3), b2:s.slice(2,4)};
-}
-function ambilSesuai(daftar, hindari){
-  const hitung = {};
-  daftar.forEach(x => { hitung[x] = (hitung[x] || 0) + 1; });
-  const hasil = [], sudah = new Set();
-  const urut = Object.entries(hitung).filter(([n]) => n !== hindari).sort((a,b) => a[1] - b[1]);
-  for(const [nomor] of urut){ if(hasil.length >= TARGET_2D) break; if(!sudah.has(nomor)){ hasil.push(nomor); sudah.add(nomor); } }
-  for(let i=0; i<=99; i++){ if(hasil.length >= TARGET_2D) break; const n=String(i).padStart(2,'0'); if(n===hindari||sudah.has(n))continue; hasil.push(n); sudah.add(n); }
-  while(hasil.length > TARGET_2D) hasil.pop();
-  return hasil;
-}
-function urutkanAngka(arr){ return [...arr].sort((a,b) => a.localeCompare(b)); }
-
-// 2DD + 2DT → 3DD
-function buat3DD(ddList, dtList){
-  const set = new Set();
-  for(const dd of ddList){
-    const dDepan = dd[0], dTengah = dd[1];
-    for(const dt of dtList){
-      if(dTengah === dt[0]) set.add(dDepan + dt);
-    }
-  }
-  return urutkanAngka([...set]);
-}
-// 2DT + 2DB → 3DB
-function buat3DB(dtList, dbList){
-  const set = new Set();
-  for(const dt of dtList){
-    const dDepan = dt[0], dTengah = dt[1];
-    for(const db of dbList){
-      if(dTengah === db[0]) set.add(dDepan + db);
-    }
-  }
-  return urutkanAngka([...set]);
-}
-
-function proses(dataPasaran){
-  if(dataPasaran.length < 3) return null;
-  const d2=[], t2=[], b2=[];
-  for(const r of dataPasaran){ const u=urai4Digit(r.angka); d2.push(u.d2); t2.push(u.t2); b2.push(u.b2); }
-  const terakhir = urai4Digit(dataPasaran[0].angka);
-  const kedua = dataPasaran[1] ? urai4Digit(dataPasaran[1].angka) : null;
-  const ketiga = dataPasaran[2] ? urai4Digit(dataPasaran[2].angka) : null;
-  const hariNama = dapatkanHari(dataPasaran[0].tanggal);
-  const dd = ambilSesuai(d2,terakhir.d2);
-  const dt = ambilSesuai(t2,terakhir.t2);
-  const db = ambilSesuai(b2,terakhir.b2);
+function proses(data){
+  if(data.length<3)return null;
+  const d2=[],t2=[],b2=[];
+  data.forEach(r=>{const u=urai4Digit(r.angka);d2.push(u.d2);t2.push(u.t2);b2.push(u.b2)});
+  const ter=urai4Digit(data[0].angka),ked=data[1]?urai4Digit(data[1].angka):null,ket=data[2]?urai4Digit(data[2].angka):null;
+  const hari= dapatkanHari(data[0].tanggal);
+  const dd=ambilSesuai(d2,ter.d2),dt=ambilSesuai(t2,ter.t2),db=ambilSesuai(b2,ter.b2);
+  const {belum:bDD,sekali:sDD,hitung:hitungDD}=hitungKemunculan(d2);
+  const {belum:bDT,sekali:sDT,hitung:hitungDT}=hitungKemunculan(t2);
+  const {belum:bDB,sekali:sDB,hitung:hitungDB}=hitungKemunculan(b2);
+  const seringDD=ambilTerbanyak(hitungDD,10);
+  const seringDT=ambilTerbanyak(hitungDT,10);
+  const seringDB=ambilTerbanyak(hitungDB,10);
   return {
-    terakhir,
-    data1: kedua ? kedua.asli : '—',
-    data2: ketiga ? ketiga.asli : '—',
-    hari: hariNama,
-    tanggal: dataPasaran[0].tanggal,
-    shio: dapatkanShio(terakhir.asli),
-    jamTutup: JADWAL_TUTUP[dataPasaran[0].pasaran] || '—',
-    infoLibur: cekLibur(dataPasaran[0].pasaran, hariNama),
-    dd, dt, db,
-    depan: buat3DD(dd, dt),
-    belakang: buat3DB(dt, db)
+    terakhir:ter,data1:ked?ked.asli:'—',data2:ket?ket.asli:'—',hari,
+    tanggal:data[0].tanggal,shio:dapatkanShio(ter.asli),
+    jamTutup:JADWAL_TUTUP[data[0].pasaran]||'—',infoLibur:cekLibur(data[0].pasaran,hari),
+    dd,dt,db,
+    belumDD:bDD,sekaliDD:sDD,belumDT:bDT,sekaliDT:sDT,belumDB:bDB,sekaliDB:sDB,
+    seringDD,seringDT,seringDB,
+    depan:buat3DD(dd,dt),belakang:buat3DB(dt,db)
   };
 }
-
-async function muat(url){ const r=await fetch(url,{cache:'no-store'}); if(!r.ok)throw new Error("Gagal ambil data"); return r.text(); }
-function parse(teks){ return teks.trim().split('\n').filter(b=>b.trim()).map(b=>{const p=b.split('|'); return {pasaran:p[0].trim(), tanggal:p[1].trim(), angka:String(p[2]).padStart(4,'0')}}).sort((a,b)=>a.tanggal.localeCompare(b.tanggal)).reverse(); }
-
+async function muat(url){const r=await fetch(url,{cache:'no-store'});if(!r.ok)throw new Error("Gagal ambil data");return r.text()}
+function parse(t){return t.trim().split('\n').filter(b=>b.trim()).map(b=>{const p=b.split('|');return {pasaran:p[0].trim(),tanggal:p[1].trim(),angka:String(p[2]).padStart(4,'0')}}).sort((a,b)=>a.tanggal.localeCompare(b.tanggal)).reverse()}
 function tampilPasaran(){
-  const kode = document.getElementById('pilihPasaran').value;
-  const kunci = `${kode}-${TARGET_2D}`;
-  const data = semuaData.filter(x => x.pasaran === kode);
-  if(buffer[kunci]){ hasilSaatIni = buffer[kunci]; tampilHasil(buffer[kunci]); document.getElementById('dariBuffer').textContent = '⚡ Tersimpan'; return; }
-  document.getElementById('dariBuffer').textContent = '';
-  const h = proses(data); if(!h){ document.getElementById('kotak2DD').innerHTML = '<span class="baris-salin">⚠️ Data kurang, minimal 3 baris</span>'; return; }
-  buffer[kunci] = h; hasilSaatIni = h; simpanKePenyimpanan(); tampilHasil(h);
+  const k=document.getElementById('pilihPasaran').value;
+  const h=proses(semuaData.filter(x=>x.pasaran===k));
+  if(!h){document.getElementById('kotak2DD').innerHTML='⚠️ Data kurang';return}
+  tampilHasil(h);
 }
-
 function tampilHasil(h){
-  // === ISI RINGKASAN TERBARU ===
-  document.getElementById('r-hari').textContent = h.hari;
-  document.getElementById('r-tgl').textContent = h.tanggal;
-  document.getElementById('r-shio').textContent = h.shio;
-  document.getElementById('r-data1').textContent = h.data1;
-  document.getElementById('r-data2').textContent = h.data2;
-  document.getElementById('r-d2d').textContent = h.terakhir.d2;
-  document.getElementById('r-d2t').textContent = h.terakhir.t2;
-  document.getElementById('r-d2b').textContent = h.terakhir.b2;
-  document.getElementById('jamTutup').textContent = h.jamTutup;
-  document.getElementById('infoLibur').textContent = h.infoLibur;
-  
-  // Data 2D
-  document.getElementById('kotak2DD').innerHTML = `<span class="baris-salin" onclick="salinTeks(this.textContent,this)">${h.dd.join('*')}</span>`;
-  document.getElementById('kotak2DT').innerHTML = `<span class="baris-salin" onclick="salinTeks(this.textContent,this)">${h.dt.join('*')}</span>`;
-  document.getElementById('kotak2DB').innerHTML = `<span class="baris-salin" onclick="salinTeks(this.textContent,this)">${h.db.join('*')}</span>`;
-  
-  // Isi otomatis ke kotak 3D
-  document.getElementById('databet2').value = h.depan.join('*');
-  document.getElementById('databet3').value = h.belakang.join('*');
-}
+  document.getElementById('r-hari').textContent=h.hari;
+  document.getElementById('r-tgl').textContent=h.tanggal;
+  document.getElementById('r-shio').textContent=h.shio;
+  document.getElementById('r-data1').textContent=h.data1;
+  document.getElementById('r-data2').textContent=h.data2;
+  document.getElementById('r-d2d').textContent=h.terakhir.d2;
+  document.getElementById('r-d2t').textContent=h.terakhir.t2;
+  document.getElementById('r-d2b').textContent=h.terakhir.b2;
+  document.getElementById('jamTutup').textContent=h.jamTutup;
+  document.getElementById('infoLibur').textContent=h.infoLibur;
 
-function terapkanAngka(){
-  const n = Math.max(1, Math.min(99, parseInt(document.getElementById('inputTarget').value)||90));
-  TARGET_2D = n; document.getElementById('inputTarget').value = n; document.getElementById('nilaiSaatIni').textContent = n; tampilPasaran();
-}
+  document.getElementById('kotak2DD').innerHTML=`<span class="baris-salin">${h.dd.join(' * ')}</span>`;
+  document.getElementById('kotak2DT').innerHTML=`<span class="baris-salin">${h.dt.join(' * ')}</span>`;
+  document.getElementById('kotak2DB').innerHTML=`<span class="baris-salin">${h.db.join(' * ')}</span>`;
 
+  document.getElementById('kotakBelumDD').innerHTML=susunWarnaItem(h.belumDD,h.sekaliDD);
+  document.getElementById('kotakBelumDT').innerHTML=susunWarnaItem(h.belumDT,h.sekaliDT);
+  document.getElementById('kotakBelumDB').innerHTML=susunWarnaItem(h.belumDB,h.sekaliDB);
+
+  document.getElementById('kotakSeringDD').innerHTML=susunWarnaSering(h.seringDD);
+  document.getElementById('kotakSeringDT').innerHTML=susunWarnaSering(h.seringDT);
+  document.getElementById('kotakSeringDB').innerHTML=susunWarnaSering(h.seringDB);
+
+  document.getElementById('databet2').value=h.depan.join(' * ');
+  document.getElementById('databet3').value=h.belakang.join(' * ');
+}
+function terapkanAngka(){const n=Math.max(1,Math.min(99,parseInt(document.getElementById('inputTarget').value)||90));TARGET_2D=n;document.getElementById('inputTarget').value=n;document.getElementById('nilaiSaatIni').textContent=n;tampilPasaran()}
 async function mulai(){
   try{
-    buffer = {}; localStorage.removeItem(PENYIMPANAN_KUNCI);
-    document.getElementById('status').style.display='block'; document.getElementById('konten').style.display='none';
-    document.getElementById('status').innerHTML = '⏳ Memuat data...';
-    semuaData = parse(await muat(DATA_UNDIAN_URL));
-    document.getElementById('terakhirMuat').textContent = 'Terakhir: ' + new Date().toLocaleString('id-ID');
-    document.getElementById('status').style.display='none'; document.getElementById('konten').style.display='block';
+    localStorage.removeItem(PENYIMPANAN_KUNCI);
+    document.getElementById('status').style.display='block';document.getElementById('konten').style.display='none';
+    semuaData=parse(await muat(DATA_UNDIAN_URL));
+    document.getElementById('terakhirMuat').textContent='Terakhir: '+new Date().toLocaleString('id-ID');
+    document.getElementById('status').style.display='none';document.getElementById('konten').style.display='block';
     tampilPasaran();
-  }catch(err){ document.getElementById('status').innerHTML = `<span class="baris-salin">❌ ${err.message}</span>`; }
+  }catch(e){document.getElementById('status').innerHTML='❌ '+e.message}
 }
-
-// === GABUNG 3DD+3DB → 4D ===
-function hapus(){
-  document.getElementById('output').value=''; document.getElementById('jumlahLN').textContent='0 LN';
-}
+function hapus(){document.getElementById('output').value='';document.getElementById('jumlahLN').textContent='0 LN'}
 function prosesGenerate(){
-  const d2 = document.getElementById('databet2').value.trim();
-  const d3 = document.getElementById('databet3').value.trim();
-  if(!d2||!d3){ document.getElementById('output').value='⚠️ 3DD atau 3DB kosong'; document.getElementById('jumlahLN').textContent='0 LN'; return; }
-  const arr2 = d2.split('*').map(s=>s.trim()).filter(s=>s.length===3);
-  const arr3 = d3.split('*').map(s=>s.trim()).filter(s=>s.length===3);
-  let hasil4D = [];
-  arr2.forEach(v2 => {
-    const cocokDariV2 = v2.substring(1,3);
-    arr3.forEach(v3 => {
-      const cocokDariV3 = v3.substring(0,2);
-      if(cocokDariV2 === cocokDariV3){
-        hasil4D.push(v2 + v3.substring(2,3));
-      }
-    });
-  });
-  hasil4D = [...new Set(hasil4D)].sort((a,b)=>a.localeCompare(b));
-  document.getElementById('output').value = hasil4D.join('*');
-  document.getElementById('jumlahLN').textContent = hasil4D.length + ' LN';
+  const d2=document.getElementById('databet2').value.trim(),d3=document.getElementById('databet3').value.trim();
+  if(!d2||!d3){document.getElementById('output').value='⚠️ 3DD/3DB kosong';return}
+  const a2=d2.split('*').map(s=>s.trim()).filter(s=>s.length===3);
+  const a3=d3.split('*').map(s=>s.trim()).filter(s=>s.length===3);
+  let res=[];
+  a2.forEach(v2=>{const m2=v2.substring(1,3);a3.forEach(v3=>{if(m2===v3.substring(0,2))res.push(v2+v3.substring(2,3))})});
+  res=[...new Set(res)].sort((x,y)=>x.localeCompare(y));
+  document.getElementById('output').value=res.join(' * ');
+  document.getElementById('jumlahLN').textContent=res.length+' LN';
 }
-
-muatDariPenyimpanan();
-document.addEventListener('DOMContentLoaded', mulai);
+document.addEventListener('DOMContentLoaded',mulai);
 </script>
 </body>
 </html>
