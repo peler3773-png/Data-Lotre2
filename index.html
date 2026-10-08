@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>250 Prediksi | Yang Jarang Muncul</title>
+<title>250–729 Prediksi | Yang Jarang Muncul</title>
 <style>
 :root{--hitam:#050505; --emas:#d4af37; --emas2:#f0c808; --gelap:#1a1a1a; --gelap2:#252525; --teks:#eae0c8; --hijau:#4f4; --merah:#f66}
 *{margin:0; padding:0; box-sizing:border-box; font-family:system-ui,sans-serif}
@@ -23,7 +23,7 @@ select:focus{border-color:var(--emas2); box-shadow:0 0 5px var(--emas)}
 </head>
 <body>
 <div class="wrap">
-<h1>🔮 250 PREDIKSI — Yang Jarang Muncul</h1>
+<h1>🔮 729 PREDIKSI — Yang Jarang Muncul</h1>
 <div class="tombol-baris">
   <label>Pasaran:</label>
   <select id="pilihPasaran" onchange="tampilPasaran()">
@@ -52,7 +52,7 @@ select:focus{border-color:var(--emas2); box-shadow:0 0 5px var(--emas)}
 const PENGATURAN_URL = "https://raw.githubusercontent.com/peler3773-png/Data-Lotre/main/pengaturan.json";
 const DATA_UNDIAN_URL = "https://raw.githubusercontent.com/peler3773-png/Data-Lotre/main/data_undian.txt";
 const MAKSIMAL_90 = 90;
-const MAKSIMAL_4D = 729;   // UBAH: dari 100 → 250
+const MAKSIMAL_4D = 729;   // DIUBAH: 250 → 729
 const MAKSIMAL_10000 = 10000;
 const MAKSIMAL_JML = 2;
 const MAKSIMAL_SHIO = 2;
@@ -107,7 +107,7 @@ function acakDaftar(arr){
   }
   return salin;
 }
-function buat250Acak(arrD2, arrT2, arrB2){
+function buat729Acak(arrD2, arrT2, arrB2){
   const acakD2 = acakDaftar(arrD2);
   const acakT2 = acakDaftar(arrT2);
   const acakB2 = acakDaftar(arrB2);
@@ -116,10 +116,12 @@ function buat250Acak(arrD2, arrT2, arrB2){
   const daftar3D = [];
   const sudah4D = new Set();
   
-  for(let i=0; daftar4D.length < MAKSIMAL_4D && i < MAKSIMAL_10000; i++){
-    const d2 = acakD2[i % acakD2.length];
-    const t2 = acakT2[Math.floor(Math.random() * acakT2.length)];
-    const b2 = acakB2[Math.floor(Math.random() * acakB2.length)];
+  // Putar sampai terisi tepat MAKSIMAL_4D
+  let idxD=0, idxT=0, idxB=0;
+  while(daftar4D.length < MAKSIMAL_4D){
+    const d2 = acakD2[idxD % acakD2.length];
+    const t2 = acakT2[idxT % acakT2.length];
+    const b2 = acakB2[idxB % acakB2.length];
     
     const a4 = d2 + t2.slice(-1) + b2.slice(-1);
     if(!sudah4D.has(a4)){
@@ -127,6 +129,9 @@ function buat250Acak(arrD2, arrT2, arrB2){
       daftar4D.push(a4);
       daftar3D.push(a4.slice(1));
     }
+    idxD++; idxT++; idxB++;
+    // Jika putaran terlalu panjang, hentikan
+    if(idxD > MAKSIMAL_10000) break;
   }
   return {daftar4D, daftar3D};
 }
@@ -146,7 +151,7 @@ function susunHasil(dataPasaran){
   const pilihT2 = urutPalingJarang(urutanT2, terbaru.t2, MAKSIMAL_90);
   const pilihB2 = urutPalingJarang(urutanB2, terbaru.b2, MAKSIMAL_90);
   
-  const {daftar4D, daftar3D} = buat250Acak(pilihD2, pilihT2, pilihB2);
+  const {daftar4D, daftar3D} = buat729Acak(pilihD2, pilihT2, pilihB2);
   
   const hitungJmlD2 = {};
   pilihD2.forEach(a=>{ const j=jumlahSatuDigit(a); hitungJmlD2[j]=(hitungJmlD2[j]||0)+1; });
@@ -204,7 +209,7 @@ function tampilPasaran(){
     return;
   }
   
-  let teks = `=== ${kode} — 250 PREDIKSI ===\n`;
+  let teks = `=== ${kode} — 729 PREDIKSI ===\n`;
   teks += `Hasil Terakhir: ${hasil.terbaru.asli}\n\n`;
   
   teks += `-- 90 2DD --\n`;
@@ -222,10 +227,10 @@ function tampilPasaran(){
   teks += `JML-LMH-2DB:   ${hasil.unikJmlB2.join('*')}\n`;
   teks += `SHIO-LMH-2DB:  ${hasil.unikShioB2.join(',')}\n\n`;
   
-  teks += `-- 250 4D --\n`;
+  teks += `-- 729 4D --\n`;
   teks += `${hasil.daftar4D.join('*')}\n\n`;
   
-  teks += `-- 250 3D --\n`;
+  teks += `-- 729 3D --\n`;
   teks += `${hasil.daftar3D.join('*')}\n`;
   
   document.getElementById('kotakTeks').textContent = teks;
